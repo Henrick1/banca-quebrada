@@ -73,4 +73,4 @@ Depois de instalado, o jogo procura versões novas sozinho ao abrir, baixa em se
 
 O Windows pode mostrar o aviso "O Windows protegeu o computador" porque o executável não é assinado. Clique em **Mais informações** e depois em **Executar assim mesmo**.
 
-Cada push na `main` que mexe no jogo gera os `.exe` de novo e atualiza o Release da versão do `package.json`. Para abrir um Release novo, aumente o campo `version`.
+Para publicar uma versão nova, aumente o campo `version` do `package.json`, envie para a `main` e rode o workflow **Instalador Windows** em Actions (botão *Run workflow*). Ele monta os `.exe` e cria o Release dessa versão.

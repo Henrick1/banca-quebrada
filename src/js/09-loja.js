@@ -247,7 +247,7 @@ function texturaTapete(cor,w,h,franja){
   const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
   const base=new THREE.Color(cor),hsl={};base.getHSL(hsl);
   const tom=(dl,ds=0)=>`hsl(${hsl.h*360},${Math.min(100,(hsl.s+ds)*100)}%,${Math.max(0,Math.min(100,(hsl.l+dl)*100))}%)`;
-  const ouro='#d9ad55',ouroE='#8a6424',ouroC='#f4d68a';
+  const ouro='#d9ad55',ouroE='#8a6424';
   x.strokeStyle='#e8d6a6';x.lineCap='round';
   for(const lado of[0,1]){
     const x0=lado?W-F:0;
@@ -264,26 +264,9 @@ function texturaTapete(cor,w,h,franja){
   for(let yy=0;yy<H;yy++)for(let xx=0;xx<rw;xx++){const i=(yy*rw+xx)*4,n=((xx+yy)%4<2?6:-6)+(Math.random()-.5)*14;dd[i]+=n;dd[i+1]+=n;dd[i+2]+=n}
   x.putImageData(img,rx,0);
   const g=x.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,Math.max(rw,H)*.75);g.addColorStop(0,'rgba(255,235,200,.08)');g.addColorStop(1,'rgba(0,0,0,.28)');x.fillStyle=g;x.fillRect(rx,0,rw,H);
-  const m=H*.07,b=H*.05;
-  x.fillStyle=tom(-.12);x.fillRect(rx+m,m,rw-m*2,H-m*2);
-  x.fillStyle=tom(.02,.05);x.fillRect(rx+m+b,m+b,rw-(m+b)*2,H-(m+b)*2);
-  const moldura=(ins,lw,cc)=>{x.strokeStyle=cc;x.lineWidth=lw;x.strokeRect(rx+ins,ins,rw-ins*2,H-ins*2)};
-  moldura(m*.55,3,ouroE);moldura(m*.55,1.6,ouro);
-  moldura(m,4,ouroE);moldura(m,2.4,ouroC);
-  moldura(m+b,3,ouroE);moldura(m+b,1.8,ouro);
-  x.fillStyle=ouro;
-  const passo=H*.11;
-  for(let t=rx+m+passo/2;t<rx+rw-m;t+=passo){for(const yy of[m+b/2,H-m-b/2]){x.beginPath();x.moveTo(t,yy-b*.32);x.lineTo(t+b*.32,yy);x.lineTo(t,yy+b*.32);x.lineTo(t-b*.32,yy);x.closePath();x.fill()}}
-  for(let t=m+passo/2;t<H-m;t+=passo){for(const xx of[rx+m+b/2,rx+rw-m-b/2]){x.beginPath();x.moveTo(xx,t-b*.32);x.lineTo(xx+b*.32,t);x.lineTo(xx,t+b*.32);x.lineTo(xx-b*.32,t);x.closePath();x.fill()}}
-  const canto=(cx,cy)=>{x.save();x.translate(cx,cy);x.fillStyle=ouroC;x.strokeStyle=ouroE;x.lineWidth=2;
-    for(let k=0;k<4;k++){x.rotate(Math.PI/2);x.beginPath();x.ellipse(0,-b*.55,b*.22,b*.5,0,0,Math.PI*2);x.fill();x.stroke()}
-    x.beginPath();x.arc(0,0,b*.26,0,Math.PI*2);x.fillStyle=ouroE;x.fill();x.restore()};
-  const ci=m+b/2;canto(rx+ci,ci);canto(rx+rw-ci,ci);canto(rx+ci,H-ci);canto(rx+rw-ci,H-ci);
-  x.globalAlpha=.22;x.strokeStyle=ouroC;x.lineWidth=2;
-  const cx=W/2,cy=H/2,r=Math.min(rw,H)*.28;
-  x.beginPath();x.moveTo(cx,cy-r);x.lineTo(cx+r*1.6,cy);x.lineTo(cx,cy+r);x.lineTo(cx-r*1.6,cy);x.closePath();x.stroke();
-  x.beginPath();x.moveTo(cx,cy-r*.6);x.lineTo(cx+r,cy);x.lineTo(cx,cy+r*.6);x.lineTo(cx-r,cy);x.closePath();x.stroke();
-  x.globalAlpha=1;
+  const m=H*.07;
+  x.strokeStyle=ouroE;x.lineWidth=5;x.strokeRect(rx+m,m,rw-m*2,H-m*2);
+  x.strokeStyle=ouro;x.lineWidth=2.6;x.strokeRect(rx+m,m,rw-m*2,H-m*2);
   const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;return tex;
 }
 function criarSecaoLoja(d){

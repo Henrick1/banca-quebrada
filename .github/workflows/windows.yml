@@ -1,9 +1,6 @@
 name: Instalador Windows
 
 on:
-  push:
-    branches: [main]
-    paths: ['src/**', 'electron/**', 'build.mjs', 'package.json', '.github/workflows/windows.yml']
   workflow_dispatch:
 
 permissions:
