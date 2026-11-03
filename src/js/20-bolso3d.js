@@ -52,15 +52,23 @@ function modeloCons(k){
     add(new THREE.TorusGeometry(.12,.035,8,20),M.ferroEsc,0,.47,0);
     g.rotation.y=.3;
   }else if(k==='maoLeve'){
-    const perfil=[[0,0],[.2,.02],[.3,.1],[.33,.22],[.3,.34],[.2,.42],[.11,.47],[.1,.5],[.15,.58],[.18,.62]].map(([x,y])=>new THREE.Vector2(x,y));
-    add(new THREE.LatheGeometry(perfil,22),M.couro,0,0,0);
-    add(new THREE.TorusGeometry(.105,.022,8,20),M.costura,0,.49,0,H,0,0);
-    add(new THREE.CylinderGeometry(.012,.012,.32,6),M.costura,.12,.42,.06,0,0,-.5);
-    add(new THREE.CylinderGeometry(.012,.012,.28,6),M.costura,.08,.4,.12,.4,0,-.25);
-    add(new THREE.SphereGeometry(.03,8,6),M.latao,.2,.29,.06);
-    add(new THREE.SphereGeometry(.03,8,6),M.latao,.12,.28,.17);
-    const piv=new THREE.Group();[...g.children].forEach(m=>piv.add(m));piv.position.set(.05,.3,0);piv.rotation.z=-1.35;g.add(piv);
-    g.rotation.set(0,-.5,0);g.scale.setScalar(.95);
+    const perfil=[[0,0],[.16,.01],[.26,.06],[.31,.15],[.3,.26],[.24,.35],[.14,.42],[.1,.45],[.12,.49],[.18,.54],[.21,.57],[.2,.58]].map(([x,y])=>new THREE.Vector2(x,y));
+    const geo=new THREE.LatheGeometry(perfil,40),pa=geo.attributes.position;
+    for(let i=0;i<pa.count;i++){const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i),a=Math.atan2(z,x);let f=1+.05*Math.sin(a*5);if(y>.46)f*=1+.22*Math.sin(a*9)*Math.min(1,(y-.46)/.08);pa.setXYZ(i,x*f,y,z*f*.86)}
+    geo.computeVertexNormals();
+    const fig=new THREE.Group();
+    const sm=(geo2,mat,x=0,y=0,z=0,rx=0,ry=0,rz=0)=>{const m=new THREE.Mesh(geo2,mat);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);m.castShadow=true;fig.add(m);return m};
+    sm(geo,new THREE.MeshStandardMaterial({color:lin('#8a5a30'),roughness:.88,side:THREE.DoubleSide}));
+    sm(new THREE.TorusGeometry(.11,.022,8,24),M.costura,0,.45,0,H,0,0);
+    sm(new THREE.CylinderGeometry(.014,.014,.26,6),M.costura,.15,.34,.08,.2,0,-.35);
+    sm(new THREE.CylinderGeometry(.014,.014,.22,6),M.costura,.09,.33,.15,.5,0,-.15);
+    sm(new THREE.SphereGeometry(.032,8,6),M.latao,.2,.22,.1);
+    sm(new THREE.SphereGeometry(.032,8,6),M.latao,.12,.23,.24);
+    const osso=new THREE.MeshStandardMaterial({color:lin('#efe6cf'),roughness:.45});
+    sm(new THREE.BoxGeometry(.12,.12,.12),osso,-.03,.55,.01,.4,.6,.2);
+    sm(new THREE.BoxGeometry(.1,.1,.1),M.latao,.06,.53,-.04,.2,1.1,.5);
+    fig.rotation.x=-.45;fig.position.set(.03,.02,.12);g.add(fig);
+    g.rotation.y=-.3;g.scale.setScalar(1.05);
   }
   return g;
 }
