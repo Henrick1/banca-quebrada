@@ -59,3 +59,14 @@ Opções úteis: `--des`, `--n`, `--vida`, `--pressDiv`, `--calorDiv`, `--calorM
 ## Arquivo de save
 
 Na versão instalada (Electron), o progresso fica em `Documentos/Banca Quebrada/save.json`, com uma cópia de segurança em `save.json.bak`. Para levar o progresso para outro PC, basta copiar esse arquivo. Na versão de navegador, o progresso continua no armazenamento local do navegador.
+
+## Instalar no Windows
+
+Baixe o `.exe` mais recente em **Releases** no GitHub:
+
+- `BancaQuebrada-Instalador-x.y.z.exe`: instala e cria atalhos na área de trabalho e no menu Iniciar.
+- `BancaQuebrada-Portatil-x.y.z.exe`: roda direto, sem instalar.
+
+O Windows pode mostrar o aviso "O Windows protegeu o computador" porque o executável não é assinado. Clique em **Mais informações** e depois em **Executar assim mesmo**.
+
+Para gerar uma versão nova, crie uma tag `v*` (por exemplo `git tag v0.1.1 && git push --tags`). O GitHub Actions monta os dois `.exe` e anexa ao Release.

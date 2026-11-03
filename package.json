@@ -9,11 +9,13 @@
     "dev": "node build.mjs --watch",
     "start": "node build.mjs && electron .",
     "sim": "node tools/simulador.mjs",
-    "dist:win": "node build.mjs && electron-builder --win portable"
+    "dist:win": "node build.mjs && electron-builder --win nsis portable --publish never"
   },
   "devDependencies": {
     "electron": "^33.2.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "three": "0.128.0",
+    "cannon": "0.6.2"
   },
   "build": {
     "appId": "com.bancaquebrada.jogo",
@@ -21,7 +23,26 @@
     "files": [
       "dist/index.html",
       "electron/**"
-    ]
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Banca Quebrada",
+      "artifactName": "BancaQuebrada-Instalador-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "BancaQuebrada-Portatil-${version}.${ext}"
+    }
   },
   "keywords": [
     "roguelike",
