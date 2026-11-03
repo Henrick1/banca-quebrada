@@ -1,6 +1,6 @@
 {
   "name": "banca-quebrada",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "private": true,
   "description": "Banca Quebrada: roguelike de dados 3D numa taverna (Three.js + cannon.js)",
   "main": "electron/main.cjs",

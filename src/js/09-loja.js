@@ -242,8 +242,53 @@ function sincronizarLoja3D(){
   for(const [id,g] of LJ.mapa)if(!vivos.has(id)&&!g.userData.fora){g.userData.fora=true;g.userData.t0=LJ.t}
   LJ.iniciado=true;
 }
+function texturaTapete(cor,w,h,franja){
+  const px=140,W=Math.round((w+franja*2)*px),H=Math.round(h*px),F=Math.round(franja*px);
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const base=new THREE.Color(cor),hsl={};base.getHSL(hsl);
+  const tom=(dl,ds=0)=>`hsl(${hsl.h*360},${Math.min(100,(hsl.s+ds)*100)}%,${Math.max(0,Math.min(100,(hsl.l+dl)*100))}%)`;
+  const ouro='#d9ad55',ouroE='#8a6424',ouroC='#f4d68a';
+  x.strokeStyle='#e8d6a6';x.lineCap='round';
+  for(const lado of[0,1]){
+    const x0=lado?W-F:0;
+    for(let y=10;y<H-8;y+=7){
+      const len=F*(.78+Math.random()*.22);x.lineWidth=2.6;x.globalAlpha=.85+Math.random()*.15;
+      x.strokeStyle=Math.random()<.5?'#e3cf9c':'#cdb27a';
+      x.beginPath();if(lado){x.moveTo(x0,y);x.lineTo(x0+len,y+(Math.random()-.5)*4)}else{x.moveTo(F,y);x.lineTo(F-len,y+(Math.random()-.5)*4)}x.stroke();
+    }
+  }
+  x.globalAlpha=1;
+  const rx=F,rw=W-F*2;
+  x.fillStyle=tom(0,.05);x.fillRect(rx,0,rw,H);
+  const img=x.getImageData(rx,0,rw,H),dd=img.data;
+  for(let yy=0;yy<H;yy++)for(let xx=0;xx<rw;xx++){const i=(yy*rw+xx)*4,n=((xx+yy)%4<2?6:-6)+(Math.random()-.5)*14;dd[i]+=n;dd[i+1]+=n;dd[i+2]+=n}
+  x.putImageData(img,rx,0);
+  const g=x.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,Math.max(rw,H)*.75);g.addColorStop(0,'rgba(255,235,200,.08)');g.addColorStop(1,'rgba(0,0,0,.28)');x.fillStyle=g;x.fillRect(rx,0,rw,H);
+  const m=H*.07,b=H*.05;
+  x.fillStyle=tom(-.12);x.fillRect(rx+m,m,rw-m*2,H-m*2);
+  x.fillStyle=tom(.02,.05);x.fillRect(rx+m+b,m+b,rw-(m+b)*2,H-(m+b)*2);
+  const moldura=(ins,lw,cc)=>{x.strokeStyle=cc;x.lineWidth=lw;x.strokeRect(rx+ins,ins,rw-ins*2,H-ins*2)};
+  moldura(m*.55,3,ouroE);moldura(m*.55,1.6,ouro);
+  moldura(m,4,ouroE);moldura(m,2.4,ouroC);
+  moldura(m+b,3,ouroE);moldura(m+b,1.8,ouro);
+  x.fillStyle=ouro;
+  const passo=H*.11;
+  for(let t=rx+m+passo/2;t<rx+rw-m;t+=passo){for(const yy of[m+b/2,H-m-b/2]){x.beginPath();x.moveTo(t,yy-b*.32);x.lineTo(t+b*.32,yy);x.lineTo(t,yy+b*.32);x.lineTo(t-b*.32,yy);x.closePath();x.fill()}}
+  for(let t=m+passo/2;t<H-m;t+=passo){for(const xx of[rx+m+b/2,rx+rw-m-b/2]){x.beginPath();x.moveTo(xx,t-b*.32);x.lineTo(xx+b*.32,t);x.lineTo(xx,t+b*.32);x.lineTo(xx-b*.32,t);x.closePath();x.fill()}}
+  const canto=(cx,cy)=>{x.save();x.translate(cx,cy);x.fillStyle=ouroC;x.strokeStyle=ouroE;x.lineWidth=2;
+    for(let k=0;k<4;k++){x.rotate(Math.PI/2);x.beginPath();x.ellipse(0,-b*.55,b*.22,b*.5,0,0,Math.PI*2);x.fill();x.stroke()}
+    x.beginPath();x.arc(0,0,b*.26,0,Math.PI*2);x.fillStyle=ouroE;x.fill();x.restore()};
+  const ci=m+b/2;canto(rx+ci,ci);canto(rx+rw-ci,ci);canto(rx+ci,H-ci);canto(rx+rw-ci,H-ci);
+  x.globalAlpha=.22;x.strokeStyle=ouroC;x.lineWidth=2;
+  const cx=W/2,cy=H/2,r=Math.min(rw,H)*.28;
+  x.beginPath();x.moveTo(cx,cy-r);x.lineTo(cx+r*1.6,cy);x.lineTo(cx,cy+r);x.lineTo(cx-r*1.6,cy);x.closePath();x.stroke();
+  x.beginPath();x.moveTo(cx,cy-r*.6);x.lineTo(cx+r,cy);x.lineTo(cx,cy+r*.6);x.lineTo(cx-r,cy);x.closePath();x.stroke();
+  x.globalAlpha=1;
+  const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;return tex;
+}
 function criarSecaoLoja(d){
-  const pano=new THREE.Mesh(new THREE.PlaneGeometry(d.w+.2,2.55),new THREE.MeshStandardMaterial({color:lin(d.cor),roughness:.95}));
+  const tw=d.w+.2,td=2.55,franja=.22;
+  const pano=new THREE.Mesh(new THREE.PlaneGeometry(tw+franja*2,td),new THREE.MeshStandardMaterial({map:texturaTapete(d.cor,tw,td,franja),transparent:true,alphaTest:.4,roughness:.92}));
   pano.rotation.x=-Math.PI/2;pano.position.set(d.cx,.006,d.z+.12);pano.receiveShadow=true;LJ.sc.add(pano);LJ.deco.push(pano);
   const c=document.createElement('canvas');c.width=512;c.height=96;const x=c.getContext('2d');
   const g=x.createLinearGradient(0,0,512,96);g.addColorStop(0,'#a77a2e');g.addColorStop(.5,'#e6c06a');g.addColorStop(1,'#a77a2e');
