@@ -157,7 +157,7 @@ function novaLuta(){
     if(n.tipo==='chefe'&&!S.ini.tracos.includes('armadura'))S.ini.tracos.push('armadura');
   }
   S.ini.base0=S.ini.base;S.serie=0;S.escudoProx=0;
-  if(S.proxLuta&&n.tipo!=='chefe'){const P=S.proxLuta;S.proxLuta=null;
+  if(S.proxLuta){const P=S.proxLuta;S.proxLuta=null;
     if(P.vida){S.ini.max=S.ini.hp=Math.round(S.ini.max*P.vida);setTimeout(()=>banner('A carta da Torre: a casa chega cansada','bom'),900)}
     if(P.extra){const mais=EXTRAS_ELITE.filter(x=>!S.ini.tracos.includes(x));if(mais.length){S.ini.tracos.push(pick(mais));setTimeout(()=>banner('Você foi seguido: a casa ganhou um traço','mau'),900)}}}
   if((elite||n.tipo==='chefe')&&temItem('velaNegra')){S.ini.max=S.ini.hp=Math.round(S.ini.max*Math.pow(.85,qtdItem('velaNegra')));setTimeout(()=>dispararItem('velaNegra','−15% de vida'),900)}
