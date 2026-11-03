@@ -50,7 +50,6 @@ $('overlay').addEventListener('click',e=>{
   if(!ob||ob.disabled)return;
   const o=todasOfertas().find(x=>x.id===+ob.dataset.o);
   if(L.sel===o){L.sel=null;renderLoja();return}
-  if(o.kind==='bau'){SOM.compra();concluirOferta(o);setTimeout(abrirBau,reduzir?0:250);return}
   if(o.kind==='cons'){S.cons=S.cons||[];S.cons.push(o.chave);SOM.compra();SOM.batida(7,true);concluirOferta(o);return}
   if(o.kind==='item'){ganharItem(o.chave);SOM.compra();SOM.item();L.flash={item:o.chave};concluirOferta(o);return}
   if(o.kind==='dado'){const nd=novoDado(o.tipo);S.dados.push(nd);L.flash={die:nd.id};SOM.compra();setTimeout(()=>SOM.batida(6,DIE[o.tipo].metal),120);concluirOferta(o)}

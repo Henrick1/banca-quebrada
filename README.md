@@ -42,7 +42,6 @@ src/js/                 código do jogo, na ordem dos números
   19-consumiveis.js     bolso de consumíveis: martelo, tônico, faca e outros itens de uso único
   20-bolso3d.js         bolso em 3D: os consumíveis deitados num tapete de couro
   21-clima.js           clima da taverna (fumaça e luz conforme a tensão) e golpes em chamas
-  22-bau.js             baú do contrabandista: compra na loja e abertura com prêmios
 tools/simulador.mjs     simulador de balanceamento
 electron/main.cjs       janela do Electron
 ```

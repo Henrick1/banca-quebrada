@@ -55,7 +55,7 @@ function carregarPartida(){
   uid=Math.max(uid,d.uid||0)+1;
   RNG.ativo=d.rng!=null;if(RNG.ativo)RNG.s=d.rng;
   if(d.onde==='luta'&&S.no)novaLuta();
-  else if(d.onde==='loja'&&d.loja){S.loja=d.loja;S.fase='loja';S.retomar=renderLoja;renderLoja()}
+  else if(d.onde==='loja'&&d.loja){S.loja=d.loja;S.loja.cons=(S.loja.cons||[]).filter(o=>o.kind!=='bau');S.fase='loja';S.retomar=renderLoja;renderLoja()}
   else if(d.onde==='evento'&&d.evento){const ev=d.evento==='descanso'?DESCANSO:EVENTOS.find(e=>e.id===d.evento);if(ev)telaEvento(ev);else telaMapa()}
   else telaMapa();
   hud();
@@ -99,7 +99,6 @@ function abrirTela(html){const o=$('overlay');o.innerHTML=html;o.hidden=false;o.
 function telaInicial(){
   const b=BUILDS[PERFIL.build]||BUILDS.apostador,r=RESERVAS[PERFIL.reserva]||RESERVAS.d6,kit=b.montar(),ativa=podeContinuar(),viva=runAtiva();
   const des=Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0);
-  const nb=Object.values(BUILDS).filter(x=>liberado(x.req)).length;
   const vistos=PERFIL.vistos.itens.length+PERFIL.vistos.encantos.length,tot=Object.keys(ITENS).length+encantosAtivos().length;
   abrirTela(`<div class="menu">
     <div class="menu-esq">
@@ -108,8 +107,7 @@ function telaInicial(){
       <nav class="menu-nav">
         ${ativa?`<button class="menu-item principal" data-acao="continuar"><b>Continuar</b><small>${viva?`Andar ${(S.linha||0)+1} · ${S.fase==='mapa'?'no mapa':S.fase==='loja'?'na loja':S.fase==='evento'?'num evento':S.ini?S.ini.nome:''}`:resumoSalvo()}</small></button>
         <button class="menu-item" data-acao="nova"><b>Nova partida</b><small>abandona a atual</small></button>`
-        :`<button class="menu-item principal" data-acao="nova"><b>Jogar</b><small>Bolsa ${b.nome}${des?' · '+DESAFIOS[des].nome:''}</small></button>`}
-        <button class="menu-item" data-acao="builds"><b>Bolsa inicial</b><small>${nb} de ${Object.keys(BUILDS).length} liberadas</small></button>
+        :`<button class="menu-item principal" data-acao="nova"><b>Jogar</b>${des?`<small>${DESAFIOS[des].nome}</small>`:''}</button>`}
         <button class="menu-item" data-acao="colecao"><b>Coleção</b><small>${vistos} de ${tot} · ${PERFIL.conquistas.length} conquistas</small></button>
         <button class="menu-item" data-acao="regras"><b>Como jogar</b><small>regras e combos</small></button>
         <button class="menu-item" data-acao="historico"><b>Histórico</b><small>${(PERFIL.historico||[]).length?`${(PERFIL.historico||[]).length} partidas registradas`:'nenhuma partida ainda'}</small></button>
