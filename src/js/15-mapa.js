@@ -79,9 +79,8 @@ function telaMapa(){
     </div>
     <aside class="mapa-lado">
       <div><p class="menu-sobre">Andar ${andar} de ${R} · Bolsa ${S.build||'Apostador'}</p><h2>${ATOS[atoDe(Math.max(0,andar-1)+(M.atual&&M.nos[M.atual].tipo==='chefe'&&!M.nos[M.atual].final?1:0))].nome}</h2></div>
-      <div class="status"><span class="pilula"><small>Vida</small>${S.hp}/${S.max}</span><span class="pilula ouro">${MOEDA}${S.ouro}</span><span class="pilula"><small>Dados</small>${S.dados.length}</span><span class="pilula"><small>Relíquias</small>${new Set(S.itens).size}</span></div>
+      <div class="status"><span class="pilula"><small>Vida</small>${S.hp}/${S.max}</span><span class="pilula ouro">${MOEDA}${S.ouro}</span></div>
       <div class="cartao" id="mapaInfo"></div>
-      <div class="legenda">${['luta','elite','evento','loja','descanso','chefe'].map(k=>`<span>${selo(k)}${NOS[k].nome}</span>`).join('')}</div>
     </aside>
   </div>`);
   infoMapa(null);
