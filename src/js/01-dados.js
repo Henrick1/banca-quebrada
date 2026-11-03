@@ -281,6 +281,7 @@ const temItem=k=>S.itens.includes(k);
 const temTraco=k=>!!(S.ini&&S.ini.tracos.includes(k));
 const qtdItem=k=>S.itens.filter(x=>x===k).length;
 const custoPuxar=()=>Math.max(0,CUSTO_PUXAR-qtdItem('copo'));
+const custoAtual=()=>S.mao.length+S.lancados+(S.congelado?-1:0)<(S.lancesGratis||0)?0:custoPuxar();
 const maoInicial=()=>S.teste?20:MAO_INICIAL+qtdItem('bolsaFunda')+(S.rodada===1?2*qtdItem('relogio'):0);
 const maoMax=()=>S.teste?24:MAO_MAX;
 const bolsaMax=()=>S.teste?40:BOLSA_MAX;

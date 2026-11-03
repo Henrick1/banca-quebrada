@@ -23,7 +23,7 @@ function bandeja(){
   $('contagem').textContent=`${S.mao.length}/${maoMax()} na mão`;
   const n=S.bolsa.length;
   $('bolsa').disabled=!podePuxar();
-  $('bolsaAcao').textContent=!n?'Vazia':S.mao.length>=maoMax()?'Mão cheia':podeLancar()?`Puxar: alvo +${custoPuxar()}`:`${n} dado${n>1?'s':''}`;
+  $('bolsaAcao').textContent=!n?'Vazia':S.mao.length>=maoMax()?'Mão cheia':podeLancar()?(custoAtual()?`Puxar: alvo +${custoAtual()}`:'Puxar: grátis'):`${n} dado${n>1?'s':''}`;
   $('bolsaConteudo').innerHTML=S.bolsa.map(id=>svgTipo(S.dados.find(d=>d.id===id).type)).join('');
 }
 function placar(){

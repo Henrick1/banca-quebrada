@@ -237,7 +237,7 @@ function desenharEtiqueta(){
   const n=S.bolsa.length,pode=podePuxar();
   const titulo=!n?'Vazia':pode?'Puxar':S.mao.length>=maoMax()?'Mão cheia':'Bolsa';
   const tipos=S.bolsa.map(id=>{const d=S.dados.find(x=>x.id===id);return d?d.type:'d6'});
-  const chave=titulo+'|'+tipos.join(',')+'|'+pode+'|'+custoPuxar();if(chave===b.txt)return;b.txt=chave;
+  const chave=titulo+'|'+tipos.join(',')+'|'+pode+'|'+custoAtual();if(chave===b.txt)return;b.txt=chave;
   if(b.cv.width!==512){b.cv.width=512;b.cv.height=224}
   const x=b.ctx,W=512,H=224;x.clearRect(0,0,W,H);
   const forma=()=>{x.beginPath();x.moveTo(64,14);x.lineTo(W-18,14);x.quadraticCurveTo(W-6,14,W-6,26);x.lineTo(W-6,H-26);x.quadraticCurveTo(W-6,H-14,W-18,H-14);x.lineTo(64,H-14);x.lineTo(10,H/2);x.closePath()};
@@ -271,7 +271,8 @@ function desenharEtiqueta(){
   x.strokeStyle='rgba(60,36,12,.8)';x.lineWidth=3;x.stroke();
   x.strokeStyle='rgba(255,240,200,.5)';x.lineWidth=2;x.beginPath();x.arc(mx,my,53,0,Math.PI*2);x.stroke();
   x.fillStyle='#3a2410';x.textAlign='center';x.textBaseline='middle';
-  if(pode){x.font='600 54px "IBM Plex Mono",monospace';x.fillText(`+${custoPuxar()}`,mx,my-6);x.font='800 20px "Alegreya Sans",sans-serif';x.fillText('NO ALVO',mx,my+33)}
+  if(pode&&custoAtual()){x.font='600 54px "IBM Plex Mono",monospace';x.fillText(`+${custoAtual()}`,mx,my-6);x.font='800 20px "Alegreya Sans",sans-serif';x.fillText('NO ALVO',mx,my+33)}
+  else if(pode){x.font='800 26px "Alegreya Sans",sans-serif';x.fillText('GRÁTIS',mx,my+4)}
   else{x.font='600 58px "IBM Plex Mono",monospace';x.fillText(String(n),mx,my-4);x.font='800 18px "Alegreya Sans",sans-serif';x.fillText(n===1?'DADO':'DADOS',mx,my+34)}
   b.tex.needsUpdate=true;
 }
@@ -289,7 +290,7 @@ function animarSaco(dt){
 function infoSaco(x,y){
   const nomes=S.bolsa.map(id=>S.dados.find(d=>d.id===id)).filter(Boolean);
   infoEm(`<h4>Sua bolsa<small>${nomes.length} dado${nomes.length===1?'':'s'}</small></h4>
-    <p class="nota">Toque para puxar um dado às cegas. Cada puxão soma +${custoPuxar()} ao alvo desta rodada. Arraste um dado da bandeja até aqui para guardar de graça.</p>
+    <p class="nota">Toque para puxar um dado às cegas. Os primeiros puxões da rodada, até ter dados para todos os seus lances, são grátis; depois cada puxão soma +${custoPuxar()} ao alvo. Arraste um dado da bandeja até aqui para guardar de graça.</p>
     <div class="kit">${nomes.map(miniDado).join('')||'<small>Vazia.</small>'}</div>
     ${motivoSaco()?`<p class="nota" style="color:#f0b07e">${motivoSaco()}</p>`:''}`,x,y);
 }

@@ -23,5 +23,5 @@ const RNG={s:0,ativo:false,next(){let t=(this.s+=0x6D2B79F5)>>>0;t=Math.imul(t^(
 const R=()=>RNG.ativo?RNG.next():Math.random();
 const pick=a=>a[Math.floor(R()*a.length)];
 let uid=1;
-const MAO_INICIAL=3,MAO_MAX=5,CUSTO_PUXAR=2;
+const MAO_INICIAL=2,MAO_MAX=5,CUSTO_PUXAR=2;
 

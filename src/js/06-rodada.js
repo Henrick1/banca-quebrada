@@ -186,7 +186,8 @@ function novaRodada(){
   if(S.rodada>1&&temTraco('crescente')){S.ini.base++;setTimeout(()=>dispararTraco('crescente','Base +1'),300)}
   if(temItem('escudo')){S.escudo=2*qtdItem('escudo');setTimeout(()=>dispararItem('escudo',`+${S.escudo} escudo`),300)}
   if(S.escudoProx){const q=S.escudoProx;S.escudo+=q;S.escudoProx=0;setTimeout(()=>dispararItem('cachimbo',`+${q} escudo`),400)}
-  const jTot=S.modo.seq.split('').filter(c=>c==='j').length,alvoMao=Math.max(maoInicial(),S.modo.parar?3:jTot)+(temTraco('congela')?1:0);
+  const jTot=S.modo.seq.split('').filter(c=>c==='j').length,alvoMao=maoInicial()+(temTraco('congela')?1:0);
+  S.lancesGratis=(S.modo.parar?3:jTot)+qtdItem('bolsaFunda');
   let k=0;while(S.mao.length<alvoMao&&S.bolsa.length)puxar(250+k++*(S.teste?60:170));
   S.congelado=null;
   if(temTraco('congela')&&S.mao.length>1){S.congelado=pick(S.mao);setTimeout(()=>{dispararTraco('congela','Um dado preso');marcar()},1300)}
@@ -286,7 +287,7 @@ function puxar(atraso=0){
   const d=S.dados.find(x=>x.id===id),luta=S.ini;
   setTimeout(()=>{if(S.ini!==luta||!S.mao.includes(id))return;addBandeja(d);marcar();SOM.puxar();pulsar($('bolsa'),'sacode')},atraso);
 }
-function puxarPago(){if(!podePuxar())return;puxar(0);S.aposta+=custoPuxar();if(temItem('copo'))dispararItem('copo',`só +${custoPuxar()}`);bandeja();placar();pulsar($('alvo'));SOM.tensao()}
+function puxarPago(){if(!podePuxar())return;const c=custoAtual();puxar(0);S.aposta+=c;if(c&&temItem('copo'))dispararItem('copo',`só +${c}`);bandeja();placar();if(c)pulsar($('alvo'));SOM.tensao()}
 function lancarDaBandeja(it,forca){
   if(S.congelado&&it.die.id===S.congelado&&podeLancar()){avisar('Esse dado está preso');dispararTraco('congela','Preso!');SOM.batida(6,true);it.body.velocity.set(rnd(1),5,rnd(1));return false}
   if(!podeLancar()){avisar(S.fase==='casa'?'Espere a casa lançar':'Agora não dá para lançar');if(CONT)CONT.lampadas.forEach(l=>l.i=Math.max(l.i,.9));SOM.tensao();return false}

@@ -199,7 +199,7 @@ function telaRegras(){
       <div class="regra"><b>Pressão</b><p>A cada 3 rodadas na mesma luta a base sobe 1 e os erros doem mais. A cada 12 rodadas na partida, a taverna esquenta e tudo fica 1 mais difícil, até +3.</p></div>
       <div class="regra"><b>Estouro</b><p>Fique entre o alvo e o teto. Passou do teto, estourou e o dano é seu. Puxe a alavanca do contador para parar a tempo.</p></div>
       <div class="regra"><b>O alvo</b><p>Alvo é a base do inimigo mais o dado da casa. Bateu? Sua soma vira dano. Não bateu? A diferença fere você.</p></div>
-      <div class="regra"><b>A bolsa</b><p>Cada rodada a mão é completada com 3 dados sorteados da bolsa. Puxar mais um custa +${CUSTO_PUXAR} no alvo da rodada. Guardar um dado na bolsa é de graça.</p></div>
+      <div class="regra"><b>A bolsa</b><p>Cada rodada você recebe 2 dados da bolsa. Puxe o resto clicando na bolsa: até ter dados para todos os seus lances é grátis, e cada dado a mais custa +${CUSTO_PUXAR} no alvo da rodada. Guardar um dado na bolsa é de graça.</p></div>
       <div class="regra"><b>Combos</b><p>Encantamentos deixam um dado especial, com bordas de metal ou pedra. Cada um ativa um combo: mesmo número, primo, dados próximos, áreas na mesa.</p></div>
       <div class="regra"><b>Áreas</b><p>Alguns dados criam um círculo na mesa ao parar. Tudo que cair dentro sofre o efeito, inclusive os dados da casa contra você.</p></div>
       <div class="regra"><b>A mesa</b><p>Suas relíquias ficam no canto da mesa, os traços do inimigo na borda de cima. Passe o mouse na bolsa da casa para ver os dados dela.</p></div>
