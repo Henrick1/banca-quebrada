@@ -24,18 +24,19 @@ function aoParar(t){
   }else{
     const minF=Math.min(...DIE[t.die.type].faces);
     if(t.die.encanto==='cinabrio'&&f.v===minF&&!t.die.eco&&!(S.fenixUsados||[]).includes(t.die.id)&&S.fase==='jogador'){renascerFenix(t);return}
-    let val=valorFace(f);
-    if(t.sangrou===1){t.sangrou=2;val+=2}
-    if(temItem('ferradura')&&f.v+f.bonus===1){val=3*(f.fx&&f.fx.k==='dobro'?2:1);dispararItem('ferradura','1 vale 3')}
-    if(temItem('dadoOuro')&&f.v===Math.max(...DIE[t.die.type].faces)){const q=qtdItem('dadoOuro');S.ouro+=q;dispararItem('dadoOuro',`+${q} ouro`)}
-    val+=bonusFace(t,f);
-    if(S.pesoProx){const q=S.pesoProx;val+=q;S.pesoProx=0;numeroFlutuante(`Chumbo +${q}`,$('soma'),CONSUMIVEIS.peso.cor);faiscas(t.mesh.position,0x9aa3ad,14,3,5);renderCons()}
+    let val=valorFace(f);const passos=[];
+    const base0=val;
+    if(t.sangrou===1){t.sangrou=2;val+=2;passos.push({v:2,txt:'Sangria +2',cor:'#ff7088'})}
+    if(temItem('ferradura')&&f.v+f.bonus===1){const n=3*(f.fx&&f.fx.k==='dobro'?2:1);passos.push({k:'ferradura',v:n-val,txt:'1 vale 3'});val=n}
+    if(temItem('dadoOuro')&&f.v===Math.max(...DIE[t.die.type].faces)){const q=qtdItem('dadoOuro');S.ouro+=q;passos.push({k:'dadoOuro',v:0,txt:`+${q} ouro`,ouro:true})}
+    val+=bonusFace(t,f,passos);
+    if(S.pesoProx){const q=S.pesoProx;val+=q;S.pesoProx=0;passos.push({v:q,txt:`Chumbo +${q}`,cor:CONSUMIVEIS.peso.cor,peso:true});renderCons()}
     const sombra=t.die.encanto==='obsidiana'&&casaRestantes()>0;
     if(sombra){t.oculto=val+4;t.valor=null}else{S.soma+=val;t.valor=val}
     t.num=f.v+f.bonus;
     let extra='';
     anel(t.mesh.position,sombra?0x7d6aa8:f.fx?FX[f.fx.k].cor:0xd4a94f);SOM.tok(val);tremer(.04);
-    if(!sombra)voar(`+${val}`,tela,$('soma'),{cls:'pontos',aoChegar:()=>contar($('soma'),S.soma,true)});
+    if(!sombra)animarBonus(t,tela,base0,passos,S.soma-val);
     if(f.fx){
       const k=f.fx.k,n=(f.fx.n||0)+bonusFx(k),cor=FX[k].cor,p=t.mesh.position;
       const ic=k==='dobro'?'<b>×2</b>':iconeFx(k,cor);
@@ -48,7 +49,7 @@ function aoParar(t){
       if(k==='pacto'){S.hp-=n;faiscas(p,cor,16,2,5);SOM.dano();tremer(.15);vinheta('#c9473c');voar(svgPath('pacto',cor),tela,$('barraJ'),{atraso:120,dur:420,aoChegar:()=>{pulsar($('barraJ'),'flash');numeroFlutuante(`-${n}`,$('barraJ'),cor);hud()}})}
       extra=`<small style="color:${cor}">${FX[k].nome}${k!=='dobro'&&n?' '+n:''}</small>`;
     }
-    el.innerHTML=sombra?`?<small style="color:#b7a6e0">Sombra</small>`:`${def.rot?`<small>${def.rot[t.face]}</small>`:''}${val}${extra}${t.sangrou===2?'<small style="color:#ff7088">Sangria +2</small>':''}`;
+    el.innerHTML=sombra?`?<small style="color:#b7a6e0">Sombra</small>`:`${def.rot?`<small>${def.rot[t.face]}</small>`:''}${passos.some(p=>p.v)?base0:val}${extra}${t.sangrou===2?'<small style="color:#ff7088">Sangria +2</small>':''}`;
     if(t.die.encanto==='granada'&&f.v===minF&&!t.sangrou&&S.fase!=='resolvendo')sangrar(t);
   }
   t.rotulo=el;$('rotulos').appendChild(el);
@@ -59,6 +60,23 @@ function aoParar(t){
   checarCombos();
   S.voando--;hud();placar();
   if(S.voando===0)avancar();
+}
+function animarBonus(t,tela,base0,passos,somaAntes){
+  let corrente=somaAntes+base0,valor=base0;const step=reduzir?60:230;
+  voar(`+${base0}`,tela,$('soma'),{cls:'pontos',aoChegar:()=>contar($('soma'),corrente,true)});
+  if(!passos.length)return;
+  const roda=i=>{
+    if(i>=passos.length||!lancados.includes(t)){contar($('soma'),S.soma,false);return}
+    const p=passos[i];
+    if(p.k)dispararItem(p.k,p.txt);else rotuloMesa(p.txt,t.mesh.position,p.cor||'#f2c661');
+    if(p.peso)faiscas(t.mesh.position,0x9aa3ad,14,3,5);
+    if(p.ouro){SOM.ouro(1);hud()}
+    valor+=p.v;t.punch=.7;
+    if(p.v){corrente+=p.v;SOM.tok(valor+i*2);contar($('soma'),corrente,false);pulsar($('soma'));
+      if(t.rotulo){const tx=[...t.rotulo.childNodes].find(x=>x.nodeType===3);if(tx)tx.textContent=String(valor)}}
+    setTimeout(()=>roda(i+1),step);
+  };
+  setTimeout(()=>roda(0),step);
 }
 function renascerFenix(t){
   (S.fenixUsados=S.fenixUsados||[]).push(t.die.id);

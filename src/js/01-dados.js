@@ -223,18 +223,19 @@ function toast(html,cor='#f2c661'){
   const t=document.createElement('div');t.className='toast';t.style.setProperty('--c',cor);t.innerHTML=html;document.body.appendChild(t);
   t.animate([{opacity:0,transform:'translate(-50%,-20px)'},{opacity:1,transform:'translate(-50%,0)',offset:.1},{opacity:1,transform:'translate(-50%,0)',offset:.85},{opacity:0,transform:'translate(-50%,-10px)'}],{duration:reduzir?2500:3800,easing:'ease-out'}).onfinish=()=>t.remove();
 }
-function bonusFace(t,f){
+function bonusFace(t,f,passos=[]){
   let b=0;const tipo=t.die.type,q=qtdItem;
-  if(conjAtivo('trapaceiro'))b+=1;
-  if(q('pena')&&!S.primeiroFeito){S.primeiroFeito=true;b+=2*q('pena');dispararItem('pena',`+${2*q('pena')}`)}
-  if(q('trevo')&&tipo==='coin'){b+=2*q('trevo');dispararItem('trevo',`+${2*q('trevo')}`)}
-  if(q('sino')&&tipo==='d6'){b+=q('sino');dispararItem('sino',`+${q('sino')}`)}
-  if(q('pergaminho')&&tipo==='d10'){b+=q('pergaminho');dispararItem('pergaminho',`+${q('pergaminho')}`)}
-  if(q('grimorio')&&tipo==='d20'){b+=2*q('grimorio');dispararItem('grimorio',`+${2*q('grimorio')}`)}
-  if(q('moedaPesada')&&tipo==='coin'&&f.v===2){b+=4*q('moedaPesada');dispararItem('moedaPesada',`Chumbo +${4*q('moedaPesada')}`)}
-  if(q('dadoOsso')&&tipo==='d6'&&f.v===1){b+=5*q('dadoOsso');dispararItem('dadoOsso',`Osso +${5*q('dadoOsso')}`)}
-  if(conjAtivo('viciado')&&[...DIE[tipo].faces].sort((a,b)=>a-b).slice(0,2).includes(f.v))b+=2;
-  if(q('fichaSorte')&&f.v===Math.max(...DIE[tipo].faces)){b+=3*q('fichaSorte');dispararItem('fichaSorte',`+${3*q('fichaSorte')}`)}
+  const soma=(k,v,txt)=>{b+=v;passos.push({k,v,txt:txt||`+${v}`})};
+  if(conjAtivo('trapaceiro'))soma('lupa',1,'Trapaceiro +1');
+  if(q('pena')&&!S.primeiroFeito){S.primeiroFeito=true;soma('pena',2*q('pena'))}
+  if(q('trevo')&&tipo==='coin')soma('trevo',2*q('trevo'));
+  if(q('sino')&&tipo==='d6')soma('sino',q('sino'));
+  if(q('pergaminho')&&tipo==='d10')soma('pergaminho',q('pergaminho'));
+  if(q('grimorio')&&tipo==='d20')soma('grimorio',2*q('grimorio'));
+  if(q('moedaPesada')&&tipo==='coin'&&f.v===2)soma('moedaPesada',4*q('moedaPesada'),`Chumbo +${4*q('moedaPesada')}`);
+  if(q('dadoOsso')&&tipo==='d6'&&f.v===1)soma('dadoOsso',5*q('dadoOsso'),`Osso +${5*q('dadoOsso')}`);
+  if(conjAtivo('viciado')&&[...DIE[tipo].faces].sort((a,b)=>a-b).slice(0,2).includes(f.v))soma('dadoOsso',2,'Viciado +2');
+  if(q('fichaSorte')&&f.v===Math.max(...DIE[tipo].faces))soma('fichaSorte',3*q('fichaSorte'));
   return b;
 }
 function bonusFx(k){
