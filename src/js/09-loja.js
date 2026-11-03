@@ -119,6 +119,7 @@ function cartaOferta(o){
 let LJ=null;
 const LJ_SECOES=[['espolio','Espólio','#5a1f24'],['reliq','Relíquias','#1f2f4a'],['cons','Consumíveis','#3d2a18'],['dados','Dados','#1e4a46'],['enc','Encantamentos','#35234a'],['grav','Gravações','#4a3520'],['serv','Serviços','#2c2a28']];
 function renderLoja(){
+  if(S.loja&&S.loja.podeTrocar&&!S.loja.mercador&&!S.loja.espolio.some(o=>o.kind==='ouroEsp'))S.loja.espolio.push({kind:'ouroEsp',n:3,id:uid++,gratis:true});
   const L=S.loja;
   if(!$('lojaShell'))criarShellLoja();
   if(!L.foco)L.foco=L.espolio.find(o=>!o.feito)||L.espolio[0]||L.dados[0]||L.serv[0];
@@ -184,7 +185,7 @@ function renderDetalhe(){
   const rot=sel?'Cancelar':o.gratis?'Pegar grátis':o.kind==='renovar'?`Renovar · ${p} de ouro`:`Comprar · ${p} de ouro`;
   el.innerHTML=`<div class="det-ic">${x.ic}</div>
     <div class="det-corpo"><span class="o-tipo">${htmlRaridade(o)}${x.tipo}${o.gratis?' · espólio':''}</span><b class="det-tit">${x.tit}</b><p>${x.desc}</p>${e.txt?`<span class="o-motivo ${e.cls||''}">${e.txt}</span>`:''}</div>
-    <div class="det-acao">${o.gratis?`<small class="det-nota">${sel?'Escolha na sua bolsa · Esc cancela':e.trava?'':'Clique no item para pegar'}</small>`:`<button class="btn" data-o="${o.id}" ${e.trava&&!sel?'disabled':''}>${rot}</button>`}</div>`;
+    <div class="det-acao">${o.gratis?'':`<button class="btn" data-o="${o.id}" ${e.trava&&!sel?'disabled':''}>${rot}</button>`}</div>`;
 }
 function iniciarLoja3D(){
   if(LJ){cancelAnimationFrame(LJ.raf);if(LJ.ro)LJ.ro.disconnect();LJ.r.dispose();LJ=null}
