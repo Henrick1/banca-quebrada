@@ -69,4 +69,4 @@ Baixe o `.exe` mais recente em **Releases** no GitHub:
 
 O Windows pode mostrar o aviso "O Windows protegeu o computador" porque o executável não é assinado. Clique em **Mais informações** e depois em **Executar assim mesmo**.
 
-Para gerar uma versão nova, crie uma tag `v*` (por exemplo `git tag v0.1.1 && git push --tags`). O GitHub Actions monta os dois `.exe` e anexa ao Release.
+Cada push na `main` que mexe no jogo gera os `.exe` de novo e atualiza o Release da versão do `package.json`. Para abrir um Release novo, aumente o campo `version`.
