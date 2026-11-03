@@ -2,9 +2,17 @@ const emLuta=()=>!!(S.ini&&S.ini.hp>0&&S.hp>0&&['jogador','casa','intro'].includ
 function dadoCasaQuebravel(){
   return lancados.filter(t=>t.dono==='casa'&&t.pronto&&!t.quebrado&&t.valor>0).sort((a,b)=>b.valor-a.valor)[0]||null;
 }
+function quebrarDado(t,v){
+  t.quebrado=true;
+  faiscas(t.mesh.position,0xd9dde6,34,5,9);faiscas(t.mesh.position,0x9a8a70,18,3,6);
+  if(t.body)world.remove(t.body);t.mesh.visible=false;
+  if(t.rotulo){t.rotulo.style.opacity=.35;t.rotulo.style.textDecoration='line-through'}
+  tremer(.5);hitStop=.08;SOM.batida(12,true);setTimeout(()=>SOM.batida(8,false),70);
+  rotuloMesa(v?`Quebrado! −${v}`:'Quebrado!',t.mesh.position,CONSUMIVEIS.martelo.cor);pulsar($('alvo'));
+}
 function travaCons(k){
   if(!emLuta())return'Só durante a luta';
-  if(k==='martelo'&&!dadoCasaQuebravel())return'Nenhum dado da casa na mesa';
+  if(k==='martelo'&&!dadoCasaQuebravel()&&S.marteloProx)return'O martelo já espera o próximo dado da casa';
   if(k==='tonico'&&S.hp>=S.max)return'Vida cheia';
   if(k==='frasco'&&temTraco('imune'))return'A casa é imune a veneno';
   if(k==='peso'&&S.pesoProx)return'O peso já está no próximo dado';
@@ -17,8 +25,8 @@ function renderCons(){
   el.hidden=!S.ini;
   el.innerHTML=`<span class="cons-tit">Bolso</span>`+Array.from({length:n},(_,i)=>{
     const k=l[i];if(!k)return`<span class="cons-slot vazio" aria-hidden="true"></span>`;
-    const c=CONSUMIVEIS[k],tr=travaCons(k);
-    return`<button class="cons-slot${tr?' trava':''}" type="button" data-cons="${i}" style="--c:${c.cor}" aria-label="${c.nome}: ${c.desc}${tr?' ('+tr+')':''}"><svg viewBox="0 0 24 24"><path fill="${c.cor}" fill-rule="evenodd" d="${PATHS[k]}"/></svg><span class="cons-dica"><b>${c.nome}</b>${c.desc}${tr?`<em>${tr}</em>`:'<em class="ok">Clique para usar</em>'}</span></button>`;
+    const c=CONSUMIVEIS[k],tr=travaCons(k),desc=k==='martelo'&&S.ini&&!dadoCasaQuebravel()?'Sem dado da casa na mesa agora: quebra o próximo que ela lançar.':c.desc;
+    return`<button class="cons-slot${tr?' trava':''}" type="button" data-cons="${i}" style="--c:${c.cor}" aria-label="${c.nome}: ${desc}${tr?' ('+tr+')':''}"><svg viewBox="0 0 24 24"><path fill="${c.cor}" fill-rule="evenodd" d="${PATHS[k]}"/></svg><span class="cons-dica"><b>${c.nome}</b>${desc}${tr?`<em>${tr}</em>`:'<em class="ok">Clique para usar</em>'}</span></button>`;
   }).join('');
 }
 function usarCons(i){
@@ -29,13 +37,9 @@ function usarCons(i){
   S.cons.splice(i,1);
   const efeito={
     martelo(){
-      const t=dadoCasaQuebravel();if(!t)return;
-      const v=t.valor;t.quebrado=true;t.valor=0;S.rolagem=valorCasa();
-      faiscas(t.mesh.position,0xd9dde6,34,5,9);faiscas(t.mesh.position,0x9a8a70,18,3,6);
-      if(t.body)world.remove(t.body);t.mesh.visible=false;
-      if(t.rotulo){t.rotulo.style.opacity=.35;t.rotulo.style.textDecoration='line-through'}
-      tremer(.5);hitStop=.08;SOM.batida(12,true);setTimeout(()=>SOM.batida(8,false),70);
-      rotuloMesa(`Quebrado! −${v}`,t.mesh.position,c.cor);pulsar($('alvo'));
+      const t=dadoCasaQuebravel();
+      if(!t){S.marteloProx=true;SOM.batida(10,true);avisar('O martelo vai quebrar o próximo dado da casa');return}
+      const v=t.valor;t.valor=0;S.rolagem=valorCasa();quebrarDado(t,v);
     },
     tonico(){const q=cm(12);S.hp=Math.min(S.max,S.hp+q);SOM.cura();pulsar($('barraJ'),'flash');numeroFlutuante(`+${q}`,$('barraJ'),c.cor)},
     faca(){
