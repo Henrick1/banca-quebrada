@@ -66,6 +66,7 @@ function ajustar(){
     if(CONT){CONT.g.position.set(0,-.51,-TD/2-.8-1.75);CONT.g.rotation.y=0}
   }
   camera.updateProjectionMatrix();camBase.copy(camera.position);
+  reposicionarEstatuas();
 }
 
 function lancar(die,dono,z,forca=1){

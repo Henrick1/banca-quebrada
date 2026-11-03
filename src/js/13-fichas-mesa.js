@@ -26,14 +26,18 @@ function montarFichas(){
   const z=TD/2+.4,y=.77;
   const pilha=(path,cor,inimigo,q,rar)=>{const g=new THREE.Group(),topos=[];for(let j=0;j<q;j++){const m=criarFicha(path,cor,inimigo,rar);m.position.y=j*.145;m.rotation.y=rnd(.25);g.add(m);topos.push(m.material[1])}return{g,topos}};
   const sets=Object.keys(CONJUNTOS).filter(conjAtivo),emSet=new Set(sets.flatMap(c=>CONJUNTOS[c].pecas));
-  const slots=[...sets.map(c=>({tipo:'estatua',chave:c})),...[...new Set(S.itens)].filter(k=>!emSet.has(k)).map(k=>({tipo:'item',chave:k}))],porLinha=10;
+  const slots=[...new Set(S.itens)].filter(k=>!emSet.has(k)),porLinha=10;
   MESA.linhas=Math.max(1,Math.ceil(slots.length/porLinha));
-  slots.forEach((sl,i)=>{
-    const lin=Math.floor(i/porLinha),col=i%porLinha,yl=lin?-.44:y;let g,topos;
-    if(sl.tipo==='estatua'){g=estatuetaConjunto(sl.chave);topos=[];g.traverse(o=>{if(o.isMesh&&o.material.emissive&&o.material.userData.brilha)topos.push(o.material)})}
-    else{const it=ITENS[sl.chave];({g,topos}=pilha(pathItem(sl.chave),it.cor,false,qtdItem(sl.chave),rarItem(sl.chave)))}
+  slots.forEach((k,i)=>{
+    const lin=Math.floor(i/porLinha),col=i%porLinha,yl=lin?-.44:y,it=ITENS[k];
+    const {g,topos}=pilha(pathItem(k),it.cor,false,qtdItem(k),rarItem(k));
     g.position.set(-TW/2+.25+col*.95,yl+3,z+lin*1.0+(lin?.35:0));scene.add(g);
-    MESA.fichas.push({mesh:g,topos,tipo:sl.tipo,chave:sl.chave,y0:yl,pulso:0,cai:1+i*.08});
+    MESA.fichas.push({mesh:g,topos,tipo:'item',chave:k,y0:yl,pulso:0,cai:1+i*.08});
+  });
+  sets.forEach((c,i)=>{
+    const g=estatuetaConjunto(c),topos=[];g.scale.setScalar(1.2);g.traverse(o=>{if(o.isMesh&&o.material.emissive&&o.material.userData.brilha)topos.push(o.material)});
+    const p=posEstatua(i);g.position.set(p.x,p.y+3,p.z);scene.add(g);
+    MESA.fichas.push({mesh:g,topos,tipo:'estatua',chave:c,y0:p.y,pulso:0,cai:1.2+i*.15,ord:i});
   });
   (S.ini?S.ini.tracos:[]).forEach((k,i)=>{const tr=TRACOS[k];const {g,topos}=pilha(PATHS[tr.ic],tr.cor,true,1);g.position.set(TW/2-1.15-i*.95,y+3,-TD/2-.4);scene.add(g);MESA.fichas.push({mesh:g,topos,tipo:'traco',chave:k,y0:y,pulso:0,cai:1.4+i*.25})});
   ajustar();
@@ -101,6 +105,13 @@ function rotuloMesa(txt,pos,cor){
 function dispararItem(k,txt){const f=MESA.fichas.find(x=>x.tipo==='item'&&x.chave===k)||MESA.fichas.find(x=>x.tipo==='estatua'&&CONJUNTOS[x.chave].pecas.includes(k));SOM.item();if(!f)return;f.pulso=1;rotuloMesa(txt,f.mesh.position,ITENS[k].cor)}
 function dispararTraco(k,txt){const f=MESA.fichas.find(x=>x.tipo==='traco'&&x.chave===k);SOM.traco();if(!f)return;f.pulso=1;rotuloMesa(txt,f.mesh.position,TRACOS[k].cor)}
 
+function posEstatua(i){
+  const y=-.51,passo=1.3;
+  if(camera&&camera.aspect<.85)return{x:TW/2+2.55,y,z:CW/2+.9+i*passo};
+  const zc=-TD/2-.8-1.75+.6,esq=4;
+  return i<esq?{x:-CW/2-1.05-i*passo,y,z:zc}:{x:CW/2+1.05+(i-esq)*passo,y,z:zc};
+}
+function reposicionarEstatuas(){MESA.fichas.forEach(f=>{if(f.tipo!=='estatua')return;const p=posEstatua(f.ord);f.mesh.position.x=p.x;f.mesh.position.z=p.z})}
 function estatuetaConjunto(k){
   const g=new THREE.Group(),H=Math.PI/2;
   const ouro=new THREE.MeshStandardMaterial({color:lin('#d9a840'),metalness:.9,roughness:.28,emissive:new THREE.Color(0,0,0)});ouro.userData.brilha=true;
