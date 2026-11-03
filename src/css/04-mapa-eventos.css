@@ -75,3 +75,6 @@
 .conj.ativo{color:#f2c661;font-weight:700}
 .tile.off{opacity:.25;pointer-events:none}
 .tile.fundido{background:linear-gradient(#4a3420,#2a1d14)}
+.mp-ato{font-family:var(--f-display);font-size:22px;fill:#6a4624;text-anchor:middle;paint-order:stroke;stroke:#ead9b0;stroke-width:14px;stroke-linejoin:round}
+.legenda .selo{position:static;padding:0}
+.mp-corte{stroke:#5a3a1e;stroke-width:2;stroke-dasharray:3 9;stroke-linecap:round;opacity:.45}

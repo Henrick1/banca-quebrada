@@ -51,7 +51,7 @@ const EVENTOS=[
    {rot:'Sair',desc:'Está quente demais aqui.',acao:()=>({titulo:'Você subiu a escada',texto:'O calor fica para trás.'})}]}
 ];
 const DESCANSO={id:'descanso',titulo:'Quarto nos Fundos',ic:'rum',cor:'#86c48f',texto:'Uma cama de palha e uma lamparina. Dá para fazer uma coisa antes de voltar à mesa.',
-  opcoes:()=>{const c=Math.round(S.max*.35);return[
+  opcoes:()=>{const c=Math.round(S.max*.35)+10*qtdItem('cantil');return[
    {rot:'Dormir',desc:`Recupera ${c} de vida.`,trava:S.hp>=S.max&&'Vida cheia',acao:()=>{S.hp=Math.min(S.max,S.hp+cm(c));SOM.cura();return{titulo:'Bem descansado',texto:`Você recuperou ${c} de vida.`,bom:true}}},
    {rot:'Afiar um dado',desc:'+3 numa face que você escolhe, de graça.',acao:()=>{montarLoja({titulo:'Afiar',sub:'Escolha a face que vai receber +3.',espolio:[{kind:'bonus',n:3,gratis:true,id:uid++}]})}},
    {rot:'Fundir dois dados',desc:'Junta dois dados iguais num só, mais forte.',trava:!paresFundiveis().length&&'Você não tem dois dados do mesmo tipo',acao:()=>{montarLoja({titulo:'Fundir',sub:'Escolha dois dados do mesmo tipo.',espolio:[{kind:'fundir',gratis:true,id:uid++}]})}}]}};

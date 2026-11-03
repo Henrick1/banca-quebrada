@@ -9,6 +9,11 @@ const ARMAZ=(()=>{
   if(!Object.keys(dados).length){const l=ls();if(l)for(const k of['bq-perfil','bq-partida','bq-mudo']){const v=l.getItem(k);if(v!==null)dados[k]=v}if(Object.keys(dados).length)arq.gravar(dados)}
   return{getItem:k=>k in dados?dados[k]:null,setItem:(k,v)=>{dados[k]=String(v);arq.gravar(dados)},removeItem:k=>{delete dados[k];arq.gravar(dados)}};
 })();
+const OPCOES=(()=>{const b={volume:70,qualidade:'alta'};try{return{...b,...JSON.parse(ARMAZ.getItem('bq-opcoes')||'{}')}}catch(e){return b}})();
+function salvarOpcoes(){try{ARMAZ.setItem('bq-opcoes',JSON.stringify(OPCOES))}catch(e){}}
+const QUALIDADE={alta:{nome:'Alta',desc:'Sombras suaves e nitidez máxima',px:2,sombra:true},media:{nome:'Média',desc:'Sombras com menos resolução de tela',px:1.25,sombra:true},baixa:{nome:'Baixa',desc:'Sem sombras, para PCs mais fracos',px:1,sombra:false}};
+const qualidade=()=>QUALIDADE[OPCOES.qualidade]||QUALIDADE.alta;
+const pxQualidade=()=>Math.min(typeof devicePixelRatio==='number'?devicePixelRatio:1,qualidade().px);
 const rnd=a=>(Math.random()-.5)*2*a;
 const RNG={s:0,ativo:false,next(){let t=(this.s+=0x6D2B79F5)>>>0;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}};
 const R=()=>RNG.ativo?RNG.next():Math.random();

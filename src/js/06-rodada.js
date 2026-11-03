@@ -88,13 +88,15 @@ function novaPartida(teste,diaria){
 }
 function novaLuta(){
   const n=S.no||{tipo:'luta',inimigo:Math.min(S.andar,INIMIGOS.length-1)},b=INIMIGOS[n.inimigo],elite=n.tipo==='elite';
-  S.andar=n.inimigo;S.retomar=null;S.fase='intro';
+  S.andar=tierDe(n.inimigo);S.retomar=null;S.fase='intro';trocarFeltro(atoDe(S.linha));
   const des=S.desafio||0,vida=Math.round(b.hp*(elite?1.25:1)*(des>=1?1.15:1));
   S.ini={...b,nome:elite?`${b.nome} (Elite)`:b.nome,elite,hp:vida,max:vida,tracos:[...b.tracos,...(elite&&n.extra&&!b.tracos.includes(n.extra)?[n.extra]:[])],bolsa:b.bolsa.map(k=>DADOS_CASA[k]())};
   if(des>=4){
     if(elite){const mais=EXTRAS_ELITE.filter(x=>!S.ini.tracos.includes(x));if(mais.length)S.ini.tracos.push(pick(mais))}
     if(n.tipo==='chefe'&&!S.ini.tracos.includes('armadura'))S.ini.tracos.push('armadura');
   }
+  S.ini.base0=S.ini.base;S.serie=0;S.escudoProx=0;
+  if((elite||n.tipo==='chefe')&&temItem('velaNegra')){S.ini.max=S.ini.hp=Math.round(S.ini.max*Math.pow(.85,qtdItem('velaNegra')));setTimeout(()=>dispararItem('velaNegra','−15% de vida'),900)}
   if(S.ini.tracos.includes('armadura')){S.ini.armaduraMax=6+S.andar;S.ini.armadura=S.ini.armaduraMax}
   S.hpLuta=S.hp;S.ouroLuta=S.ouro;
   S.veneno=0;S.rodada=0;
@@ -112,11 +114,13 @@ function novaRodada(){
   const lista=S.ini.modos||['classico'];
   S.modo=MODOS[lista[(S.rodada-1)%lista.length]];S.modoProx=lista.length>1?MODOS[lista[S.rodada%lista.length]]:null;
   S.passos=dividirPassos(S.modo.seq);S.passoI=-1;S.cTotal=S.passos.filter(p=>p.t==='c').length;S.cFeitos=0;S.cPasso=-1;
+  faseChefe();
   S.proxCasa=sortearCasa();
   if(CONT)prepararContador();
   anunciarModo(subiuP,subiuC);
   if(S.rodada>1&&temTraco('crescente')){S.ini.base++;setTimeout(()=>dispararTraco('crescente','Base +1'),300)}
   if(temItem('escudo')){S.escudo=2*qtdItem('escudo');setTimeout(()=>dispararItem('escudo',`+${S.escudo} escudo`),300)}
+  if(S.escudoProx){const q=S.escudoProx;S.escudo+=q;S.escudoProx=0;setTimeout(()=>dispararItem('cachimbo',`+${q} escudo`),400)}
   const jTot=S.modo.seq.split('').filter(c=>c==='j').length,alvoMao=Math.max(maoInicial(),S.modo.parar?3:jTot)+(temTraco('congela')?1:0);
   let k=0;while(S.mao.length<alvoMao&&S.bolsa.length)puxar(250+k++*(S.teste?60:170));
   S.congelado=null;
@@ -124,6 +128,17 @@ function novaRodada(){
   if(S.ini.armaduraMax&&S.rodada>1&&(S.rodada-1)%3===0&&S.ini.armadura<S.ini.armaduraMax){S.ini.armadura=S.ini.armaduraMax;setTimeout(()=>{dispararTraco('armadura','Armadura recarregada');SOM.escudo();hud()},700)}
   hud();bandeja();placar();
   const rodadaAtual=S.rodada,lutaAtual=S.ini;setTimeout(()=>{if(S.rodada===rodadaAtual&&S.ini===lutaAtual&&S.fase==='intro')proxPasso()},reduzir?200:1100);
+}
+function faseChefe(){
+  const I=S.ini;if(!I||I.hp<=0||I.hp>=I.max/2)return;
+  if(temTraco('barril')&&!I.bebeu){
+    I.bebeu=true;I.hp=Math.min(I.max,I.hp+12);if(!I.tracos.includes('pele'))I.tracos.push('pele');montarFichas();
+    setTimeout(()=>{dispararTraco('barril','Bebeu do barril! +12 vida');SOM.cura();pulsar($('barraI'),'flash');numeroFlutuante('+12',$('barraI'),TRACOS.barril.cor);banner(`${I.nome} bebe do barril`,'mau');hud()},700);
+  }
+  if(temTraco('furia')&&!I.furioso){
+    I.furioso=true;I.base+=2;if(!I.tracos.includes('duplo'))I.tracos.push('duplo');montarFichas();
+    setTimeout(()=>{dispararTraco('furia','Fúria! Base +2 e Mão Dupla');tremer(.6);SOM.traco();vinheta('#ff6a4a');banner(`${I.nome} perdeu a paciência`,'mau');hud()},700);
+  }
 }
 function podeLancar(){return S.fase==='jogador'&&S.restam>0}
 function dividirPassos(seq){const ps=[];for(const ch of seq){const u=ps[ps.length-1];if(ch==='j'&&u&&u.t==='j')u.n++;else ps.push({t:ch,n:1})}return ps}
@@ -223,12 +238,15 @@ function resolver(){
       if(S.modo.teto&&S.soma===maxT){d*=2;conquistar('mosca');setTimeout(()=>{if(CONT)rotuloMesa('Na mosca! ×2',CONT.mostr.soma.w.getWorldPosition(new THREE.Vector3()),'#f2c661');SOM.combo()},200)}
       if(temItem('espelho')&&S.soma===alvo){const q=qtdItem('espelho')+1;d*=q;dispararItem('espelho',`Dano ×${q}`)}
       if(temItem('lamina')){const q=3*qtdItem('lamina');d+=q;dispararItem('lamina',`+${q} de dano`)}
+      if(temItem('brasa')){const q=S.naMesa.length*qtdItem('brasa');if(q){d+=q;dispararItem('brasa',`+${q} de dano`)}}
+      if(temItem('tabua')){S.serie=(S.serie||0)+1;const q=2*(S.serie-1)*qtdItem('tabua');if(q){d+=q;dispararItem('tabua',`Série +${q}`)}}
       if(temItem('punhal')&&!temTraco('imune')){const q=2*qtdItem('punhal');S.veneno+=q;dispararItem('punhal',`+${q} veneno`)}
       if(temItem('luva')){const q=2*qtdItem('luva');S.ouro+=q;setTimeout(()=>{dispararItem('luva',`+${q} ouro`);SOM.ouro(2);hud()},350)}
       if(S.escudoIni){const b=Math.min(d,S.escudoIni);d-=b;numeroFlutuante(`Bloqueou ${b}`,$('barraI'),FX.escudo.cor)}
       if(conjAtivo('guerreiro')){d+=5;dispararItem('lamina','Guerreiro +5')}
       if(conjAtivo('tesoureiro')){const q=Math.floor(S.ouro/10);if(q){d+=q;dispararItem('coroa',`Tesoureiro +${q}`)}}
       if(temTraco('pele')){d=Math.max(0,d-2);dispararTraco('pele','−2 de dano')}
+      if(temTraco('divida')&&S.ini.base>S.ini.base0){S.ini.base--;setTimeout(()=>dispararTraco('divida','Dívida −1'),500)}
       if(S.ini.armadura>0&&d>0){const b=Math.min(d,S.ini.armadura);S.ini.armadura-=b;d-=b;dispararTraco('armadura',`Armadura −${b}`);numeroFlutuante(`Armadura ${b}`,$('barraI'),'#b9c2cc')}
       if(temItem('calice')&&S.hp<S.max){const q=2*qtdItem('calice');S.hp=Math.min(S.max,S.hp+cm(q));setTimeout(()=>{dispararItem('calice',`+${q} vida`);SOM.cura();pulsar($('barraJ'),'flash');hud()},500)}
       S.ini.hp-=d;S.stats.dano+=d;S.stats.maior=Math.max(S.stats.maior,d);if(d>=60)conquistar('golpe60');msg=`Acerto! ${d} de dano`;tipo='bom';
@@ -240,6 +258,9 @@ function resolver(){
       if(estoura)conquistar('estouro');
       let bruto=(estoura?S.soma-maxT:alvo-S.soma)+Math.floor(S.andar/3)+danoExtra();
       if(temTraco('vinganca')){bruto+=2;dispararTraco('vinganca','+2 de dano')}
+      S.serie=0;
+      if(temItem('cachimbo')){S.escudoProx=4*qtdItem('cachimbo');setTimeout(()=>dispararItem('cachimbo','Escudo na próxima'),600)}
+      if(temTraco('divida')){S.ini.base+=2;setTimeout(()=>{dispararTraco('divida','Dívida +2 na base');pulsar($('alvo'))},500)}
       if(temTraco('ganancia')&&S.ouro>0){const r=Math.min(2,S.ouro);S.ouro-=r;setTimeout(()=>{dispararTraco('ganancia',`-${r} ouro`);SOM.ouro(2);numeroFlutuante(`-${r}`,$('ouro'),'#e3b64a');hud()},450)}
       if(temItem('ampulheta')&&!estoura&&alvo-S.soma<=2){bruto=0;dispararItem('ampulheta','Salvo pela areia')}
       if(temItem('azarao')&&alvo-S.soma>=5){const q=5*qtdItem('azarao');S.ini.hp-=q;dispararItem('azarao',`${q} na casa`);pulsar($('barraI'),'flash');numeroFlutuante(`-${q}`,$('barraI'),ITENS.azarao.cor)}
@@ -260,7 +281,7 @@ function resolver(){
   },reduzir?0:480);
 }
 function venceuLuta(){
-  let ganho=Math.round((6+S.andar*2)*(S.ini.elite?1.5:1)*((S.desafio||0)>=3?.75:1));const elite=S.ini.elite;
+  let ganho=Math.round((6+S.andar*2)*(S.ini.elite||S.ini.chefe?1.5:1)*((S.desafio||0)>=3?.75:1));const elite=S.ini.elite;
   if(elite){S.elitesVencidos=(S.elitesVencidos||0)+1;if(S.elitesVencidos>=3)conquistar('elites')}
   if(S.hp<=3)conquistar('porUmFio');
   if(temItem('coroa')){const q=qtdItem('coroa');ganho=Math.round(ganho*(1+.5*q));dispararItem('coroa',`+${50*q}% ouro`)}
@@ -270,5 +291,8 @@ function venceuLuta(){
   const de=(()=>{const r=$('barraI').getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}})();
   const n=Math.min(10,ganho);
   for(let i=0;i<n;i++)voar(MOEDA_VOO,{x:de.x+rnd(30),y:de.y+rnd(10)},$('ouro'),{atraso:250+i*80,dur:700,aoChegar:()=>{S.ouro+=i<n-1?Math.floor(ganho/n):ganho-Math.floor(ganho/n)*(n-1);SOM.ouro(1);hud()}});
-  setTimeout(()=>{if(S.no&&S.no.tipo==='chefe'){fim(true);return}abrirRecompensa(ganho,elite)},reduzir?300:1400+n*80);
+  const chefe=S.no&&S.no.tipo==='chefe',final=chefe&&(S.no.final||S.no.r>=MAPA_LINHAS-1);
+  if(conjAtivo('andarilho')&&(elite||chefe)&&S.hp<S.max){const q=cm(10);setTimeout(()=>{S.hp=Math.min(S.max,S.hp+q);dispararItem('cantil',`Andarilho +${q}`);SOM.cura();hud()},500)}
+  if(chefe&&!final){conquistar('ato'+(S.no.ato+1));const q=cm(15);if(S.hp<S.max)setTimeout(()=>{S.hp=Math.min(S.max,S.hp+q);SOM.cura();pulsar($('barraJ'),'flash');numeroFlutuante(`+${q}`,$('barraJ'),'#86c48f');banner(`Fim do ${['primeiro','segundo','terceiro'][S.no.ato]} ato`,'bom');hud()},600)}
+  setTimeout(()=>{if(final){fim(true);return}abrirRecompensa(ganho,elite||chefe)},reduzir?300:1400+n*80);
 }

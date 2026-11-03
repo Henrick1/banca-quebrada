@@ -15,6 +15,8 @@ const DESAFIOS=[
 ];
 const CONQUISTAS={
   vitoria:{nome:'Banca Quebrada',desc:'Vença uma partida.'},
+  ato1:{nome:'Adega Limpa',desc:'Derrote o Taberneiro Caolho.'},
+  ato2:{nome:'Dívida Quitada',desc:'Derrote a Viúva das Apostas.'},
   desafio3:{nome:'Apostador Calejado',desc:'Vença no Desafio 3 ou acima.'},
   desafio5:{nome:'Dono da Taverna',desc:'Vença no Desafio 5.'},
   diaria:{nome:'Rotina de Taverna',desc:'Vença uma partida do dia.'},
@@ -74,7 +76,13 @@ const BUILDS={
   trapaceiro:{nome:'Trapaceiro',desc:'Sabe o que a casa vai tirar e ainda marca as cartas.',req:{partidas:5,txt:'Jogue 5 partidas'},
     montar:()=>({dados:[novoDado('d6'),novoDado('d6'),novoDado('d6'),novoDado('d6')],itens:['lupa','baralho'],ouro:0})},
   ourives:{nome:'Ourives',desc:'Ouro chama ouro. Começa rico e com gêmeos dourados.',req:{vitorias:1,txt:'Vença uma partida'},
-    montar:()=>({dados:[comEncanto(gravado(novoDado('d6'),{5:{fx:{k:'ouro',n:3}}}),'ouro'),comEncanto(novoDado('d6'),'ouro'),novoDado('coin'),novoDado('coin')],itens:['coroa'],ouro:10})}
+    montar:()=>({dados:[comEncanto(gravado(novoDado('d6'),{5:{fx:{k:'ouro',n:3}}}),'ouro'),comEncanto(novoDado('d6'),'ouro'),novoDado('coin'),novoDado('coin')],itens:['coroa'],ouro:10})},
+  moedeiro:{nome:'Cara ou Coroa',desc:'Quatro moedas de chumbo e um D6. Cada moeda é 1 ou 6, e qualquer melhoria pesa o dobro.',req:{partidas:3,txt:'Jogue 3 partidas'},
+    montar:()=>({dados:[novoDado('coin'),novoDado('coin'),novoDado('coin'),novoDado('coin'),novoDado('d6')],itens:['moedaPesada'],ouro:0})},
+  viciado:{nome:'Ossos Viciados',desc:'D6 de osso que transformam o 1 em 6, e um deles já vem com Fogo no 6.',req:{andar:6,txt:'Chegue ao andar 6'},
+    montar:()=>({dados:[gravado(novoDado('d6'),{5:{fx:{k:'fogo',n:3}}}),novoDado('d6'),novoDado('d6'),novoDado('coin')],itens:['dadoOsso'],ouro:0})},
+  gigante:{nome:'Pedra Grande',desc:'Poucos dados e muito alcance: um D20 com Grimório e um D10. Tudo ou nada.',req:{andar:9,txt:'Chegue ao Cofre (andar 9)'},
+    montar:()=>({dados:[novoDado('d20'),novoDado('d10'),novoDado('coin'),novoDado('coin')],itens:['grimorio'],ouro:0})}
 };
 const RESERVAS={
   d6:{nome:'D6 de reserva',tipo:'d6',req:null},
@@ -108,6 +116,7 @@ function telaInicial(){
         <button class="menu-item" data-acao="builds"><b>Bolsa inicial</b><small>${nb} de ${Object.keys(BUILDS).length} liberadas</small></button>
         <button class="menu-item" data-acao="colecao"><b>Coleção</b><small>${vistos} de ${tot} · ${PERFIL.conquistas.length} conquistas</small></button>
         <button class="menu-item" data-acao="regras"><b>Como jogar</b><small>regras e combos</small></button>
+        <button class="menu-item" data-acao="opcoes"><b>Opções</b><small>tela, som e gráficos</small></button>
         <button class="menu-item" data-acao="teste"><b>Partida de teste</b><small>tudo liberado</small></button>
       </nav>
     </div>
@@ -164,8 +173,9 @@ function telaColecao(){
 }
 function telaRegras(){
   abrirTela(`<div class="tela">
-    <div class="tela-topo"><div><p class="menu-sobre">Oito adversários entre você e o dono da taverna</p><h2>Como jogar</h2></div><button class="btn sec" data-acao="menu">Voltar</button></div>
+    <div class="tela-topo"><div><p class="menu-sobre">Três atos entre você e o dono da taverna</p><h2>Como jogar</h2></div><button class="btn sec" data-acao="menu">Voltar</button></div>
     <div class="regras">
+      <div class="regra"><b>Os atos</b><p>A taverna tem três atos: a Adega, o Salão e o Cofre. Cada um termina num chefe com uma regra própria. Vencer um chefe recupera 15 de vida e garante uma relíquia.</p></div>
       <div class="regra"><b>A rodada</b><p>Cada inimigo alterna roteiros: Clássico, Duelo, Às Cegas, Desafio Aberto e Estouro. As lâmpadas do contador mostram a ordem dos lances.</p></div>
       <div class="regra"><b>Pressão</b><p>A cada 3 rodadas na mesma luta a base sobe 1 e os erros doem mais. A cada 12 rodadas na partida, a taverna esquenta e tudo fica 1 mais difícil, até +3.</p></div>
       <div class="regra"><b>Estouro</b><p>Fique entre o alvo e o teto. Passou do teto, estourou e o dano é seu. Puxe a alavanca do contador para parar a tempo.</p></div>
@@ -209,7 +219,7 @@ function fim(venceu){
   abrirTela(`<div class="fim${venceu?'':' derrota'}">
     <p class="menu-sobre">${venceu?`Os ${MAPA_LINHAS} andares vencidos`:`Andar ${andarAlc} de ${MAPA_LINHAS}`} · Bolsa ${S.build||'Apostador'}${S.desafio?' · '+DESAFIOS[S.desafio].nome:''}${S.diaria?' · Partida do dia':''}${S.teste?' · teste':''}</p>
     <h1>${venceu?'Você quebrou a banca':'A casa sempre ganha'}</h1>
-    <p class="fim-texto">${venceu?`${INIMIGOS[INIMIGOS.length-1].nome} caiu, e a taverna inteira viu. A banca agora é sua.`:`${S.ini?S.ini.nome:'A taverna'} te derrubou. Junte suas fichas e tente outra vez.`}</p>
+    <p class="fim-texto">${venceu?`${INIMIGOS[ATOS[ATOS.length-1].chefe].nome} caiu, e a taverna inteira viu. A banca agora é sua.`:`${S.ini?S.ini.nome:'A taverna'} te derrubou. Junte suas fichas e tente outra vez.`}</p>
     <div class="fim-stats">
       ${stat(st.dano||0,'Dano causado',true)}${stat(st.maior||0,'Maior acerto')}${stat(st.combos||0,'Combos')}${stat(st.rodadas||0,'Rodadas')}${stat(S.ouro,'Ouro no bolso')}
       <div class="stat"><b>${tempo}</b><small>Tempo</small></div>
@@ -231,6 +241,7 @@ function menuAcao(ac,el){
   if(ac==='builds'){telaBuilds();return true}
   if(ac==='colecao'){telaColecao();return true}
   if(ac==='regras'){telaRegras();return true}
+  if(opcoesAcao(ac,el))return true;
   if(ac==='build'){const k=el.dataset.k;if(liberado(BUILDS[k].req)){PERFIL.build=k;salvarPerfil();SOM.compra();telaBuilds()}else SOM.traco();return true}
   if(ac==='reserva'){const k=el.dataset.k;if(liberado(RESERVAS[k].req)){PERFIL.reserva=k;salvarPerfil();SOM.batida(6,k==='coin');telaBuilds()}else SOM.traco();return true}
   return false;

@@ -11,8 +11,8 @@ function texturaCouro(){
 }
 function iniciarBandeja(){
   const cv=$('cenaBandeja');
-  B.r=new THREE.WebGLRenderer({canvas:cv,antialias:true});B.r.setPixelRatio(Math.min(devicePixelRatio,2));
-  B.r.shadowMap.enabled=true;B.r.shadowMap.type=THREE.PCFSoftShadowMap;B.r.outputEncoding=THREE.sRGBEncoding;B.r.toneMapping=THREE.ACESFilmicToneMapping;
+  B.r=new THREE.WebGLRenderer({canvas:cv,antialias:true});B.r.setPixelRatio(pxQualidade());
+  B.r.shadowMap.enabled=qualidade().sombra;B.r.shadowMap.type=THREE.PCFSoftShadowMap;B.r.outputEncoding=THREE.sRGBEncoding;B.r.toneMapping=THREE.ACESFilmicToneMapping;
   B.scene=new THREE.Scene();B.scene.background=new THREE.Color('#140d09');
   B.cam=new THREE.PerspectiveCamera(32,1,.1,100);
   B.scene.add(new THREE.HemisphereLight('#f6e7c9','#1a110b',.6));

@@ -5,12 +5,14 @@ function rolar(d){return d.faces[Math.floor(Math.random()*d.faces.length)]}
 function luta(P,no,stats){
   const b=INIMIGOS[no.inimigo],elite=no.tipo==='elite',des=CFG.des||0;
   const E={hp:Math.round((CFG.hpTab?CFG.hpTab[no.inimigo]:b.hp)*(elite?(CFG.eliteMult||1.35):1)*(des>=1?1.15:1)*(CFG.hpMult||1)),tracos:[...b.tracos.filter(t=>!(CFG.semTracos||[]).includes(t)),...(elite&&no.extra?[no.extra]:[])],bolsa:(no.tipo==='chefe'&&CFG.bossBolsa?CFG.bossBolsa:b.bolsa).map(k=>DADOS_CASA[k]()),base:(CFG.baseTab?CFG.baseTab[no.inimigo]:b.base)+(CFG.baseAdd||0),veneno:0};
-  E.max=E.hp;if(E.tracos.includes('armadura'))E.arm=E.armMax=CFG.armK?CFG.armK+no.inimigo:10+no.inimigo*2;
+  const tier=tierDe(no.inimigo);E.base0=E.base;
+  E.max=E.hp;if(E.tracos.includes('armadura'))E.arm=E.armMax=CFG.armK?CFG.armK+tier:10+tier*2;
   const tem=k=>E.tracos.includes(k);let rod=0;
   while(P.hp>0&&E.hp>0&&rod<40){
     rod++;stats.rodadas++;P.rodTotal++;
     const modos=b.modos||['classico'],m=MODOS[modos[(rod-1)%modos.length]];
     if(rod>1&&tem('crescente'))E.base++;
+    if(E.hp<E.max/2){if(tem('barril')&&!E.bebeu){E.bebeu=1;E.hp=Math.min(E.max,E.hp+12);E.tracos.push('pele')}if(tem('furia')&&!E.furia){E.furia=1;E.base+=2;E.tracos.push('duplo')}}
     if(E.armMax&&rod>1&&(rod-1)%3===0)E.arm=E.armMax;
     let base=Math.max(0,E.base+(no.tipo==='chefe'?(CFG.bossBase||0):0)+(m.base||0)+Math.floor((rod-1)/(CFG.pressDiv||2))+Math.min(CFG.calorMax??99,Math.floor(P.rodTotal/(CFG.calorDiv||8)))+(des>=2?1:0)-(rod===1&&P.relog?3:0));
     let mao=[...P.dados].sort(()=>Math.random()-.5).slice(0,Math.max(3+(P.bolsaFunda||0),m.seq.split('j').length-1));
@@ -49,8 +51,8 @@ function luta(P,no,stats){
     const a=alvo(),t=teto(),est=soma>t;{const k='T'+no.inimigo;const o=stats.ab||(stats.ab={});const q=o[k]||(o[k]={n:0,s:0,a:0,h:0});q.n++;q.s+=soma;q.a+=a;if(soma>=a&&!est)q.h++}
     if(soma>=a&&!est){let d=soma;if(m.mult)d=Math.round(d*m.mult);if(m.teto&&soma===t)d*=2;d+=P.danoExtra||0;
       if(escCasa)d=Math.max(0,d-escCasa);if(tem('pele'))d=Math.max(0,d-2);if(E.arm){const bb=Math.min(d,E.arm);E.arm-=bb;d-=bb}
-      E.hp-=d;stats.dano+=d;stats.acertos++;
-    }else{let bruto=(est?soma-t:a-soma)+(CFG.missFlat??1)+Math.floor(no.inimigo/(CFG.missTier||2))+Math.floor((rod-1)/3);if(tem('vinganca'))bruto+=2;if(tem('ganancia'))P.ouro=Math.max(0,P.ouro-2);
+      E.hp-=d;stats.dano+=d;stats.acertos++;if(tem('divida')&&E.base>E.base0)E.base--;
+    }else{let bruto=(est?soma-t:a-soma)+(CFG.missFlat??1)+Math.floor(tier/(CFG.missTier||2))+Math.floor((rod-1)/3);if(tem('vinganca'))bruto+=2;if(tem('divida'))E.base+=2;if(tem('ganancia'))P.ouro=Math.max(0,P.ouro-2);
       const dd=Math.max(0,bruto-escudo);P.hp-=dd;stats.danoSofrido+=dd;stats.erros++;}
     if(E.veneno>0&&E.hp>0){E.hp-=E.veneno;E.veneno--}
     if(tem('regen')&&E.hp>0)E.hp=Math.min(E.max,E.hp+3);
@@ -67,9 +69,10 @@ function partida(){
     if(no.inimigo!=null){
       const hp0=P.hp,r=luta(P,no,st);st.lutas.push({tier:no.inimigo,tipo:no.tipo,rod:r.rod,perdeu:hp0-Math.max(0,P.hp)});
       if(!r.venceu)return{venceu:false,linha:linha+1,st,P};
-      if(no.tipo==='chefe')return{venceu:true,linha:MAPA_LINHAS,st,P};
-      if(CFG.curaVitoria)P.hp=Math.min(P.max,P.hp+Math.round(P.max*CFG.curaVitoria));P.ouro+=Math.round((6+no.inimigo*2)*(no.tipo==='elite'?1.5:1)*(des>=3?.75:1)*(CFG.ouroMult||1));
-      if(no.tipo==='elite'){P.reliq++;P.danoExtra+=CFG.reliqDano??2}else{const ofer=sorteia(['coin','d6','d10','d20','d6']);if(CFG.botEsperto&&(ofer==='d10'||ofer==='d20')&&P.dados.length<8)P.dados.push(novoDado(ofer));else if(!CFG.botEsperto&&Math.random()<.5&&P.dados.length<8)P.dados.push(novoDado(sorteia(['d6','d10','coin'])));else melhorar(P,2)}
+      if(no.tipo==='chefe'&&(no.final||no.r>=MAPA_LINHAS-1))return{venceu:true,linha:MAPA_LINHAS,st,P};
+      if(no.tipo==='chefe')P.hp=Math.min(P.max,P.hp+(des>=5?8:15));
+      if(CFG.curaVitoria)P.hp=Math.min(P.max,P.hp+Math.round(P.max*CFG.curaVitoria));P.ouro+=Math.round((6+tierDe(no.inimigo)*2)*(no.tipo==='elite'||no.tipo==='chefe'?1.5:1)*(des>=3?.75:1)*(CFG.ouroMult||1));
+      if(no.tipo==='elite'||no.tipo==='chefe'){P.reliq++;P.danoExtra+=CFG.reliqDano??2}else{const ofer=sorteia(['coin','d6','d10','d20','d6']);if(CFG.botEsperto&&(ofer==='d10'||ofer==='d20')&&P.dados.length<8)P.dados.push(novoDado(ofer));else if(!CFG.botEsperto&&Math.random()<.5&&P.dados.length<8)P.dados.push(novoDado(sorteia(['d6','d10','coin'])));else melhorar(P,2)}
     }else if(no.tipo==='loja'){
       while(P.ouro>=5){
         if(P.hp<P.max*.5&&P.ouro>=5){P.ouro-=5;P.hp=Math.min(P.max,P.hp+(des>=5?6:12));continue}
@@ -88,7 +91,7 @@ function partida(){
 }
 const N=+(CFG.n||2000);let vit=0;const AB={};const morre={},porTier={};let rodTot=0,lutas=0;
 for(let i=0;i<N;i++){const r=partida();for(const k in r.st.ab||{}){const q=AB[k]||(AB[k]={n:0,s:0,a:0,h:0});for(const z in q)q[z]+=r.st.ab[k][z]}if(r.venceu)vit++;else morre[r.linha]=(morre[r.linha]||0)+1;
-  r.st.lutas.forEach(l=>{const k=l.tipo==='elite'?'E'+l.tier:l.tipo==='chefe'?'chefe':'L'+l.tier;const o=porTier[k]||(porTier[k]={n:0,rod:0,perdeu:0});o.n++;o.rod+=l.rod;o.perdeu+=l.perdeu;lutas++;rodTot+=l.rod})}
+  r.st.lutas.forEach(l=>{const k=l.tipo==='elite'?'E'+l.tier:l.tipo==='chefe'?'C'+l.tier:'L'+l.tier;const o=porTier[k]||(porTier[k]={n:0,rod:0,perdeu:0});o.n++;o.rod+=l.rod;o.perdeu+=l.perdeu;lutas++;rodTot+=l.rod})}
 console.log(`desafio ${CFG.des||0} | vitórias ${(vit/N*100).toFixed(1)}% | rodadas por luta ${(rodTot/lutas).toFixed(2)}`);
 console.log('morre no andar:',Object.entries(morre).sort((a,b)=>a[0]-b[0]).map(([k,v])=>`${k}:${(v/N*100).toFixed(1)}%`).join(' '));
 console.log('por inimigo (rodadas, vida perdida):',Object.entries(porTier).sort().map(([k,o])=>`${k} ${(o.rod/o.n).toFixed(1)}r/${(o.perdeu/o.n).toFixed(1)}hp`).join(' | '));

@@ -31,7 +31,7 @@ function abrirRecompensa(ganho,elite){
   const esp=embaralhar(poolGravacoes().filter(o=>o.kind!=='pacto'&&o.kind!=='sombria')).slice(0,2).map(o=>({...o,id:uid++,gratis:true}));
   const extra=elite?ofertasReliquia(1,true)[0]:null;
   esp.splice(Math.floor(R()*3),0,extra||ofertaDado(tiposDado(1)[0],true));
-  montarLoja({titulo:elite?'Elite derrotado':'Vitória',sub:`${S.ini.nome} pagou ${ganho} de ouro. Leve um item do espólio${elite?': uma relíquia está garantida':''}.`,ganho,espolio:esp,podeTrocar:true});
+  montarLoja({titulo:S.ini&&S.ini.chefe?`Fim do ${['primeiro','segundo','terceiro'][atoDe(S.linha)]} ato`:elite?'Elite derrotado':'Vitória',sub:`${S.ini.nome} pagou ${ganho} de ouro. Leve um item do espólio${elite?': uma relíquia está garantida':''}.`,ganho,espolio:esp,podeTrocar:true});
 }
 function abrirMercado(){montarLoja({titulo:'Mercador',sub:'Gaste seu ouro no balcão. Encantamentos e gravações você aplica no dado que escolher.',mercador:true})}
 function precoDe(o){return o.kind==='renovar'?2+S.loja.renov:o.preco}
@@ -154,7 +154,7 @@ function iniciarLoja3D(){
   if(LJ){cancelAnimationFrame(LJ.raf);if(LJ.ro)LJ.ro.disconnect();LJ.r.dispose();LJ=null}
   const cv=$('lojaCena');
   const r=new THREE.WebGLRenderer({canvas:cv,antialias:true});
-  r.setPixelRatio(Math.min(devicePixelRatio,2));r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;
+  r.setPixelRatio(pxQualidade());r.shadowMap.enabled=qualidade().sombra;r.shadowMap.type=THREE.PCFSoftShadowMap;r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;
   const sc=new THREE.Scene();sc.background=new THREE.Color('#120c08');sc.fog=new THREE.Fog('#120c08',40,80);
   const cam=new THREE.PerspectiveCamera(34,1,.1,200);
   sc.add(new THREE.HemisphereLight(lin('#f6e7c9'),lin('#1a110b'),.5));

@@ -41,6 +41,13 @@ const PATHS={
   broquel:'M12 1.5 A10.5 10.5 0 1 1 11.99 1.5 Z M12 8 A4 4 0 1 0 12.01 8 Z',
   baralho:'M2.5 5 L13 3 L16 19.5 L5.5 21.5 Z M14.5 3.5 L21.5 6 L18 21.5 L16.8 19.5 Z',
   relogio:'M10 .5 H14 V2.5 H13 V3.6 A9.5 9.5 0 1 1 11 3.6 V2.5 H10 Z M12 6.5 A6.5 6.5 0 1 0 12.01 6.5 Z M11.2 8.5 H12.8 V12.6 L15.4 14.8 L14.3 16 L11.2 13.4 Z',
+  brasa:'M4 18 C4 14.5 8 12.5 12 12.5 C16 12.5 20 14.5 20 18 C20 20.2 17 21.2 12 21.2 C7 21.2 4 20.2 4 18 Z M12 2.5 C13.2 5.5 15.5 6.8 15.5 9.4 A3.5 3.5 0 0 1 8.5 9.4 C8.5 7.8 9.6 6.8 10.2 5.8 C10.8 7.4 11.8 7.6 12 6.6 C12.3 5.4 12 4 12 2.5 Z',
+  cachimbo:'M2.5 9 H11.5 V12.2 C11.5 15.4 9.4 17.5 6.9 17.5 C4.3 17.5 2.5 15.7 2.5 13.2 Z M11 10 L21 6 L21.9 8.1 L12 12.2 Z M4.5 5.5 C5.5 4.5 5.5 3.5 4.8 2.5 L6 2 C7 3.3 7 4.8 5.7 6.2 Z',
+  tabua:'M4 3 H20 V21 H4 Z M6.8 6 V18 H8.4 V6 Z M10.2 6 V18 H11.8 V6 Z M13.6 6 V18 H15.2 V6 Z',
+  velaNegra:'M8.5 9 H15.5 V21.5 H8.5 Z M12 1.8 C13.6 3.9 14.2 5 14.2 6.1 A2.2 2.2 0 0 1 9.8 6.1 C9.8 5 10.4 3.9 12 1.8 Z',
+  moedaPesada:'M12 2.5 A9.5 9.5 0 1 1 11.99 2.5 Z M9 9 H15 V15 H9 Z',
+  dadoOsso:'M5.5 3 H18.5 A2.5 2.5 0 0 1 21 5.5 V18.5 A2.5 2.5 0 0 1 18.5 21 H5.5 A2.5 2.5 0 0 1 3 18.5 V5.5 A2.5 2.5 0 0 1 5.5 3 Z M12 9.2 A2.8 2.8 0 1 0 12.01 9.2 Z',
+  cantil:'M10 1.5 H14 V5 H10 Z M12 4.5 A8.5 8.5 0 1 1 11.99 4.5 Z M12 9 A4 4 0 1 0 12.01 9 Z',
   fichaSorte:'M12 1.5 L15.2 8.6 L22.8 9.1 L17 14 L18.8 21.5 L12 17.4 L5.2 21.5 L7 14 L1.2 9.1 L8.8 8.6 Z',
   sino:'M12 1.5 C13 1.5 13.6 2.1 13.6 3 C17.2 3.9 18.7 7 18.7 11 V16 L21.2 19 H2.8 L5.3 16 V11 C5.3 7 6.8 3.9 10.4 3 C10.4 2.1 11 1.5 12 1.5 Z M9.6 20 H14.4 A2.4 2.4 0 0 1 9.6 20 Z',
   pergaminho:'M5 2.5 H17 A3 3 0 0 1 20 5.5 V19 A3 3 0 0 1 17 22 H7 A3 3 0 0 1 4 19 V16.5 H7 V5.5 A3 3 0 0 0 5 2.5 Z M10 8 H17 V9.5 H10 Z M10 12 H17 V13.5 H10 Z',
@@ -70,8 +77,17 @@ const INIMIGOS=[
   {nome:'Bruxa das Fichas',modos:['cego','estouro','classico'],hp:36,base:5,dado:'d10',bolsa:['comum10','sanguessuga','espinhoso','sombrio'],tracos:['imune','regen']},
   {nome:'Cavaleiro Falido',modos:['duelo','classico','estouro'],hp:42,base:5,dado:'d10',bolsa:['comum10','muralha','espinho10','corrente'],tracos:['pele','vinganca']},
   {nome:'Ogro Apostador',modos:['duelo','cego','aberto'],hp:48,base:3,dado:'d20',bolsa:['comum20','chumbo','espinhoso','sombrio','corrente'],tracos:['vinganca','regen','armadura']},
-  {nome:'O Dono da Casa',modos:['estouro','duelo','cego','classico'],hp:64,base:3,dado:'d20',bolsa:['comum20','vicD20','espinho10','sombrio','corrente'],tracos:['ganancia','congela']}
+  {nome:'O Dono da Casa',chefe:true,tier:7,modos:['estouro','duelo','cego','classico'],hp:52,base:3,dado:'d20',bolsa:['comum20','vicD20','espinho10','sombrio','corrente'],tracos:['ganancia','congela','furia']},
+  {nome:'O Taberneiro Caolho',chefe:true,tier:2,modos:['classico','aberto','cego'],hp:38,base:5,dado:'d10',bolsa:['comum6','comum10','viciado','muralha'],tracos:['barril']},
+  {nome:'A Viúva das Apostas',chefe:true,tier:5,modos:['duelo','estouro','classico'],hp:54,base:5,dado:'d10',bolsa:['comum10','viciado','sanguessuga','espinho10','sombrio'],tracos:['divida','ganancia']}
 ];
+const ATOS=[
+  {nome:'A Adega',num:'I',chefe:8,feltro:'#1e4a46'},
+  {nome:'O Salão',num:'II',chefe:9,feltro:'#4a1a22'},
+  {nome:'O Cofre',num:'III',chefe:7,feltro:'#1a2744'}
+];
+const atoDe=r=>Math.min(ATOS.length-1,Math.floor((r||0)/4));
+const tierDe=k=>INIMIGOS[k].tier??k;
 const MODOS={
   classico:{nome:'Clássico',seq:'jjcj',desc:'Dois lances seus, a casa lança, e o seu último lance.'},
   duelo:{nome:'Duelo',seq:'jcjcj',base:-3,desc:'Vocês alternam. A casa lança duas vezes, mas a base cai 3.'},
@@ -129,7 +145,14 @@ const ITENS={
   rum:{nome:'Garrafa de Rum',desc:'Ao vencer uma luta, recupera 8 de vida.',cor:'#b07a48',preco:8},
   punhal:{nome:'Punhal Envenenado',desc:'Seus acertos aplicam 2 de veneno.',cor:'#a7c25c',preco:11},
   luva:{nome:'Luva de Ladrão',desc:'Ao vencer uma rodada, rouba 2 de ouro da casa.',cor:'#9a8a70',preco:9},
-  azarao:{nome:'Dado do Azarão',desc:'Se você errar o alvo por 5 ou mais, a casa leva 5 de dano mesmo assim.',cor:'#d9574b',preco:11}
+  azarao:{nome:'Dado do Azarão',desc:'Se você errar o alvo por 5 ou mais, a casa leva 5 de dano mesmo assim.',cor:'#d9574b',preco:11},
+  brasa:{nome:'Carvão em Brasa',desc:'Seus acertos causam +1 de dano para cada dado seu na mesa.',cor:'#ef7a3a',preco:11},
+  cachimbo:{nome:'Cachimbo de Barro',desc:'Quando você erra o alvo, a próxima rodada começa com 4 de escudo.',cor:'#c4a07a',preco:9},
+  tabua:{nome:'Tábua de Contas',desc:'Cada acerto seguido na mesma luta causa +2 de dano a mais que o anterior. Errar zera a conta.',cor:'#c9a26a',preco:12},
+  velaNegra:{nome:'Vela Negra',desc:'Chefes e elites começam a luta com 15% a menos de vida.',cor:'#8c7aa8',preco:12},
+  moedaPesada:{nome:'Moeda de Chumbo',desc:'Suas moedas que caem no 2 valem 6.',cor:'#9aa3ad',preco:9},
+  dadoOsso:{nome:'Dado de Osso',desc:'Seus D6 que caem no 1 valem 6.',cor:'#efe3c6',preco:9},
+  cantil:{nome:'Cantil de Couro',desc:'Dormir no descanso cura 10 a mais.',cor:'#a8794a',preco:7}
 };
 const ITEM_ICONE={escudo:'escudo',fogo:'fogo',punhal:'roubo'};
 const CONJUNTOS={
@@ -137,7 +160,9 @@ const CONJUNTOS={
   alquimista:{nome:'Alquimista',pecas:['peconha','balsamo','punhal'],desc:'O veneno no inimigo causa o dobro de dano.'},
   tesoureiro:{nome:'Tesoureiro',pecas:['coroa','ima','algibeira'],desc:'Acertos causam +1 de dano para cada 10 de ouro que você tem.'},
   guerreiro:{nome:'Guerreiro',pecas:['lamina','fogo','broquel'],desc:'Acertos causam +5 de dano.'},
-  relojoeiro:{nome:'Relojoeiro',pecas:['ampulheta','relogio','pena'],desc:'Na primeira rodada de cada luta, a base da casa cai 3.'}
+  relojoeiro:{nome:'Relojoeiro',pecas:['ampulheta','relogio','pena'],desc:'Na primeira rodada de cada luta, a base da casa cai 3.'},
+  viciado:{nome:'Viciado',pecas:['dadoOsso','moedaPesada','ferradura'],desc:'Seus dados valem +2 nas duas faces mais baixas.'},
+  andarilho:{nome:'Andarilho',pecas:['cachimbo','cantil','velaNegra'],desc:'Vencer um chefe ou elite recupera 10 de vida.'}
 };
 const conjAtivo=k=>CONJUNTOS[k].pecas.every(p=>S.itens.includes(p));
 const conjuntoDe=item=>{const e=Object.entries(CONJUNTOS).find(([k,c])=>c.pecas.includes(item));return e?{k:e[0],...e[1],tem:e[1].pecas.filter(p=>S.itens.includes(p)).length}:null};
@@ -161,6 +186,9 @@ function bonusFace(t,f){
   if(q('sino')&&tipo==='d6'){b+=q('sino');dispararItem('sino',`+${q('sino')}`)}
   if(q('pergaminho')&&tipo==='d10'){b+=q('pergaminho');dispararItem('pergaminho',`+${q('pergaminho')}`)}
   if(q('grimorio')&&tipo==='d20'){b+=2*q('grimorio');dispararItem('grimorio',`+${2*q('grimorio')}`)}
+  if(q('moedaPesada')&&tipo==='coin'&&f.v===2){b+=4*q('moedaPesada');dispararItem('moedaPesada',`Chumbo +${4*q('moedaPesada')}`)}
+  if(q('dadoOsso')&&tipo==='d6'&&f.v===1){b+=5*q('dadoOsso');dispararItem('dadoOsso',`Osso +${5*q('dadoOsso')}`)}
+  if(conjAtivo('viciado')&&[...DIE[tipo].faces].sort((a,b)=>a-b).slice(0,2).includes(f.v))b+=2;
   if(q('fichaSorte')&&f.v===Math.max(...DIE[tipo].faces)){b+=3*q('fichaSorte');dispararItem('fichaSorte',`+${3*q('fichaSorte')}`)}
   return b;
 }
@@ -179,6 +207,9 @@ const TRACOS={
   duplo:{nome:'Mão Dupla',desc:'Lança 2 dados da bolsa e fica com o maior.',cor:'#b8a6d6',ic:'dupla'},
   congela:{nome:'Mão de Ferro',desc:'A cada rodada, um dado da sua mão fica preso e não pode ser lançado.',cor:'#8fb3d9',ic:'cadeado'},
   armadura:{nome:'Armadura',desc:'Absorve o dano dos seus acertos. Recarrega a cada 3 rodadas. Fogo e veneno passam direto.',cor:'#b9c2cc',ic:'escudo'},
+  barril:{nome:'Barril de Reserva',desc:'Na primeira vez que fica abaixo da metade da vida, bebe do barril: recupera 12 de vida e ganha Pele Grossa.',cor:'#c08a4a',ic:'rum'},
+  divida:{nome:'Livro de Dívidas',desc:'Cada erro seu sobe a base dela em 2 até o fim da luta. Cada acerto seu tira 1, até a base original.',cor:'#c97bd9',ic:'subir'},
+  furia:{nome:'Fúria do Dono',desc:'Abaixo da metade da vida, perde a paciência: a base sobe 2 e ele passa a lançar 2 dados e ficar com o maior.',cor:'#ff6a4a',ic:'coroa'},
   cobrador:{nome:'Cobrador',desc:'A partir do terceiro dado que você lança na rodada, cada um custa 2 de vida.',cor:'#e0574a',ic:'espinho'}
 };
 const ITENS_MAX=6;

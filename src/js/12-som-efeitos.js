@@ -6,7 +6,7 @@ const SOM=(()=>{
   const iniciar=()=>{
     if(ctx){if(ctx.state==='suspended')ctx.resume();return}
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-    ctx=new AC();mestre=ctx.createGain();mestre.gain.value=mudo?0:.7;
+    ctx=new AC();mestre=ctx.createGain();mestre.gain.value=mudo?0:OPCOES.volume/100;
     const comp=ctx.createDynamicsCompressor();mestre.connect(comp);comp.connect(ctx.destination);
     ruido=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);const d=ruido.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
   };
@@ -27,7 +27,8 @@ const SOM=(()=>{
   return{
     iniciar,
     get mudo(){return mudo},
-    alternar(){mudo=!mudo;try{ARMAZ.setItem('bq-mudo',mudo?'1':'0')}catch(e){}if(mestre)mestre.gain.value=mudo?0:.7;return mudo},
+    alternar(){mudo=!mudo;try{ARMAZ.setItem('bq-mudo',mudo?'1':'0')}catch(e){}if(mestre)mestre.gain.value=mudo?0:OPCOES.volume/100;return mudo},
+    aplicarVolume(){if(mestre)mestre.gain.value=mudo?0:OPCOES.volume/100},
     batida(v,metal,vol=1){
       if(!ok())return;const agora=ctx.currentTime;if(agora-ultBatida<.022)return;ultBatida=agora;
       const i=Math.min(1,v/12)*vol;

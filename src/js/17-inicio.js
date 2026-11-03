@@ -6,3 +6,4 @@ Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]).then(()=
   try{iniciar3D();$('cena').addEventListener('webglcontextlost',()=>mostrarErro('o navegador perdeu o contexto 3D. Recarregue a página.'))}
   catch(e){mostrarErro(e.message);console.error(e)}
 });
+if(typeof window!=='undefined'&&window.bqArquivo&&window.bqArquivo.aoAvisar)window.bqArquivo.aoAvisar(m=>toast(`<b>Atualização</b>${m}`));

@@ -5,25 +5,28 @@ const NOS={
   loja:{nome:'Mercador',cor:'#e3b64a',ic:'ouro',desc:'Compre dados, gravações, encantamentos, relíquias e serviços.'},
   evento:{nome:'Evento',cor:'#b98ae6',ic:'baralho',desc:'Algo acontece na taverna. Escolhas com risco e recompensa.'},
   descanso:{nome:'Descanso',cor:'#86c48f',ic:'rum',desc:'Durma para curar, afie uma face ou funda dois dados.'},
-  chefe:{nome:'Chefe',cor:'#b48cff',ic:'coroa',desc:'O dono da taverna em pessoa.'}
+  chefe:{nome:'Chefe',cor:'#b48cff',ic:'coroa',desc:'Fecha o ato. Vencer recupera 15 de vida e garante uma relíquia. O último chefe encerra a partida.'}
 };
 const EXTRAS_ELITE=['pele','ganancia','vinganca','regen','armadura','cobrador','congela'];
 function gerarMapa(){
   const RL=MAPA_LINHAS,C=4,nos={},lig={},k=(r,c)=>r+':'+c,ligar=(a,b)=>{(lig[a]=lig[a]||[]);if(!lig[a].includes(b))lig[a].push(b)};
-  const chefe=k(RL-1,1.5);
-  for(let p=0;p<4;p++){
-    let c=p===0?0:p===1?C-1:Math.floor(R()*C);
-    for(let r=0;r<RL-1;r++){
-      nos[k(r,c)]=nos[k(r,c)]||{r,c};
-      if(r<RL-2){const nc=Math.max(0,Math.min(C-1,c+Math.floor(R()*3)-1));ligar(k(r,c),k(r+1,nc));c=nc}
-      else ligar(k(r,c),chefe);
+  const ancoras=[0,...ATOS.map((a,i)=>Math.min(RL-1,i*4+3))];
+  ancoras.forEach(r=>nos[k(r,1.5)]={r,c:1.5});
+  for(let a=0;a<ancoras.length-1;a++){
+    const de=k(ancoras[a],1.5),ate=k(ancoras[a+1],1.5);
+    for(let p=0;p<4;p++){
+      let c=p===0?0:p===1?C-1:Math.floor(R()*C),ant=de;
+      for(let r=ancoras[a]+1;r<ancoras[a+1];r++){
+        nos[k(r,c)]=nos[k(r,c)]||{r,c};ligar(ant,k(r,c));ant=k(r,c);
+        c=Math.max(0,Math.min(C-1,c+Math.floor(R()*3)-1));
+      }
+      ligar(ant,ate);
     }
   }
-  nos[chefe]={r:RL-1,c:1.5};
   for(const id in nos){
     const n=nos[id];n.id=id;
-    if(n.r===RL-1)n.tipo='chefe';
-    else if(n.r===0)n.tipo='luta';
+    if(n.r>0&&ancoras.includes(n.r)){n.tipo='chefe';n.ato=atoDe(n.r);n.inimigo=ATOS[n.ato].chefe;n.final=n.r===RL-1;continue}
+    if(n.r===0)n.tipo='luta';
     else if(n.r===RL-2)n.tipo='descanso';
     else if(n.r===6)n.tipo=R()<.5?'loja':'evento';
     else{const x=R();n.tipo=x<.42?'luta':x<.64?'evento':x<.78?'loja':(n.r>=3&&x<.92)?'elite':n.r>=2?'descanso':'luta'}
@@ -32,11 +35,8 @@ function gerarMapa(){
       n.inimigo=n.tipo==='elite'?Math.min(6,t+1):t;
       if(n.tipo==='elite'){const b=INIMIGOS[n.inimigo];n.extra=pick(EXTRAS_ELITE.filter(x=>!b.tracos.includes(x)))}
     }
-    if(n.tipo==='chefe')n.inimigo=INIMIGOS.length-1;
   }
-  const ini=k(0,1.5),seg=new Set();
-  for(const id of Object.keys(nos))if(nos[id].r===0){(lig[id]||[]).forEach(b=>seg.add(b));delete nos[id];delete lig[id]}
-  nos[ini]={id:ini,r:0,c:1.5,tipo:'luta',inimigo:0};lig[ini]=[...seg];
+  const ini=k(0,1.5);nos[ini].inimigo=0;
   return{nos,lig,atual:null,feitos:[],inicio:ini};
 }
 const selo=k=>`<span class="selo" style="background:${NOS[k].cor}">${svgPath(NOS[k].ic,'#2a1a0c')}</span>`;
@@ -71,13 +71,14 @@ function telaMapa(){
     <div class="mapa-vista" id="mapaVista" tabindex="0" aria-label="Mapa. Use as setas para rolar">
       <div class="mapa-trilho" id="mapaTrilho"><svg viewBox="0 0 ${W} ${H}" class="mapa-svg" id="mapaSvg" role="group" aria-label="Mapa da taverna">
         <text x="${W/2}" y="40" class="mp-titulo">A Taverna</text>
+        ${ATOS.map((a,i)=>{const y=i?mapaPos({r:i*4-.5,c:0}).y:H-14;return`${i?`<line x1="24" x2="${W-24}" y1="${y}" y2="${y}" class="mp-corte"/>`:''}<text x="${W/2}" y="${y+7}" class="mp-ato">Ato ${a.num} · ${a.nome}</text>`}).join('')}
         ${linhas}<g id="mpTinta"></g>${nos}${peao}</svg></div>
       <div class="rolo cima" id="roloC"></div><div class="rolo baixo" id="roloB"></div>
       <div class="mapa-dica" id="mapaDica" hidden></div>
       <div class="mapa-guia">Arraste para ver o mapa</div>
     </div>
     <aside class="mapa-lado">
-      <div><p class="menu-sobre">Andar ${andar} de ${R} · Bolsa ${S.build||'Apostador'}</p><h2>A Taverna</h2></div>
+      <div><p class="menu-sobre">Andar ${andar} de ${R} · Bolsa ${S.build||'Apostador'}</p><h2>${ATOS[atoDe(Math.max(0,andar-1)+(M.atual&&M.nos[M.atual].tipo==='chefe'&&!M.nos[M.atual].final?1:0))].nome}</h2></div>
       <div class="status"><span class="pilula"><small>Vida</small>${S.hp}/${S.max}</span><span class="pilula ouro">${MOEDA}${S.ouro}</span><span class="pilula"><small>Dados</small>${S.dados.length}</span><span class="pilula"><small>Relíquias</small>${new Set(S.itens).size}</span></div>
       <div class="cartao" id="mapaInfo"></div>
       <div class="legenda">${['luta','elite','evento','loja','descanso','chefe'].map(k=>`<span>${selo(k)}${NOS[k].nome}</span>`).join('')}</div>

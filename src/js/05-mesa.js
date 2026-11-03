@@ -1,8 +1,8 @@
 function iniciar3D(){
   const canvas=$('cena');
   renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(pxQualidade());
+  renderer.shadowMap.enabled=qualidade().sombra;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
   scene=new THREE.Scene();scene.background=new THREE.Color('#0c0908');
   camera=new THREE.PerspectiveCamera(36,1,.1,200);
@@ -17,7 +17,7 @@ function iniciar3D(){
   Object.assign(janela.shadow.camera,{left:-15,right:15,top:12,bottom:-12,near:1,far:60});
   scene.add(janela,janela.target);
   const feltro=new THREE.Mesh(new THREE.PlaneGeometry(TW,TD),new THREE.MeshStandardMaterial({map:texturaFeltro(),roughness:.95}));
-  feltro.rotation.x=-Math.PI/2;feltro.receiveShadow=true;scene.add(feltro);
+  feltro.rotation.x=-Math.PI/2;feltro.receiveShadow=true;scene.add(feltro);MESA.feltro=feltro;MESA.feltroAto=0;
   const madeira=matMadeira(2,.35,'#c99d76',{rough:.5,relevo:.03});
   const madeiraV=matMadeira(2,.35,'#c99d76',{rough:.5,relevo:.03,rot:Math.PI/2});
   const borda=(w,d,x,z,m)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,.7,d),m);b.position.set(x,.35,z);b.castShadow=true;b.receiveShadow=true;scene.add(b)};
@@ -125,3 +125,8 @@ function limparMesa(){
   auras3D.length=0;areas.length=0;
 }
 
+function trocarFeltro(ato){
+  if(!MESA.feltro||MESA.feltroAto===ato||!ATOS[ato])return;
+  const m=MESA.feltro.material;if(m.map)m.map.dispose();
+  m.map=texturaFeltro(ATOS[ato].feltro);m.needsUpdate=true;MESA.feltroAto=ato;
+}

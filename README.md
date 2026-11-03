@@ -38,6 +38,7 @@ src/js/                 código do jogo, na ordem dos números
   15-mapa.js            mapa de caminhos
   16-eventos.js         fusão, eventos de taverna e descanso
   17-inicio.js          tratamento de erro e inicialização
+  18-opcoes.js          tela de opções: tela cheia, volume e qualidade gráfica
 tools/simulador.mjs     simulador de balanceamento
 electron/main.cjs       janela do Electron
 ```
@@ -66,6 +67,8 @@ Baixe o `.exe` mais recente em **Releases** no GitHub:
 
 - `BancaQuebrada-Instalador-x.y.z.exe`: instala e cria atalhos na área de trabalho e no menu Iniciar.
 - `BancaQuebrada-Portatil-x.y.z.exe`: roda direto, sem instalar.
+
+Depois de instalado, o jogo procura versões novas sozinho ao abrir, baixa em segundo plano e instala quando você fecha. A versão portátil não se atualiza.
 
 O Windows pode mostrar o aviso "O Windows protegeu o computador" porque o executável não é assinado. Clique em **Mais informações** e depois em **Executar assim mesmo**.
 

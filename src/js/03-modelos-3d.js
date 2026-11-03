@@ -104,9 +104,9 @@ function criarMalha(die,casa){
   return m;
 }
 
-function texturaFeltro(){
+function texturaFeltro(cor='#1e4a46'){
   const c=document.createElement('canvas');c.width=1200;c.height=720;const x=c.getContext('2d');
-  x.fillStyle='#1e4a46';x.fillRect(0,0,1200,720);
+  x.fillStyle=cor;x.fillRect(0,0,1200,720);
   const img=x.getImageData(0,0,1200,720);const d=img.data;
   for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*18;d[i]+=n;d[i+1]+=n;d[i+2]+=n}
   x.putImageData(img,0,0);

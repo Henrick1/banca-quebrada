@@ -27,4 +27,7 @@ jobs:
           tag_name: v${{ steps.versao.outputs.v }}
           name: Banca Quebrada ${{ steps.versao.outputs.v }}
           target_commitish: ${{ github.sha }}
-          files: release/*.exe
+          files: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
