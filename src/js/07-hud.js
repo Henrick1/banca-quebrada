@@ -11,7 +11,9 @@ function hud(){
   $('andar').innerHTML=`<small>Andar</small>${(S.linha||0)+1} de ${MAPA_LINHAS}`;
   if(S.ini){
     $('iniNome').textContent=S.ini.nome;
-    const pi=Math.max(0,S.ini.hp/S.ini.max*100)+'%';$('hpI').style.width=pi;$('hpIf').style.width=pi;$('hpIt').textContent=`${Math.max(0,S.ini.hp)} / ${S.ini.max}`;
+    const pi=Math.max(0,S.ini.hp/S.ini.max*100)+'%';
+    if(S.barraSemAnim){S.barraSemAnim=false;[$('hpI'),$('hpIf')].forEach(b=>{b.style.transition='none';b.style.width=pi;void b.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>{b.style.transition=''}))})}
+    $('hpI').style.width=pi;$('hpIf').style.width=pi;$('hpIt').textContent=`${Math.max(0,S.ini.hp)} / ${S.ini.max}`;
     $('iniInfo').innerHTML=`Base <b>${baseAtual()}</b> · Bolsa <b>${S.ini.bolsa.length} dados</b>`;
     $('veneno').textContent=S.veneno;
   }
