@@ -1,8 +1,8 @@
 const PERFIL=(()=>{
   const base={partidas:0,vitorias:0,melhorAndar:0,vistos:{itens:[],encantos:[]},build:'apostador',reserva:'d6',desafio:0,desafioMax:0,conquistas:[],diarias:{}};
-  try{const p=JSON.parse(localStorage.getItem('bq-perfil')||'{}');return{...base,...p,vistos:{...base.vistos,...(p.vistos||{})}}}catch(e){return base}
+  try{const p=JSON.parse(ARMAZ.getItem('bq-perfil')||'{}');return{...base,...p,vistos:{...base.vistos,...(p.vistos||{})}}}catch(e){return base}
 })();
-function salvarPerfil(){try{localStorage.setItem('bq-perfil',JSON.stringify(PERFIL))}catch(e){}}
+function salvarPerfil(){try{ARMAZ.setItem('bq-perfil',JSON.stringify(PERFIL))}catch(e){}}
 function registrarVisto(tipo,k){if(S.teste)return;const l=PERFIL.vistos[tipo];if(!l.includes(k)){l.push(k);salvarPerfil()}}
 const cm=n=>(S.desafio||0)>=5?Math.ceil(n/2):n;
 const DESAFIOS=[
@@ -37,8 +37,8 @@ function conquistar(k){
 const hojeISO=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const sementeDe=txt=>[...txt].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261);
 const SAVE_KEY='bq-partida';
-function temSalvo(){try{return!!localStorage.getItem(SAVE_KEY)}catch(e){return false}}
-function apagarSalvo(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
+function temSalvo(){try{return!!ARMAZ.getItem(SAVE_KEY)}catch(e){return false}}
+function apagarSalvo(){try{ARMAZ.removeItem(SAVE_KEY)}catch(e){}}
 function salvarPartida(){
   if(!S.mapa||S.fase==='fim')return;
   const onde=S.fase==='loja'?'loja':S.fase==='evento'&&S.evAtual?'evento':S.fase==='mapa'||S.fase==='evento'?'mapa':'luta';
@@ -46,10 +46,10 @@ function salvarPartida(){
   const d={v:1,uid,onde,hp:onde==='luta'?(S.hpLuta??S.hp):S.hp,max:S.max,ouro:onde==='luta'?(S.ouroLuta??S.ouro):S.ouro,andar:S.andar,linha:S.linha,itens:S.itens,dados:S.dados,build:S.build,stats:S.stats,
     mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,diaria:S.diaria||null,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,
     loja:onde==='loja'&&L?{...L,sel:null,foco:null,fundirA:null,flash:null}:null,evento:onde==='evento'?S.evAtual:null};
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify(d))}catch(e){}
+  try{ARMAZ.setItem(SAVE_KEY,JSON.stringify(d))}catch(e){}
 }
 function carregarPartida(){
-  let d=null;try{d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){}
+  let d=null;try{d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null')}catch(e){}
   if(!d||!d.mapa){apagarSalvo();return false}
   Object.assign(S,{hp:d.hp,max:d.max,ouro:d.ouro,andar:d.andar,linha:d.linha,itens:d.itens,dados:d.dados,build:d.build,stats:d.stats,mapa:d.mapa,evVistos:d.evVistos||[],
     teste:!!d.teste,desafio:d.desafio||0,diaria:d.diaria,no:d.no,elitesVencidos:d.elitesVencidos||0,pausado:false,ini:null,loja:null,evAtual:null});
@@ -86,7 +86,7 @@ function liberado(req){return!req||((!req.andar||PERFIL.melhorAndar>=req.andar)&
 function listaLiberados(){return[...Object.values(BUILDS).filter(b=>liberado(b.req)).map(b=>`Bolsa ${b.nome}`),...Object.values(RESERVAS).filter(r=>liberado(r.req)).map(r=>r.nome)]}
 const runAtiva=()=>!!(S.stats&&S.mapa&&S.fase!=='fim');
 const podeContinuar=()=>runAtiva()||temSalvo();
-function resumoSalvo(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return d?`Andar ${(d.linha||0)+1} · ${d.diaria?'partida do dia':'partida salva'}`:''}catch(e){return''}}
+function resumoSalvo(){try{const d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null');return d?`Andar ${(d.linha||0)+1} · ${d.diaria?'partida do dia':'partida salva'}`:''}catch(e){return''}}
 const miniDado=d=>`<span class="mini-dado" style="--c:${d.encanto?ENCANTOS[d.encanto].ui:'transparent'}" title="${DIE[d.type].nome}${d.encanto?' · '+ENCANTOS[d.encanto].nome:''}">${svgTipo(d.type)}</span>`;
 const miniReliq=k=>`<span class="reliq" title="${ITENS[k].nome}: ${ITENS[k].desc}">${svgPath(ITEM_ICONE[k]||k,ITENS[k].cor)}</span>`;
 function abrirTela(html){const o=$('overlay');o.innerHTML=html;o.hidden=false;o.scrollTop=0}

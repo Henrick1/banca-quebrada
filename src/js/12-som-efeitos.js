@@ -2,7 +2,7 @@ const reduzir=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const MOEDA_VOO=`<svg viewBox="0 0 24 24"><path fill="#e3b64a" stroke="#6b4a10" stroke-width="1" fill-rule="evenodd" d="${PATHS.ouro}"/></svg>`;
 const SOM=(()=>{
   let ctx=null,mestre=null,ruido=null,mudo=false,ultBatida=0;
-  try{mudo=localStorage.getItem('bq-mudo')==='1'}catch(e){}
+  try{mudo=ARMAZ.getItem('bq-mudo')==='1'}catch(e){}
   const iniciar=()=>{
     if(ctx){if(ctx.state==='suspended')ctx.resume();return}
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
@@ -27,7 +27,7 @@ const SOM=(()=>{
   return{
     iniciar,
     get mudo(){return mudo},
-    alternar(){mudo=!mudo;try{localStorage.setItem('bq-mudo',mudo?'1':'0')}catch(e){}if(mestre)mestre.gain.value=mudo?0:.7;return mudo},
+    alternar(){mudo=!mudo;try{ARMAZ.setItem('bq-mudo',mudo?'1':'0')}catch(e){}if(mestre)mestre.gain.value=mudo?0:.7;return mudo},
     batida(v,metal,vol=1){
       if(!ok())return;const agora=ctx.currentTime;if(agora-ultBatida<.022)return;ultBatida=agora;
       const i=Math.min(1,v/12)*vol;

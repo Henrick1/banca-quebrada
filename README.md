@@ -55,3 +55,7 @@ npm run sim -- --n=500 --vida=50
 Ele lê os inimigos, roteiros e o mapa direto de `src/js` e joga com um jogador automático simples, que não usa combos, áreas nem relíquias específicas. Use para comparar mudanças, não como taxa de vitória real: um jogador humano vence bem mais.
 
 Opções úteis: `--des`, `--n`, `--vida`, `--pressDiv`, `--calorDiv`, `--calorMax`, `--eliteMult`, `--armK`, `--missTier`.
+
+## Arquivo de save
+
+Na versão instalada (Electron), o progresso fica em `Documentos/Banca Quebrada/save.json`, com uma cópia de segurança em `save.json.bak`. Para levar o progresso para outro PC, basta copiar esse arquivo. Na versão de navegador, o progresso continua no armazenamento local do navegador.
