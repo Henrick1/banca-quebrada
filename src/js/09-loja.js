@@ -382,6 +382,7 @@ function criarItemLoja(o){
     altura=.95;
   }
   else if(o.kind==='item'){obj=criarFicha(pathItem(o.chave),ITENS[o.chave].cor,false,rarItem(o.chave));obj.scale.setScalar(1.55);altura=.18}
+  else if(o.kind==='cons'){obj=modeloCons(o.chave);obj.traverse(m=>{if(m.isMesh){m.material=m.material.clone();m.material.userData.mapaComum=true}});obj.scale.multiplyScalar(1.3);altura=.07}
   else{obj=medalhaoLoja(o);altura=.17}
   obj.position.y=altura;obj.traverse(m=>{if(m.isMesh)m.castShadow=true});
   if(altura>.5)obj.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6);
@@ -412,7 +413,7 @@ function atualizarItemLoja(g){
   }else{x.font=`800 ${txt.length>8?40:50}px "Alegreya Sans",sans-serif`;x.fillText(txt,W/2,H/2+3)}
   t.tex.needsUpdate=true;
 }
-function descartarLoja(g){g.traverse(m=>{if(m.isMesh){m.geometry.dispose();(Array.isArray(m.material)?m.material:[m.material]).forEach(mt=>{if(mt.map)mt.map.dispose();mt.dispose()})}})}
+function descartarLoja(g){g.traverse(m=>{if(m.isMesh){m.geometry.dispose();(Array.isArray(m.material)?m.material:[m.material]).forEach(mt=>{if(mt.map&&!mt.userData.mapaComum)mt.map.dispose();mt.dispose()})}})}
 function faiscasLoja(pos,cor,n=20){
   if(reduzir||!LJ)return;
   for(let i=0;i<n;i++){
