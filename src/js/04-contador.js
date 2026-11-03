@@ -130,7 +130,7 @@ function atualizarContador(dt){
   }
   const b=CONT.band,ativo=!!S.ini&&S.fase!=='fim'&&S.fase!=='loja';
   const mostra=ativo&&(!fechado||Number.isFinite(maxT));
-  if(mostra)desenharBandeira(b,!fechado?(temItem('lupa')&&S.proxCasa?'+'+S.proxCasa.map(d=>DIE[d.type].curto).join('|'):casaRestantes()>1?`+?×${casaRestantes()}`:'+?'):`≤${maxT}`);
+  if(mostra)desenharBandeira(b,!fechado?(temItem('lupa')&&S.proxCasa?'+'+S.proxCasa.map(d=>DIE[d.type].curto).join('|'):casaRestantes()>1?Array(casaRestantes()).fill("+?").join(" "):'+?'):`≤${maxT}`);
   const al=CONT.alav,temAl=ativo&&!!(S.modo&&S.modo.parar),pronta=podeParar();
   const sa=al.scale.x+((temAl?1:0)-al.scale.x)*Math.min(1,dt*8);al.scale.setScalar(Math.max(.001,sa));
   al.puxada=Math.max(0,al.puxada-(al.puxada>0&&S.fase!=='resolvendo'?dt*.6:0));

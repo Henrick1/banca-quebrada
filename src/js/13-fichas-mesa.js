@@ -59,6 +59,12 @@ function infoEm(html,x,y){
   const top=Math.max(12,Math.min(innerHeight-r.height-12,y-r.height/2));
   el.style.left=Math.max(12,left)+'px';el.style.top=top+'px';
 }
+function efeitosDadoCasa(d){
+  const vistos=new Map();
+  d.faces.forEach(f=>{if(!f.fx)return;const k=f.fx.k+'|'+(f.fx.n||0);const v=vistos.get(k)||{fx:f.fx,faces:[]};v.faces.push(f.v+f.bonus);vistos.set(k,v)});
+  if(!vistos.size)return'';
+  return`<span class="nota" style="grid-column:1/-1">${[...vistos.values()].map(({fx,faces})=>`<b style="color:${FX[fx.k].cor}">${faces.length>1?'Faces ':'Face '}${faces.join(', ')}:</b> ${FX[fx.k].nome}${fx.n?' '+fx.n:''}, ${FX[fx.k].desc(fx.n)}`).join(' · ')}</span>`;
+}
 function htmlMesa(a){
   if(a.tipo==='alavanca')return`<h4>Alavanca<small>${podeParar()?'Pronta':'Travada'}</small></h4><ul><li>Para seus lances e conta a soma agora. Só destrava depois que a casa lança, no modo Estouro.</li><li>Teto desta rodada: <b>${Number.isFinite(tetoAtual())&&casaRestantes()===0?tetoAtual():'?'}</b></li></ul>`;
   if(a.tipo==='estatua'){const c=CONJUNTOS[a.chave];return`<h4>Estatueta ${c.nome}<small>Conjunto completo</small></h4><p class="nota" style="color:#f2c661">${c.desc}</p><ul>${c.pecas.map(k=>`<li><b>${ITENS[k].nome}${qtdItem(k)>1?` ×${qtdItem(k)}`:''}:</b> ${ITENS[k].desc}</li>`).join('')}</ul>`}
@@ -68,8 +74,7 @@ function htmlMesa(a){
   const lupa=temItem('lupa')&&S.proxCasa&&S.fase!=='resolvendo'?S.proxCasa:[];
   return`<h4>Bolsa da casa<small>${S.ini.bolsa.length} dados${temaCasa()?' · '+temaCasa().nome.toLowerCase():''}</small></h4>
     <p class="nota">A casa sorteia ${temTraco('duplo')?'2 dados':'1 dado'} desta bolsa a cada rodada.</p>
-    ${S.ini.bolsa.map(d=>`<div class="dc${lupa.includes(d)?' prox':''}">${svgTipo(d.type,d.cor||CASA.cor)}<b>${d.nome}</b>${lupa.includes(d)?'<em>Vai sair</em>':'<span></span>'}<span class="faces">${d.faces.map((_,i)=>chip(d,i)).join('')}</span>${d.area?`<span class="nota" style="grid-column:1/-1;color:${d.area.cor}"><b>${d.area.nome}:</b> ${descArea(d.area)}</span>`:''}</div>`).join('')}
-    ${temItem('lupa')?'':'<p class="nota">Com a Lupa do Trapaceiro você vê qual dado vai sair.</p>'}`;
+    ${S.ini.bolsa.map(d=>`<div class="dc${lupa.includes(d)?' prox':''}">${svgTipo(d.type,d.cor||CASA.cor)}<b>${d.nome}</b>${lupa.includes(d)?'<em>Vai sair</em>':'<span></span>'}<span class="faces">${d.faces.map((_,i)=>chip(d,i)).join('')}</span>${d.area?`<span class="nota" style="grid-column:1/-1;color:${d.area.cor}"><b>${d.area.nome}:</b> ${descArea(d.area)}</span>`:''}${efeitosDadoCasa(d)}</div>`).join('')}`;
 }
 function iniciarHoverMesa(){
   const cv=$('cena'),ray=new THREE.Raycaster();
