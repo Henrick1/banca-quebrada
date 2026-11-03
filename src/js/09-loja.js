@@ -399,6 +399,8 @@ function pilhaOuro(){
   moeda(.02,.035,.33,.05,.4,-.06);
   moeda(-.4,.03,.18,0,1,0);
   moeda(.05,.2,-.02,0,0,1.15);
+  const c=new THREE.Box3().setFromObject(g).getCenter(new THREE.Vector3());
+  g.children.forEach(m=>{m.position.x-=c.x;m.position.z-=c.z-.1});
   return g;
 }
 function criarItemLoja(o){
