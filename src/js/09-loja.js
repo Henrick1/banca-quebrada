@@ -371,6 +371,36 @@ function medalhaoLoja(o){
   const m=new THREE.Mesh(new THREE.CylinderGeometry(.6,.63,.2,48),[lado,new THREE.MeshStandardMaterial({map:tex,metalness:.35,roughness:.4}),lado]);
   return m;
 }
+let MATS_OURO=null;
+function matsOuro(){
+  if(MATS_OURO)return MATS_OURO;
+  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  const g=x.createRadialGradient(100,90,10,128,128,135);g.addColorStop(0,'#fff0b0');g.addColorStop(.55,'#e3b64a');g.addColorStop(1,'#9a6a1c');
+  x.fillStyle=g;x.fillRect(0,0,256,256);
+  x.strokeStyle='#8a5a14';x.lineWidth=10;x.beginPath();x.arc(128,128,112,0,Math.PI*2);x.stroke();
+  x.strokeStyle='#f8dc8a';x.lineWidth=3;x.beginPath();x.arc(128,128,100,0,Math.PI*2);x.stroke();
+  x.fillStyle='#8a5a14';for(let k=0;k<24;k++){const a=k/24*Math.PI*2;x.beginPath();x.arc(128+Math.cos(a)*88,128+Math.sin(a)*88,3,0,Math.PI*2);x.fill()}
+  x.save();x.translate(128,132);x.fillStyle='#9a6a1c';x.strokeStyle='#fff0b0';x.lineWidth=2;
+  x.beginPath();x.moveTo(-44,24);x.lineTo(-50,-22);x.lineTo(-24,0);x.lineTo(0,-38);x.lineTo(24,0);x.lineTo(50,-22);x.lineTo(44,24);x.closePath();x.fill();x.stroke();
+  x.fillRect(-46,28,92,12);x.restore();
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;
+  const cl=document.createElement('canvas');cl.width=256;cl.height=16;const xl=cl.getContext('2d');
+  xl.fillStyle='#c9952e';xl.fillRect(0,0,256,16);xl.fillStyle='#7a4e12';for(let k=0;k<256;k+=6)xl.fillRect(k,0,2,16);
+  const tl=new THREE.CanvasTexture(cl);tl.encoding=THREE.sRGBEncoding;tl.wrapS=THREE.RepeatWrapping;tl.repeat.set(3,1);
+  MATS_OURO=[new THREE.MeshStandardMaterial({map:tl,metalness:.85,roughness:.35}),new THREE.MeshStandardMaterial({map:t,metalness:.75,roughness:.28}),new THREE.MeshStandardMaterial({map:t,metalness:.75,roughness:.28})];
+  MATS_OURO.forEach(m=>m.userData.mapaComum=true);
+  return MATS_OURO;
+}
+function pilhaOuro(){
+  const g=new THREE.Group(),M=matsOuro(),geo=new THREE.CylinderGeometry(.21,.21,.055,36);
+  const moeda=(x,y,z,rx=0,ry=0,rz=0)=>{const m=new THREE.Mesh(geo,M.map(q=>q.clone()));m.material.forEach(q=>q.userData.mapaComum=true);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);m.castShadow=m.receiveShadow=true;g.add(m)};
+  for(let i=0;i<5;i++)moeda(-.14+rnd(.015),.03+i*.057,-.06+rnd(.015),rnd(.04),i*.7,rnd(.04));
+  for(let i=0;i<3;i++)moeda(.22+rnd(.015),.03+i*.057,.1+rnd(.015),rnd(.04),i*1.3,rnd(.04));
+  moeda(.02,.035,.33,.05,.4,-.06);
+  moeda(-.4,.03,.18,0,1,0);
+  moeda(.05,.2,-.02,0,0,1.15);
+  return g;
+}
 function criarItemLoja(o){
   const g=new THREE.Group();
   const base=new THREE.Mesh(new THREE.CylinderGeometry(.74,.8,.07,40),new THREE.MeshStandardMaterial({color:lin('#1a120c'),roughness:.6}));base.position.y=.035;base.receiveShadow=true;g.add(base);
@@ -387,7 +417,7 @@ function criarItemLoja(o){
     altura=.95;
   }
   else if(o.kind==='item'){obj=criarFicha(pathItem(o.chave),ITENS[o.chave].cor,false,rarItem(o.chave));obj.scale.setScalar(1.55);altura=.18}
-  else if(o.kind==='ouroEsp'){obj=new THREE.Group();const mo=new THREE.MeshStandardMaterial({color:lin('#e3b64a'),metalness:.85,roughness:.3});[[0,0,0],[.02,1,.01],[-.03,2,0],[.38,0,.22],[.4,1,.2],[-.34,0,.26]].forEach(([x,i,z])=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.07,28),mo);c.position.set(x,.04+i*.075,z);c.rotation.y=i;obj.add(c)});altura=.04}
+  else if(o.kind==='ouroEsp'){obj=pilhaOuro();obj.scale.setScalar(1.3);altura=.07}
   else if(o.kind==='cons'){obj=modeloCons(o.chave);obj.traverse(m=>{if(m.isMesh){m.material=m.material.clone();m.material.userData.mapaComum=true}});obj.scale.multiplyScalar(1.3);altura=.07}
   else{obj=medalhaoLoja(o);altura=.17}
   obj.position.y=altura;obj.traverse(m=>{if(m.isMesh)m.castShadow=true});
