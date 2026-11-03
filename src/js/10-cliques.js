@@ -48,7 +48,17 @@ $('overlay').addEventListener('click',e=>{
   if(ds){L.verDado=+ds.dataset.dsel;SOM.batida(4,false);renderBolsaLoja();return}
   const ob=e.target.closest('[data-o]');
   if(!ob||ob.disabled)return;
-  const o=todasOfertas().find(x=>x.id===+ob.dataset.o);
+  acionarOferta(todasOfertas().find(x=>x.id===+ob.dataset.o));
+});
+$('overlay').addEventListener('keydown',e=>{const no=e.target.closest&&e.target.closest('[data-no]');if((e.key==='Enter'||e.key===' ')&&no&&no.classList.contains('disp')){e.preventDefault();escolherNo(no.dataset.no);return}if((e.key==='Enter'||e.key===' ')&&e.target.dataset.f){e.preventDefault();e.target.click()}});
+document.addEventListener('keydown',e=>{if((e.key==='p'||e.key==='P')&&podeParar())parar()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.fase==='loja'&&S.loja&&S.loja.sel){S.loja.sel=null;S.loja.fundirA=null;renderLoja()}});
+
+function fecharOverlay(){$('overlay').hidden=true;$('overlay').innerHTML=''}
+
+function acionarOferta(o){
+  const L=S.loja;if(!L||!o)return;
+  if(o.kind==='ouroEsp'){if(!L.pegou){L.pegou=L.pulou=true;o.feito=true;S.ouro+=o.n;L.sel=null;SOM.ouro(3);hud();renderLoja();autoSairLoja()}return}
   if(L.sel===o){L.sel=null;renderLoja();return}
   if(o.kind==='cons'){S.cons=S.cons||[];S.cons.push(o.chave);SOM.compra();SOM.batida(7,true);concluirOferta(o);return}
   if(o.kind==='item'){ganharItem(o.chave);SOM.compra();SOM.item();L.flash={item:o.chave};concluirOferta(o);return}
@@ -56,9 +66,4 @@ $('overlay').addEventListener('click',e=>{
   else if(o.kind==='cura'){S.hp=Math.min(S.max,S.hp+cm(o.n));SOM.cura();concluirOferta(o)}
   else if(o.kind==='renovar'){moedasParaItem(o,precoDe(o));efeitoCompra(o);S.ouro-=precoDe(o);L.renov++;L.sel=null;gerarEstoque();SOM.puxar();hud();renderLoja();document.querySelectorAll('.mercador .oferta').forEach((c,i)=>c.animate([{transform:'rotateY(90deg)',opacity:0},{transform:'none',opacity:1}],{duration:reduzir?1:320,delay:i*45,easing:'cubic-bezier(.2,.9,.3,1.2)',fill:'backwards'}))}
   else{L.sel=o;renderLoja();if(innerWidth<=760)document.querySelector('.loja-bolsa').scrollIntoView({behavior:'smooth',block:'start'})}
-});
-$('overlay').addEventListener('keydown',e=>{const no=e.target.closest&&e.target.closest('[data-no]');if((e.key==='Enter'||e.key===' ')&&no&&no.classList.contains('disp')){e.preventDefault();escolherNo(no.dataset.no);return}if((e.key==='Enter'||e.key===' ')&&e.target.dataset.f){e.preventDefault();e.target.click()}});
-document.addEventListener('keydown',e=>{if((e.key==='p'||e.key==='P')&&podeParar())parar()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.fase==='loja'&&S.loja&&S.loja.sel){S.loja.sel=null;S.loja.fundirA=null;renderLoja()}});
-
-function fecharOverlay(){$('overlay').hidden=true;$('overlay').innerHTML=''}
+}

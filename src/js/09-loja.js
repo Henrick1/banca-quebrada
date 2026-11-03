@@ -62,6 +62,7 @@ function abrirRecompensa(ganho,elite){
   const esp=sortear(poolGravacoes().filter(o=>o.kind!=='pacto'&&o.kind!=='sombria'),2,bonus).map(o=>({...o,id:uid++,gratis:true}));
   const extra=elite?ofertasReliquia(1,true,bonus)[0]:null;
   esp.splice(Math.floor(R()*3),0,extra||ofertaDado(tiposDado(1,bonus)[0],true));
+  esp.push({kind:'ouroEsp',n:3,id:uid++,gratis:true});
   if(R()<(elite?.6:.25))esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),1,bonus)[0].chave,true));
   montarLoja({titulo:S.ini&&S.ini.chefe?`Fim do ${['primeiro','segundo','terceiro'][atoDe(S.linha)]} ato`:elite?'Elite derrotado':'Vitória',sub:`${S.ini.nome} pagou ${ganho} de ouro. Leve um item do espólio${elite?': uma relíquia está garantida':''}.`,ganho,espolio:esp,podeTrocar:true});
 }
@@ -71,6 +72,7 @@ function mediaDado(d){return(d.faces.reduce((s,f)=>s+valorFace(f),0)/d.faces.len
 function iconeFx(k,cor){return`<svg viewBox="0 0 24 24"><path fill="${cor}" fill-rule="evenodd" d="${PATHS[k]}"/></svg>`}
 function infoOferta(o){
   if(o.kind==='encanto'){const en=ENCANTOS[o.chave];return{tipo:'Encantamento · você escolhe o dado',tit:`${en.nome}: ${en.combo}`,desc:`Só a moldura: depois de comprar, você escolhe um dado da sua bolsa para receber as bordas de ${en.nome.toLowerCase()}. ${en.desc} Troca o encantamento que o dado já tiver.`,ic:`<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="${en.cor}" stroke-width="3.2"/><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="#0006" stroke-width=".8"/></svg>`}}
+  if(o.kind==='ouroEsp')return{tipo:'Ouro',tit:`${o.n} de ouro`,desc:'Deixe o espólio na mesa e leve o ouro.',ic:`<svg viewBox="0 0 24 24"><path fill="#e3b64a" fill-rule="evenodd" d="${PATHS.ouro}"/></svg>`};
   if(o.kind==='cons'){const c=CONSUMIVEIS[o.chave];return{tipo:`Consumível · vai para o bolso, usa uma vez na luta (${(S.cons||[]).length}/${consMax()})`,tit:c.nome,desc:c.desc,ic:svgPath(o.chave,c.cor)}}
   if(o.kind==='item'){const it=ITENS[o.chave];return{tipo:'Relíquia · fica na mesa',tit:it.nome,desc:it.desc+' '+htmlConjunto(o.chave),ic:svgPath(ITEM_ICONE[o.chave]||o.chave,it.cor)}}
   if(o.kind==='dado'){
@@ -127,7 +129,7 @@ function renderLoja(){
     <div class="status"><span class="pilula"><small>Vida</small>${S.hp}/${S.max}</span><span class="pilula ouro">${MOEDA}${S.ouro}</span></div>`;
   renderBolsaLoja();renderDetalhe();
   $('ljRodape').innerHTML=`<div class="proximo"><svg class="tipo" viewBox="0 0 24 24"><path fill="#d4a94f" fill-rule="evenodd" d="${PATHS.baralho}"/></svg><div><small>Andar ${(S.linha||0)+1} de ${MAPA_LINHAS}</small><strong>${L.titulo}</strong></div></div>
-    <div class="acoes">${L.mercador||L.pegou?'<button class="btn" data-acao="mapa">Voltar ao mapa</button>':'<span class="pendente">Escolha um item do espólio ou troque por ouro</span>'}</div>`;
+    <div class="acoes">${L.mercador||L.pegou?'<button class="btn" data-acao="mapa">Voltar ao mapa</button>':'<span class="pendente">Escolha um item do espólio ou leve o ouro</span>'}</div>`;
   sincronizarLoja3D();
   L.flash=null;
   salvarPartida();
@@ -182,7 +184,7 @@ function renderDetalhe(){
   const rot=sel?'Cancelar':o.gratis?'Pegar grátis':o.kind==='renovar'?`Renovar · ${p} de ouro`:`Comprar · ${p} de ouro`;
   el.innerHTML=`<div class="det-ic">${x.ic}</div>
     <div class="det-corpo"><span class="o-tipo">${htmlRaridade(o)}${x.tipo}${o.gratis?' · espólio':''}</span><b class="det-tit">${x.tit}</b><p>${x.desc}</p>${e.txt?`<span class="o-motivo ${e.cls||''}">${e.txt}</span>`:''}</div>
-    <div class="det-acao">${fixo?`<button class="btn" data-o="${o.id}" ${e.trava&&!sel?'disabled':''}>${rot}</button>`:'<small class="det-nota">Clique no item para escolher</small>'}${fixo&&o.gratis&&!L.pegou&&L.podeTrocar?'<button class="btn sec fino" data-acao="pular">Trocar espólio por 3 de ouro</button>':''}</div>`;
+    <div class="det-acao">${o.gratis?`<small class="det-nota">${sel?'Escolha na sua bolsa · Esc cancela':e.trava?'':'Clique no item para pegar'}</small>`:`<button class="btn" data-o="${o.id}" ${e.trava&&!sel?'disabled':''}>${rot}</button>`}</div>`;
 }
 function iniciarLoja3D(){
   if(LJ){cancelAnimationFrame(LJ.raf);if(LJ.ro)LJ.ro.disconnect();LJ.r.dispose();LJ=null}
@@ -211,7 +213,9 @@ function iniciarLoja3D(){
     if(o&&S.loja&&S.loja.foco!==o){S.loja.foco=o;SOM.batida(2.5,false,.4);renderDetalhe()}
   });
   cv.addEventListener('pointerleave',()=>{if(LJ){clearTimeout(LJ.tFoco);LJ.hover=null;$('ljCenaBox').classList.remove('mao')}});
-  cv.addEventListener('click',e=>{if(!LJ)return;const o=achar(e);if(!o)return;S.loja.foco=o;SOM.batida(6,o.kind==='item'||o.kind==='bonus'||o.kind==='fx');const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;renderDetalhe()});
+  cv.addEventListener('click',e=>{if(!LJ)return;const o=achar(e);if(!o)return;
+    if(o.gratis){const est=estadoOferta(o);if(est.trava&&S.loja.sel!==o){SOM.batida(3,false);return}S.loja.foco=o;const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;acionarOferta(o);return}
+    S.loja.foco=o;SOM.batida(6,o.kind==='item'||o.kind==='bonus'||o.kind==='fx');const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;renderDetalhe()});
   let ult=performance.now();
   const loop=t=>{
     if(!LJ)return;
@@ -382,6 +386,7 @@ function criarItemLoja(o){
     altura=.95;
   }
   else if(o.kind==='item'){obj=criarFicha(pathItem(o.chave),ITENS[o.chave].cor,false,rarItem(o.chave));obj.scale.setScalar(1.55);altura=.18}
+  else if(o.kind==='ouroEsp'){obj=new THREE.Group();const mo=new THREE.MeshStandardMaterial({color:lin('#e3b64a'),metalness:.85,roughness:.3});[[0,0,0],[.02,1,.01],[-.03,2,0],[.38,0,.22],[.4,1,.2],[-.34,0,.26]].forEach(([x,i,z])=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.07,28),mo);c.position.set(x,.04+i*.075,z);c.rotation.y=i;obj.add(c)});altura=.04}
   else if(o.kind==='cons'){obj=modeloCons(o.chave);obj.traverse(m=>{if(m.isMesh){m.material=m.material.clone();m.material.userData.mapaComum=true}});obj.scale.multiplyScalar(1.3);altura=.07}
   else{obj=medalhaoLoja(o);altura=.17}
   obj.position.y=altura;obj.traverse(m=>{if(m.isMesh)m.castShadow=true});
@@ -400,6 +405,7 @@ function atualizarItemLoja(g){
   if(o.feito){txt=o.gratis?'ESCOLHIDO':'VENDIDO';cor='#8a7a64';borda='#3a2c22'}
   else if(o.gratis&&L.pegou){txt='—';cor='#6b5a48';borda='#3a2c22'}
   else if(L.sel===o){txt='APLICANDO';cor='#9fe09f';borda='#4f7a4f'}
+  else if(o.kind==='ouroEsp'){txt=`+${o.n} OURO`;cor='#f2c661';borda='#7a5a20'}
   else if(o.gratis){txt='GRÁTIS';cor='#9fe09f';borda='#4f7a4f'}
   else{txt=String(p);cor=S.ouro<p?'#f08a7e':'#f2c661'}
   const chave=txt+cor+borda,t=u.tag;if(t.chave===chave)return;t.chave=chave;
