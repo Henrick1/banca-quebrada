@@ -1,0 +1,105 @@
+@media (max-width:760px){.mapa-tela{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:calc(100vh - 40px)}.mapa-lado{order:-1;overflow:visible}.mapa-lado .cartao,.mapa-lado .legenda{display:none}.mapa-lado h2{font-size:34px}.evento{padding:20px;margin-top:2vh}.evento h2{font-size:30px}.ev-selo{width:60px;height:60px}}
+.reliq{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#1f1712;border:2px solid #9a2f2a;box-shadow:inset 0 0 0 2px #efe4c8}
+.reliq svg{width:18px;height:18px}
+.reliq.nova{animation:gravada 1s ease-out}
+#placar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;padding:6px 14px;border-radius:999px;background:#0d0a08d9;border:1px solid var(--linha);max-width:calc(100% - 20px);box-sizing:border-box;pointer-events:none}
+.ancora{position:absolute;left:0;top:0;width:2px;height:2px;margin:-1px 0 0 -1px;overflow:hidden;opacity:0;pointer-events:none}
+#trilha{list-style:none;margin:0;padding:0;display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+#trilha li{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid var(--linha);color:var(--osso-2)}
+#trilha li.feito{color:var(--osso);background:#2b1f17}
+#trilha li.agora{color:#1a120c;background:var(--latao);border-color:var(--latao)}
+#trilha li.casa.agora{background:#a596bd;border-color:#a596bd}
+.contas{display:flex;align-items:center;gap:16px}
+.contas div{display:flex;flex-direction:column;align-items:center}
+.contas small{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--osso-2)}
+.contas b{font-family:var(--f-num);font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.contas .vs{font-family:var(--f-display);font-size:18px;color:var(--osso-2)}
+#instrucao{margin:0;font-size:13px;color:var(--osso);text-align:center}
+#banner{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%) scale(.9);font-family:var(--f-display);font-size:clamp(26px,4.4vw,48px);text-align:center;padding:10px 26px;border-radius:12px;background:#0d0a08e6;border:1px solid var(--linha);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90%;text-wrap:balance}
+#banner.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#banner.bom{color:var(--bom);border-color:#4f7a4f}
+#banner.mau{color:#f08a7e;border-color:#7a3a33}
+#banner.modo{color:var(--latao);border-color:#6b5428;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 26px 14px}
+#banner small{font-family:var(--f-texto);font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--osso-2)}
+#banner em{font-family:var(--f-num);font-style:normal;font-size:12px;font-weight:600;color:#f08a7e;margin-top:2px}
+#banner span{font-family:var(--f-texto);font-size:14px;color:var(--osso);max-width:34ch;line-height:1.35}
+#overlay{position:fixed;inset:0;background:#0a0706e0;backdrop-filter:blur(4px);display:grid;place-items:start center;overflow-y:auto;z-index:20;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:max(24px,env(safe-area-inset-top,0px)) 32px}
+.painel{width:min(920px,100%);display:flex;flex-direction:column;gap:18px;margin-top:4vh}
+.painel h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(44px,8vw,84px);line-height:.95;color:var(--latao);text-wrap:balance}
+.painel h2,.loja h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:28px;text-wrap:balance}
+.painel h3,.loja h3{margin:0;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--osso-2);font-weight:700}
+.painel p,.loja p{margin:0;line-height:1.5;max-width:65ch;color:var(--osso)}
+.regras{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.regra{padding:12px 14px;border-radius:10px;background:var(--madeira);border:1px solid var(--linha)}
+.regra b{display:block;font-family:var(--f-display);font-weight:400;font-size:20px;color:var(--latao);margin-bottom:2px}
+.regra p{font-size:14px;color:var(--osso-2)}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{padding:11px 22px;border-radius:9px;border:1px solid var(--latao);background:var(--latao);color:#1a120b;font-weight:800;font-size:15px;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.sec{background:transparent;color:var(--osso);border-color:var(--linha)}
+.btn:focus-visible{outline:2px solid var(--osso);outline-offset:2px}
+.btn:disabled{opacity:.4;cursor:default}
+.loja{width:min(1120px,100%);display:flex;flex-direction:column;gap:16px;margin-top:1vh}
+.loja-topo{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.loja-topo h2{font-size:36px;line-height:1}
+.loja-topo .sub{margin-top:4px;font-size:13.5px;color:var(--osso-2)}
+.status{display:flex;gap:8px;flex-wrap:wrap}
+.pilula{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--madeira);border:1px solid var(--linha);font-family:var(--f-num);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.pilula small{font-family:var(--f-texto);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--osso-2);font-weight:700}
+.pilula.ouro{color:var(--latao);border-color:#6b5428}
+.pilula svg{width:15px;height:15px}
+.loja-corpo{display:grid;grid-template-columns:minmax(0,310px) minmax(0,1fr);gap:18px;align-items:start}
+.loja-bolsa{position:sticky;top:0;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;background:var(--madeira);border:1px solid var(--linha);transition:border-color .15s,box-shadow .15s}
+.loja-bolsa.ativa{border-color:var(--latao);box-shadow:0 0 0 3px #d4a94f26}
+.loja-bolsa h3{display:flex;justify-content:space-between;align-items:baseline}
+.loja-bolsa h3 span{font-family:var(--f-num);letter-spacing:0;text-transform:none;font-size:12px}
+.loja .guia{margin:0;font-size:13px;line-height:1.4;padding:8px 10px;border-radius:8px;background:#0d0a08;color:var(--osso-2)}
+.guia b{color:var(--latao)}
+.loja .guia.ativa{color:var(--osso);border:1px dashed var(--latao)}
+.guia #previa{display:block;margin-top:4px;font-family:var(--f-num);font-size:12px;color:var(--latao)}
+.item-bolsa{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px 8px;align-items:center;padding:8px;border-radius:8px;background:var(--madeira-2);border:1px solid transparent;text-align:left;width:100%;box-sizing:border-box}
+.item-bolsa svg.tipo{width:22px;height:22px}
+.item-bolsa .n{font-weight:700;font-size:13.5px}
+.item-bolsa .m{font-family:var(--f-num);font-size:11px;color:var(--osso-2)}
+.item-bolsa .faces{grid-column:1/-1}
+button.item-bolsa{cursor:pointer}
+button.item-bolsa:hover,button.item-bolsa:focus-visible{border-color:var(--sangue);outline:none}
+.loja-bolsa .face.alvo{cursor:pointer;height:26px;min-width:28px;font-size:12px;border-color:#6b5428;color:var(--osso)}
+.loja-bolsa .face.alvo:hover,.loja-bolsa .face.alvo:focus-visible{background:var(--latao);color:#1a120b;outline:none}
+.vitrine{display:flex;flex-direction:column;gap:20px;min-width:0}
+.bloco{display:flex;flex-direction:column;gap:10px}
+.bloco-cab{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.bloco-cab p{font-size:13px;color:var(--osso-2)}
+.espolio{padding:14px;border-radius:12px;background:linear-gradient(#1f4a46,#173936);border:1px solid #2f625c}
+.espolio h2{font-size:24px}
+.espolio .oferta{background:#122b28;border-color:#2f625c}
+.mercador{display:flex;flex-direction:column;gap:16px}
+.mercador>h2{font-size:24px}
+.prateleira{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.btn.fino{padding:7px 14px;font-size:13px}
+.oferta{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start;padding:12px;border-radius:10px;background:var(--madeira-2);border:1px solid var(--linha);text-align:left;cursor:pointer;min-width:0;transition:border-color .12s,transform .12s,background .12s}
+.oferta:hover:not(:disabled){border-color:var(--latao);transform:translateY(-2px)}
+.oferta:focus-visible{outline:2px solid var(--latao);outline-offset:2px}
+.oferta:disabled{cursor:default}
+.oferta:disabled .o-ic,.oferta:disabled .o-tit,.oferta:disabled .o-desc{opacity:.4}
+.oferta.sel{border-color:var(--latao);background:#3f2c20;box-shadow:0 0 0 3px #d4a94f33}
+.o-ic{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;background:#0d0a08}
+.o-ic svg{width:24px;height:24px}
+.o-ic .x2{font-size:16px;font-weight:800;color:#d58ad1}
+.o-corpo{display:flex;flex-direction:column;gap:3px;min-width:0}
+.o-tipo{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--osso-2);font-weight:700;padding-right:52px}
+.o-tit{font-weight:800;font-size:15.5px;line-height:1.2}
+.o-desc{font-size:13px;color:var(--osso-2);line-height:1.35}
+.o-desc .faces{margin-top:5px}
+.o-preco{position:absolute;top:10px;right:10px;display:inline-flex;align-items:center;gap:4px;font-family:var(--f-num);font-weight:600;font-size:13px;color:var(--latao);padding:2px 8px;border-radius:999px;background:#0d0a08;border:1px solid #6b5428}
+.o-preco.gratis{color:var(--bom);border-color:#4f7a4f;font-family:var(--f-texto);font-weight:800;font-size:12px}
+.o-preco svg{width:12px;height:12px}
+.o-motivo{margin-top:3px;font-size:12px;font-weight:700;color:#f08a7e}
+.o-motivo.ok{color:var(--latao)}
+.o-motivo.feito{color:var(--bom)}
+.loja-rodape{position:sticky;bottom:0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:#1b130ef5;border:1px solid var(--linha);box-shadow:0 -12px 30px #000b}
+.proximo{display:flex;align-items:center;gap:12px;min-width:0}
+.proximo svg.tipo{width:36px;height:36px;flex:none}
+.proximo small{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--osso-2);font-weight:700}
+.proximo strong{display:block;font-family:var(--f-display);font-weight:400;font-size:22px;line-height:1.1}
+.pendente{font-size:13px;font-weight:700;color:#f0b07e}

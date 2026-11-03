@@ -1,0 +1,56 @@
+<title>Banca Quebrada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Alegreya+Sans:wght@400;500;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>/*__CSS__*/</style>
+
+<div id="app">
+  <header id="hud">
+    <div class="lado jog">
+      <div class="nome">Você</div>
+      <div class="barra" id="barraJ"><em id="hpJf"></em><i id="hpJ"></i><span id="hpJt"></span></div>
+      <div class="mini"><span class="ouro">Ouro <b id="ouro">0</b></span><span class="efeitos">
+        <span class="efeito" id="efEscudo" title="Escudo: bloqueia dano nesta rodada" hidden><svg viewBox="0 0 24 24"><path fill="#8fb3d9" d="M12 2 L20 5 V11 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 11 V5 Z"/></svg><b id="escudo">0</b></span>
+      </span></div>
+    </div>
+    <div class="andar"><div id="andar"></div><div class="botoes-topo"><button class="som" id="btnMenu" type="button" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6.5 H20 M4 12 H20 M4 17.5 H20"/></svg>Menu</button><button class="som" id="btnSom" type="button"></button></div></div>
+    <div class="lado ini">
+      <div class="nome" id="iniNome"></div>
+      <div class="barra" id="barraI"><em id="hpIf"></em><i id="hpI"></i><span id="hpIt"></span></div>
+      <div class="mini"><span class="efeitos">
+        <span class="efeito" id="efVeneno" title="Veneno: dano no fim de cada rodada, cai 1 por vez" hidden><svg viewBox="0 0 24 24"><path fill="#a7c25c" d="M12 2 C12 2 5 10.5 5 15 A7 7 0 0 0 19 15 C19 10.5 12 2 12 2 Z"/></svg><b id="veneno">0</b></span>
+        <span class="efeito" id="efArmadura" title="Armadura: absorve o dano dos seus acertos" hidden><svg viewBox="0 0 24 24"><path fill="#b9c2cc" d="M12 2 L20 5 V11 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 11 V5 Z"/></svg><b id="armadura">0</b></span>
+        <span class="efeito" id="efEscudoIni" title="Escudo da casa: bloqueia parte do seu dano nesta rodada" hidden><svg viewBox="0 0 24 24"><path fill="#8fb3d9" d="M12 2 L20 5 V11 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 11 V5 Z"/></svg><b id="escudoIni">0</b></span>
+      </span><span id="iniInfo"></span></div>
+    </div>
+  </header>
+  <aside id="bandeja">
+    <h2>Sua bandeja <small id="contagem"></small></h2>
+    <div id="bandejaCena"><canvas id="cenaBandeja"></canvas></div>
+    <p class="dica">Clique para lançar. Arraste para mover; solte na mesa para lançar ou na bolsa para guardar. Segure parado para ver as faces.</p>
+    <button id="bolsa" type="button" hidden>
+      <svg class="saco" viewBox="0 0 48 48"><path d="M17 8 C19 11 29 11 31 8 L28 15 C37 19 42 27 42 34 C42 41 36 44 24 44 C12 44 6 41 6 34 C6 27 11 19 20 15 Z" fill="#7a4e2c" stroke="#1e130b" stroke-width="1.5"/><path d="M18.5 15.5 C22 17.5 26 17.5 29.5 15.5" stroke="#d4a94f" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M14 30 C18 33 30 33 34 30" stroke="#5b3920" stroke-width="1.5" fill="none"/></svg>
+      <b>Bolsa</b>
+      <span class="acao" id="bolsaAcao"></span>
+      <span class="conteudo" id="bolsaConteudo"></span>
+    </button>
+  </aside>
+  <main id="mesa">
+    <canvas id="cena"></canvas>
+    <div id="rotulos"></div>
+    <b id="soma" class="ancora" aria-live="polite">0</b><b id="alvo" class="ancora" aria-live="polite">?</b>
+    <div id="placar" hidden>
+      <ol id="trilha" hidden></ol>
+      <p id="instrucao"></p>
+    </div>
+    <div id="banner"></div>
+  </main>
+</div>
+<div id="overlay"></div>
+<div id="info" hidden></div>
+<div id="vinheta"></div>
+<p id="erro" role="alert" hidden></p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+<script>//__JS__</script>
