@@ -35,7 +35,8 @@ const EVENTOS=[
    {rot:'Dispensar',desc:'Você já tem bugigangas demais.',acao:()=>({titulo:'O mascate sumiu',texto:'Nem deu para ver para onde ele foi.'})}]}},
  {id:'ladrao',titulo:'Mão Leve',ic:'luva',cor:'#9a8a70',texto:'Você sente uma mão no seu bolso. O ladrão percebe que foi visto e sorri.',
   opcoes:()=>[
-   {rot:'Entregar 8 de ouro',desc:'Evita confusão.',acao:()=>{const v=Math.min(8,S.ouro);S.ouro-=v;SOM.ouro(2);return{titulo:'Ele agradece',texto:`Você entregou ${v} de ouro.`,bom:false}}},
+   S.ouro>0?{rot:S.ouro>=8?'Entregar 8 de ouro':`Entregar seus ${S.ouro} de ouro`,desc:'Evita confusão.',acao:()=>{const v=Math.min(8,S.ouro);S.ouro-=v;SOM.ouro(2);return{titulo:'Ele agradece',texto:`Você entregou ${v} de ouro.`,bom:false}}}
+   :{rot:'Mostrar o bolso vazio',desc:'Ele não acredita e te dá um soco: perde 3 de vida.',acao:()=>{S.hp-=3;SOM.dano();return{titulo:'Bolso vazio',texto:'Ele confere, resmunga e vai embora depois de um soco.',bom:false}}},
    {rot:'Reagir',desc:'Perde 7 de vida, mas toma 12 de ouro dele.',trava:S.hp<=7&&'Vida baixa demais',acao:()=>{S.hp-=7;S.ouro+=12;SOM.dano();setTimeout(()=>SOM.ouro(4),300);return{titulo:'Briga de taverna',texto:'Você leva uns socos, mas sai com 12 moedas dele.',bom:true}}}]},
  {id:'monge',titulo:'O Monge dos Dados',ic:'fichaSorte',cor:'#f2c661',texto:'Um monge silencioso abençoa dados em troca de nada. Só pede que você escolha com calma.',
   opcoes:()=>[
