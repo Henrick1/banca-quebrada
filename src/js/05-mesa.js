@@ -7,10 +7,10 @@ function iniciar3D(){
   scene=new THREE.Scene();scene.background=new THREE.Color('#0c0908');
   camera=new THREE.PerspectiveCamera(36,1,.1,200);
   scene.background=new THREE.Color('#070504');
-  scene.add(new THREE.HemisphereLight(lin('#f6e7c9'),lin('#1a110b'),.32));
+  const hemi=new THREE.HemisphereLight(lin('#f6e7c9'),lin('#1a110b'),.32);scene.add(hemi);
   const foco=new THREE.SpotLight('#ffdcaa',2,80,Math.PI/4.3,.85,1.1);foco.position.set(-9,25,-6);foco.target.position.set(0,0,-.5);
   foco.castShadow=true;foco.shadow.mapSize.set(2048,2048);foco.shadow.bias=-.0005;foco.shadow.camera.near=8;foco.shadow.camera.far=60;
-  scene.add(foco,foco.target);
+  scene.add(foco,foco.target);MESA.luzes={hemi,foco};
   const preench=new THREE.DirectionalLight('#9fb2d6',.16);preench.position.set(8,10,-6);scene.add(preench);
   const janela=new THREE.DirectionalLight('#ffd9a8',.6);janela.position.set(5,16,15);janela.castShadow=true;
   janela.shadow.mapSize.set(2048,2048);janela.shadow.bias=-.0006;janela.shadow.radius=3;

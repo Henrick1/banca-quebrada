@@ -53,3 +53,42 @@
 .loja .dado-ver .nota{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px}
 .loja .loja-bolsa .guia{padding:6px 8px;font-size:12px}
 .o-tipo .rar{font-weight:800}
+.bau-tela{position:fixed;inset:0;z-index:45;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:16px;background:radial-gradient(ellipse at 50% 45%,#2a1a0ce8,#070504f5 70%);animation:ciEntra .3s ease-out both;overflow:hidden}
+.bau-tela.sai{animation:ciSai .4s ease-in both}
+.bau-luz{position:absolute;left:50%;top:42%;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:radial-gradient(circle,#ffe7a0cc,#f2c66155 35%,transparent 68%);opacity:0;transform:scale(.3);pointer-events:none}
+.bau-raios{position:absolute;left:50%;top:42%;width:900px;height:900px;margin:-450px 0 0 -450px;background:repeating-conic-gradient(from 0deg,#ffe3a022 0 8deg,transparent 8deg 22deg);opacity:0;pointer-events:none;-webkit-mask:radial-gradient(circle,#000 20%,transparent 65%);mask:radial-gradient(circle,#000 20%,transparent 65%)}
+.bau-tela.aberto .bau-luz{animation:bauLuz .8s ease-out forwards}
+.bau-tela.aberto .bau-raios{animation:bauRaios 1s ease-out forwards,bauGira 18s linear infinite}
+.bau-css{position:relative;width:200px;height:150px;transition:transform .5s cubic-bezier(.3,1.5,.5,1),margin .5s}
+.bau-tela.treme .bau-css{animation:bauTreme .32s ease-in-out}
+.bau-corpo{position:absolute;left:0;right:0;bottom:0;height:92px;border-radius:6px 6px 10px 10px;background:linear-gradient(#7a4a24,#4a2a14);border:3px solid #2a1608;box-shadow:inset 0 -10px 18px #0007,0 16px 30px #000a}
+.bau-corpo i,.bau-tampa i{position:absolute;top:0;bottom:0;width:16px;background:linear-gradient(90deg,#a87a2a,#f2d27a,#a87a2a);left:28px;box-shadow:116px 0 0 #d4a94f}
+.bau-fecho{position:absolute;left:50%;top:-6px;width:30px;height:36px;margin-left:-15px;border-radius:5px;background:linear-gradient(#f6dc8a,#b8862a);border:2px solid #5a3a10;box-shadow:0 0 14px #f2c66188}
+.bau-tampa{position:absolute;left:-4px;right:-4px;top:4px;height:62px;border-radius:60px 60px 6px 6px;background:linear-gradient(#8a5a2c,#5a3418);border:3px solid #2a1608;transform-origin:50% 100%;transition:transform .55s cubic-bezier(.3,1.6,.5,1);z-index:2}
+.bau-tela.aberto .bau-tampa{transform:translateY(-30px) rotateX(70deg) rotate(-14deg)}
+.bau-tela.aberto .bau-css{transform:scale(.7);margin-top:-40px}
+.bau-dica{margin:0;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#e8d6a6;z-index:3}
+.bau-cartas{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;z-index:3;min-height:250px}
+.bau-carta{width:190px;min-height:240px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;border-radius:14px;cursor:pointer;color:var(--osso);text-align:center;font:inherit;
+  background:linear-gradient(#24180f,#140d08);border:2px solid color-mix(in srgb,var(--rc) 70%,#000);box-shadow:0 0 0 0 var(--rc),0 14px 30px #000b;
+  opacity:0;transform:translateY(-90px) scale(.3) rotate(-10deg);transition:transform .25s,box-shadow .25s,opacity .25s}
+.bau-tela.aberto .bau-carta{animation:bauCarta .65s cubic-bezier(.2,1.4,.4,1) forwards}
+.bau-tela.aberto .bau-carta:nth-child(2){animation-delay:.12s}
+.bau-tela.aberto .bau-carta:nth-child(3){animation-delay:.24s}
+.bau-carta:hover{transform:translateY(-8px) scale(1.04)!important;box-shadow:0 0 26px -2px var(--rc),0 18px 36px #000c}
+.bau-carta.r-raro{background:linear-gradient(160deg,#3a2a10,#1a1008 60%);box-shadow:0 0 22px -4px var(--rc),0 14px 30px #000b}
+.bau-carta.r-raro::after{content:'';position:absolute;inset:0;border-radius:12px;background:linear-gradient(115deg,transparent 30%,#fff3 45%,transparent 60%);background-size:250% 100%;animation:bauBrilho 2.4s ease-in-out infinite;pointer-events:none}
+.bau-carta{position:relative;overflow:hidden}
+.bc-rar{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--rc)}
+.bc-ic{width:64px;height:64px;display:grid;place-items:center;border-radius:50%;background:#0d0a08;border:2px solid color-mix(in srgb,var(--rc) 50%,#000);margin:4px 0}
+.bc-ic svg{width:38px;height:38px}
+.bau-carta b{font-family:var(--f-display);font-weight:400;font-size:21px;line-height:1.05}
+.bc-desc{font-size:13px;line-height:1.4;color:var(--osso-2)}
+.bau-tela.fim .bau-carta:not(.escolhida){opacity:.15!important;transform:scale(.9)!important}
+.bau-carta.escolhida{transform:scale(1.12)!important;box-shadow:0 0 40px var(--rc),0 18px 40px #000c}
+@keyframes bauTreme{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg) translateY(-4px)}75%{transform:rotate(5deg) translateY(-2px)}}
+@keyframes bauLuz{0%{opacity:0;transform:scale(.3)}40%{opacity:1;transform:scale(1.1)}100%{opacity:.55;transform:scale(1)}}
+@keyframes bauRaios{to{opacity:1}}
+@keyframes bauGira{to{rotate:360deg}}
+@keyframes bauCarta{to{opacity:1;transform:none}}
+@keyframes bauBrilho{0%{background-position:150% 0}60%,100%{background-position:-100% 0}}

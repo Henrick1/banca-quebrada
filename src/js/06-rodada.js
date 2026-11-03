@@ -342,6 +342,7 @@ function resolver(){
       if(temTraco('divida')&&S.ini.base>S.ini.base0){S.ini.base--;setTimeout(()=>dispararTraco('divida','Dívida −1'),500)}
       if(S.ini.armadura>0&&d>0){const b=Math.min(d,S.ini.armadura);S.ini.armadura-=b;d-=b;dispararTraco('armadura',`Armadura −${b}`);numeroFlutuante(`Armadura ${b}`,$('barraI'),'#b9c2cc')}
       if(temItem('calice')&&S.hp<S.max){const q=2*qtdItem('calice');S.hp=Math.min(S.max,S.hp+cm(q));setTimeout(()=>{dispararItem('calice',`+${q} vida`);SOM.cura();pulsar($('barraJ'),'flash');hud()},500)}
+      golpeQuente(d);
       S.ini.hp-=d;S.stats.dano+=d;S.stats.maior=Math.max(S.stats.maior,d);if(d>=60)conquistar('golpe60');msg=`Acerto! ${d} de dano`;tipo='bom';
       hitStop=.13;tremer(Math.min(.9,.3+d*.025));SOM.acerto();
       pulsar($('barraI'),'flash');pulsar($('barraI'),'treme');numeroFlutuante(`-${d}`,$('barraI'),'#ffd27a');

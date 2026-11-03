@@ -25,6 +25,7 @@ function bandeja(){
   $('bolsaConteudo').innerHTML=S.bolsa.map(id=>svgTipo(S.dados.find(d=>d.id===id).type)).join('');
 }
 function placar(){
+  if(S.ini){const a=alvoAtual();CLIMA.soma=S.fase!=='resolvendo'&&S.soma>=Math.max(15,a*1.4)&&!(S.modo&&S.modo.teto&&S.soma>tetoAtual())?(S.soma>=Math.max(30,a*2.2)?2:1):0}
   if(S.soma===0){$('soma').textContent=0;$('soma').dataset.v=0}
   if(S.ini)$('alvo').textContent=String(alvoAtual());
   let ins='';

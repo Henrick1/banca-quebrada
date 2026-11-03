@@ -104,7 +104,8 @@ function atualizarEfeitos(dt){
     else if(f.pulso>0){f.pulso=Math.max(0,f.pulso-dt*1.5);f.mesh.position.y=f.y0+Math.sin(f.pulso*Math.PI)*.55;f.mesh.rotation.y+=dt*14*f.pulso;f.topos.forEach(mt=>mt.emissive.setRGB(f.pulso*.55,f.pulso*.42,f.pulso*.15))}
   }
   for(const a of auras3D){a.t+=dt;const s=Math.min(1,a.t*3.5),e=1-Math.pow(1-s,3);a.g.scale.setScalar(.01+e*.99);a.aro.material.opacity=.5+Math.sin(a.t*3)*.2;a.disco.material.opacity=.08+Math.sin(a.t*3)*.03}
-  if(MESA.vela){const s=performance.now()/1000,f=.86+Math.sin(s*13)*.06+Math.sin(s*7.3)*.05+Math.random()*.05;MESA.vela.luz.intensity=1.2*f;MESA.vela.chama.scale.set(.42*f,.7*(2-f),1)}
+  if(MESA.vela){const s=performance.now()/1000,tz=CLIMA.t,f=.86+Math.sin(s*(13+tz*10))*.06*(1+tz)+Math.sin(s*7.3)*.05+Math.random()*.05*(1+tz);MESA.vela.luz.intensity=(1.2+tz*1.1)*f;MESA.vela.chama.scale.set(.42*f*(1+tz*.3),.7*(2-f)*(1+tz*.4),1)}
+  passoClima(dt);
   if(MESA.bolsa&&MESA.bolsaPulso>0){MESA.bolsaPulso=Math.max(0,MESA.bolsaPulso-dt*2.2);const k=MESA.bolsaPulso,s=Math.sin(k*Math.PI*3)*.2*k;MESA.bolsa.scale.set(.95*(1+s),.95*(1-s),.95*(1+s))}
   if(tremor>.002){camera.position.set(camBase.x+rnd(tremor),camBase.y+rnd(tremor)*.4,camBase.z+rnd(tremor));tremor*=Math.pow(.015,dt)}
   else if(tremor){tremor=0;camera.position.copy(camBase)}

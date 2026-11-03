@@ -108,3 +108,11 @@
 .cons-dica em.ok{color:#9fe09f}
 .cons-dica.on{opacity:1;transform:none}
 body.mirando #cena{cursor:crosshair}
+.golpe{position:absolute;left:62%;top:42%;z-index:12;pointer-events:none;display:flex;flex-direction:column;align-items:center;line-height:.9}
+.golpe b{font-family:var(--f-display);font-weight:400;font-size:96px;background:linear-gradient(0deg,#ff3d10 0%,#ff8a1a 40%,#ffd56a 75%,#fff6d0 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 10px #ff6a1acc) drop-shadow(0 0 26px #ff3a0a88);animation:chamaTxt .18s steps(2) infinite alternate}
+.golpe small{margin-top:4px;font-size:15px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#ffd27a;text-shadow:0 0 12px #ff6a1a}
+.golpe.g2 b{font-size:124px}
+.golpe.g3 b{font-size:156px;filter:drop-shadow(0 0 14px #ff4a10) drop-shadow(0 0 40px #ff2a00) drop-shadow(0 0 70px #ff7a2a88)}
+.golpe.g3 small{font-size:19px;color:#fff0c0}
+@keyframes chamaTxt{from{transform:skewX(-2deg) translateY(0)}to{transform:skewX(2deg) translateY(-2px)}}

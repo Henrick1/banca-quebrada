@@ -46,6 +46,7 @@ function gerarEstoque(){
   L.grav=sortear(poolGravacoes(),4).map(o=>({...o,id:uid++}));
   L.reliq=ofertasReliquia(2,false);
   L.cons=sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),2).map(o=>ofertaCons(o.chave,false));
+  L.cons.push({kind:'bau',preco:9,id:uid++,gratis:false});
   L.enc=sortear(encantosAtivos().map(k=>({kind:'encanto',chave:k,preco:ENCANTOS[k].preco})),3).map(o=>({...o,id:uid++,gratis:false}));
   L.serv.forEach(o=>{if(o.kind!=='renovar')o.feito=false});
 }
@@ -71,6 +72,7 @@ function mediaDado(d){return(d.faces.reduce((s,f)=>s+valorFace(f),0)/d.faces.len
 function iconeFx(k,cor){return`<svg viewBox="0 0 24 24"><path fill="${cor}" fill-rule="evenodd" d="${PATHS[k]}"/></svg>`}
 function infoOferta(o){
   if(o.kind==='encanto'){const en=ENCANTOS[o.chave];return{tipo:'Encantamento · você escolhe o dado',tit:`${en.nome}: ${en.combo}`,desc:`Só a moldura: depois de comprar, você escolhe um dado da sua bolsa para receber as bordas de ${en.nome.toLowerCase()}. ${en.desc} Troca o encantamento que o dado já tiver.`,ic:`<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="${en.cor}" stroke-width="3.2"/><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="#0006" stroke-width=".8"/></svg>`}}
+  if(o.kind==='bau')return{tipo:'Baú · abre na hora',tit:'Baú do Contrabandista',desc:'Três prêmios lacrados: relíquia, consumível, dado ou ouro. Abra e escolha um. Itens raros saem com mais frequência que no espólio.',ic:svgPath('cadeado','#d4a94f')};
   if(o.kind==='cons'){const c=CONSUMIVEIS[o.chave];return{tipo:`Consumível · vai para o bolso, usa uma vez na luta (${(S.cons||[]).length}/${consMax()})`,tit:c.nome,desc:c.desc,ic:svgPath(o.chave,c.cor)}}
   if(o.kind==='item'){const it=ITENS[o.chave];return{tipo:'Relíquia · fica na mesa',tit:it.nome,desc:it.desc+' '+htmlConjunto(o.chave),ic:svgPath(ITEM_ICONE[o.chave]||o.chave,it.cor)}}
   if(o.kind==='dado'){
@@ -382,6 +384,7 @@ function criarItemLoja(o){
     altura=.95;
   }
   else if(o.kind==='item'){obj=criarFicha(pathItem(o.chave),ITENS[o.chave].cor,false,rarItem(o.chave));obj.scale.setScalar(1.55);altura=.18}
+  else if(o.kind==='bau'){obj=modeloBau();altura=.07}
   else if(o.kind==='cons'){obj=modeloCons(o.chave);obj.traverse(m=>{if(m.isMesh){m.material=m.material.clone();m.material.userData.mapaComum=true}});obj.scale.multiplyScalar(1.3);altura=.07}
   else{obj=medalhaoLoja(o);altura=.17}
   obj.position.y=altura;obj.traverse(m=>{if(m.isMesh)m.castShadow=true});
