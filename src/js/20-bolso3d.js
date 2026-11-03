@@ -10,7 +10,7 @@ function matsBolso(){
     vidro:new THREE.MeshStandardMaterial({color:lin('#d8efe6'),metalness:.1,roughness:.08,transparent:true,opacity:.32,depthWrite:false}),
     verde:new THREE.MeshStandardMaterial({color:lin('#4fbf6a'),emissive:lin('#1d5a2a'),emissiveIntensity:.6,roughness:.25}),
     veneno:new THREE.MeshStandardMaterial({color:lin('#b4d93c'),emissive:lin('#4a6a10'),emissiveIntensity:.7,roughness:.25}),
-    couro:new THREE.MeshStandardMaterial({color:lin('#9a6a3c'),roughness:.85}),
+    couro:new THREE.MeshStandardMaterial({color:lin('#7a4a28'),roughness:.85}),
     costura:new THREE.MeshStandardMaterial({color:lin('#e2c98e'),roughness:.8}),
     chumbo:new THREE.MeshStandardMaterial({color:lin('#6f767e'),metalness:.6,roughness:.5}),
     latao:new THREE.MeshStandardMaterial({color:lin('#c99a3f'),metalness:.85,roughness:.3})
@@ -52,12 +52,15 @@ function modeloCons(k){
     add(new THREE.TorusGeometry(.12,.035,8,20),M.ferroEsc,0,.47,0);
     g.rotation.y=.3;
   }else if(k==='maoLeve'){
-    add(new THREE.BoxGeometry(.44,.12,.4),M.couro,0,.07,.08);
-    add(new THREE.CylinderGeometry(.2,.22,.12,20),M.couro,0,.07,.32);
-    [-.15,-.05,.05,.15].forEach((x,i)=>{const L=[.26,.32,.3,.22][i];add(new THREE.CylinderGeometry(.045,.05,L,10),M.couro,x,.07,-.12-L/2,H,0,0);add(new THREE.SphereGeometry(.047,10,8),M.couro,x,.07,-.12-L)});
-    add(new THREE.CylinderGeometry(.05,.055,.24,10),M.couro,.29,.07,.0,H,0,-.9);
-    add(new THREE.TorusGeometry(.21,.012,6,24),M.costura,0,.135,.32,H,0,0);
-    g.rotation.y=-.35;g.scale.setScalar(.95);
+    const perfil=[[0,0],[.2,.02],[.3,.1],[.33,.22],[.3,.34],[.2,.42],[.11,.47],[.1,.5],[.15,.58],[.18,.62]].map(([x,y])=>new THREE.Vector2(x,y));
+    add(new THREE.LatheGeometry(perfil,22),M.couro,0,0,0);
+    add(new THREE.TorusGeometry(.105,.022,8,20),M.costura,0,.49,0,H,0,0);
+    add(new THREE.CylinderGeometry(.012,.012,.32,6),M.costura,.12,.42,.06,0,0,-.5);
+    add(new THREE.CylinderGeometry(.012,.012,.28,6),M.costura,.08,.4,.12,.4,0,-.25);
+    add(new THREE.SphereGeometry(.03,8,6),M.latao,.2,.29,.06);
+    add(new THREE.SphereGeometry(.03,8,6),M.latao,.12,.28,.17);
+    const piv=new THREE.Group();[...g.children].forEach(m=>piv.add(m));piv.position.set(.05,.3,0);piv.rotation.z=-1.35;g.add(piv);
+    g.rotation.set(0,-.5,0);g.scale.setScalar(.95);
   }
   return g;
 }
@@ -129,16 +132,17 @@ function dicaBolso(){
   const el=$('consDica');if(!el)return;
   const it=BOL.itens[BOL.hover];
   if(!it){el.classList.remove('on');return}
-  const k=it.chave,c=CONSUMIVEIS[k],tr=travaCons(k),desc=k==='martelo'&&S.ini&&!dadoCasaQuebravel()?'Sem dado da casa na mesa agora: quebra o próximo que ela lançar.':c.desc;
+  const k=it.chave,c=CONSUMIVEIS[k],tr=travaCons(k),desc=c.desc;
   el.style.setProperty('--c',c.cor);
-  el.innerHTML=`<b>${c.nome}</b>${desc}${tr?`<em>${tr}</em>`:'<em class="ok">Clique para usar</em>'}`;
+  el.innerHTML=`<b>${c.nome}</b>${desc}${tr?`<em>${tr}</em>`:k==='martelo'?`<em class="ok">${MIRA.i===BOL.hover?'Clique de novo para guardar':'Clique e escolha o dado da casa'}</em>`:'<em class="ok">Clique para usar</em>'}`;
   el.classList.add('on');
 }
 function passoBolso(dt){
+  passoMira();
   if(!BOL.r||$('cons').hidden)return;
   BOL.t+=dt;
   BOL.itens.forEach((it,i)=>{
-    const g=it.g,hov=i===BOL.hover,tr=!!travaCons(it.chave);
+    const g=it.g,hov=i===BOL.hover||i===MIRA.i,tr=!!travaCons(it.chave);
     g.position.x+=(it.x-g.position.x)*Math.min(1,dt*10);g.position.z+=(it.z-g.position.z)*Math.min(1,dt*10);
     if(it.y>0){it.vy=(it.vy||0)-28*dt;it.y=Math.max(0,it.y+it.vy*dt);if(it.y===0){if(Math.abs(it.vy)>2.5){SOM.batida(Math.abs(it.vy)*.4,it.chave==='martelo'||it.chave==='peso',.4);it.vy*=-.3;it.y=.001}else it.vy=0}}
     it.pulo=Math.max(0,it.pulo-dt*4);

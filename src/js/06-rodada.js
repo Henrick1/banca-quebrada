@@ -6,9 +6,7 @@ function aoParar(t){
   if(t.dono==='casa'){
     let v=valorFace(f);
     if(temItem('baralho')&&v>0){const q=Math.min(v,qtdItem('baralho'));v-=q;dispararItem('baralho',`Casa −${q}`)}
-    let quebrou=false;if(S.marteloProx){S.marteloProx=false;quebrou=v||true;v=0}
     t.valor=v;S.rolagens.push(v);S.rolagem=valorCasa();
-    if(quebrou){setTimeout(()=>quebrarDado(t,quebrou===true?0:quebrou),80);renderCons()}
     let extra='';
     anel(t.mesh.position,f.fx?FX[f.fx.k].cor:0xa596bd);SOM.tok(v);SOM.tensao();
     voar(`${v}`,tela,$('alvo'),{cls:'pontos',aoChegar:()=>pulsar($('alvo'))});
@@ -98,7 +96,7 @@ function novaLuta(){
     if(elite){const mais=EXTRAS_ELITE.filter(x=>!S.ini.tracos.includes(x));if(mais.length)S.ini.tracos.push(pick(mais))}
     if(n.tipo==='chefe'&&!S.ini.tracos.includes('armadura'))S.ini.tracos.push('armadura');
   }
-  S.ini.base0=S.ini.base;S.serie=0;S.escudoProx=0;S.marteloProx=false;
+  S.ini.base0=S.ini.base;S.serie=0;S.escudoProx=0;
   if((elite||n.tipo==='chefe')&&temItem('velaNegra')){S.ini.max=S.ini.hp=Math.round(S.ini.max*Math.pow(.85,qtdItem('velaNegra')));setTimeout(()=>dispararItem('velaNegra','−15% de vida'),900)}
   if(S.ini.tracos.includes('armadura')){S.ini.armaduraMax=6+S.andar;S.ini.armadura=S.ini.armaduraMax}
   S.hpLuta=S.hp;S.ouroLuta=S.ouro;S.consLuta=[...(S.cons||[])];

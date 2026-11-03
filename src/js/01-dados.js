@@ -161,7 +161,7 @@ const ITENS={
   cantil:{nome:'Cantil de Couro',desc:'Dormir no descanso cura 10 a mais.',cor:'#a8794a',preco:7}
 };
 const CONSUMIVEIS={
-  martelo:{nome:'Martelo',desc:'Quebra o dado mais alto da casa que está na mesa, que passa a valer 0. Se ela ainda não lançou, quebra o próximo dado dela.',cor:'#c9cdd6',preco:6},
+  martelo:{nome:'Martelo',desc:'Escolha um dado da casa que está na mesa: ele quebra e passa a valer 0 nesta rodada.',cor:'#c9cdd6',preco:6},
   tonico:{nome:'Tônico',desc:'Recupera 12 de vida na hora.',cor:'#86c48f',preco:5},
   faca:{nome:'Faca de Arremesso',desc:'Causa 8 de dano direto na casa, sem precisar acertar o alvo.',cor:'#d9dde6',preco:5},
   frasco:{nome:'Frasco de Veneno',desc:'Aplica 5 de veneno na casa.',cor:'#a7c25c',preco:5},
