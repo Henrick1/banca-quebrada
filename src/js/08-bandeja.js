@@ -11,7 +11,7 @@ function texturaCouro(){
 }
 function iniciarBandeja(){
   const cv=$('cenaBandeja');
-  B.r=new THREE.WebGLRenderer({canvas:cv,antialias:true});B.r.setPixelRatio(pxQualidade());
+  B.r=new THREE.WebGLRenderer({canvas:cv,antialias:true});B.r.setPixelRatio(pxPequeno());
   B.r.shadowMap.enabled=qualidade().sombra;B.r.shadowMap.type=THREE.PCFSoftShadowMap;B.r.outputEncoding=THREE.sRGBEncoding;B.r.toneMapping=THREE.ACESFilmicToneMapping;
   B.scene=new THREE.Scene();B.scene.background=new THREE.Color('#140d09');
   B.cam=new THREE.PerspectiveCamera(32,1,.1,100);
@@ -139,7 +139,9 @@ function passoBandeja(dt){
     it.mesh.position.y+=it.lift;
   }
   animarSaco(dt);
-  B.r.render(B.scene,B.cam);
+  const b=B.saco,ativo=B.arr||B.hover||(b&&(b.pulso>0||b.aperto>0||b.alvo||b.hover))||B.itens.some(it=>it.body.velocity.lengthSquared()>.0004||it.body.angularVelocity.lengthSquared()>.0004||Math.abs(it.lift||0)>.002);
+  B.ocioso=ativo?0:(B.ocioso||0)+1;
+  if(B.ocioso%6===0)B.r.render(B.scene,B.cam);
 }
 function marcar(){
   const ativo=B.arr?B.arr.it:B.hover;

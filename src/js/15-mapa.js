@@ -32,7 +32,7 @@ function gerarMapa(){
     else{const x=R();n.tipo=x<.42?'luta':x<.64?'evento':x<.78?'loja':(n.r>=3&&x<.92)?'elite':n.r>=2?'descanso':'luta'}
     if(n.tipo==='luta'||n.tipo==='elite'){
       const t=Math.min(6,Math.max(0,Math.floor(n.r*.7)-(R()<.3?1:0)));
-      n.inimigo=n.tipo==='elite'?Math.min(6,t+1):t;
+      n.inimigo=inimigoDoNivel(n.tipo==='elite'?Math.min(6,t+1):t);
       if(n.tipo==='elite'){const b=INIMIGOS[n.inimigo];n.extra=pick(EXTRAS_ELITE.filter(x=>!b.tracos.includes(x)))}
     }
   }

@@ -48,7 +48,14 @@ function iniciar3D(){
   iniciarBandeja();
   criarBolsaCasa();iniciarHoverMesa();
   let ult=performance.now();
-  const loop=t=>{const dt=Math.min(.05,(t-ult)/1000);ult=t;passo(dt);atualizarEfeitos(dt);atualizarContador(dt);passoBandeja(dt);passoBolso(dt);renderer.render(scene,camera);posicionarRotulos();posicionarAncoras();requestAnimationFrame(loop)};
+  let quadro=0,acum=0;
+  const loop=t=>{
+    requestAnimationFrame(loop);
+    const dt=Math.min(.05,(t-ult)/1000);ult=t;quadro++;
+    const coberto=!$('overlay').hidden&&!emJogo();
+    if(coberto){acum+=dt;if(quadro%4)return;const d=Math.min(.12,acum);acum=0;atualizarEfeitos(d);atualizarContador(d);passoBandeja(Math.min(.05,d));passoBolso(d);renderer.render(scene,camera);return}
+    acum=0;passo(dt);atualizarEfeitos(dt);atualizarContador(dt);passoBandeja(dt);passoBolso(dt);renderer.render(scene,camera);posicionarRotulos();posicionarAncoras();
+  };
   requestAnimationFrame(loop);
 }
 function ajustar(){
@@ -91,7 +98,8 @@ function passo(dt){
   if(!world)return;
   if(S.pausado)return;
   if(hitStop>0){hitStop-=dt;return}
-  world.step(1/120,dt,8);
+  const vj=emJogo()?velJogo():1;dt*=vj;
+  world.step(1/120,dt,8*vj);
   for(const t of lancados){
     if(t.body.position.y<-3){t.body.position.set(0,3,0);t.body.velocity.set(0,0,0)}
     t.mesh.position.copy(t.body.position);t.mesh.quaternion.copy(t.body.quaternion);

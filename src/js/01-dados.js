@@ -15,6 +15,13 @@ const TEMAS_CASA={
   'Ogro Apostador':{nome:'Pedra lascada',base:'#6c6a60',mix:.68,tinta:'#ece4cc',rough:.92,grao:30},
   'O Dono da Casa':{nome:'Ouro maciço',base:'#c9a040',mix:.72,tinta:'#1a1208',rough:.3,metal:.5,borda:'#2a1c10'},
   'O Taberneiro Caolho':{nome:'Tampa de barril',base:'#4e2e18',mix:.66,tinta:'#ecca8c',rough:.58,grao:14,veios:true,borda:'#8a8f96'},
+  'Bêbado da Esquina':{nome:'Caneca de estanho',base:'#8e9196',mix:.6,tinta:'#2a2418',rough:.45,metal:.3,grao:12},
+  'Aprendiz de Crupiê':{nome:'Baralho velho',base:'#a8322e',mix:.55,tinta:'#f4ead0',rough:.55,grao:8,borda:'#f0e6cc'},
+  'Contrabandista do Porto':{nome:'Âmbar do porto',base:'#b8741e',mix:.6,tinta:'#2a1606',rough:.2,vidro:true,brilho:'#7a3a06'},
+  'Mercenária de Aluguel':{nome:'Couro cravejado',base:'#4a2c1c',mix:.66,tinta:'#e8d2a0',rough:.7,grao:18,borda:'#b9bfc7'},
+  'Alquimista Louco':{nome:'Vidro verde',base:'#2e7a3a',mix:.6,tinta:'#f2ff9a',rough:.12,vidro:true,brilho:'#3a9a2a'},
+  'Agiota de Capuz':{nome:'Prata manchada',base:'#8a8e96',mix:.6,tinta:'#3a0e14',rough:.32,metal:.4,grao:14},
+  'Capitão da Guarda':{nome:'Bronze polido',base:'#9a6a2a',mix:.65,tinta:'#1a0e04',rough:.28,metal:.45,borda:'#e0c070'},
   'A Viúva das Apostas':{nome:'Ônix de luto',base:'#151017',mix:.78,tinta:'#e6a6c4',rough:.16,borda:'#b6bfcc'}
 };
 const temaCasa=()=>S.ini&&S.ini.tema?TEMAS_CASA[S.ini.tema]:null;
@@ -99,15 +106,23 @@ const INIMIGOS=[
   {nome:'Ogro Apostador',modos:['duelo','cego','aberto'],hp:48,base:3,dado:'d20',bolsa:['comum20','chumbo','espinhoso','sombrio','corrente'],tracos:['vinganca','regen','armadura']},
   {nome:'O Dono da Casa',chefe:true,tier:7,modos:['estouro','duelo','cego','classico'],hp:52,base:3,dado:'d20',bolsa:['comum20','vicD20','espinho10','sombrio','corrente'],tracos:['ganancia','congela','furia']},
   {nome:'O Taberneiro Caolho',chefe:true,tier:2,modos:['classico','aberto','cego'],hp:38,base:5,dado:'d10',bolsa:['comum6','comum10','viciado','muralha'],tracos:['barril']},
+  {nome:'Bêbado da Esquina',tier:0,modos:['classico','aberto'],hp:13,base:3,dado:'d6',bolsa:['comum6','furtiva'],tracos:[]},
+  {nome:'Aprendiz de Crupiê',tier:1,modos:['cego','classico'],hp:19,base:5,dado:'d6',bolsa:['comum6','viciado'],tracos:[]},
+  {nome:'Contrabandista do Porto',tier:2,modos:['aberto','classico','estouro'],hp:25,base:4,dado:'d10',bolsa:['comum10','furtiva','chumbo'],tracos:['cobrador']},
+  {nome:'Mercenária de Aluguel',tier:3,modos:['duelo','classico'],hp:31,base:5,dado:'d10',bolsa:['comum10','muralha','espinhoso'],tracos:['vinganca']},
+  {nome:'Alquimista Louco',tier:4,modos:['cego','estouro','aberto'],hp:35,base:4,dado:'d10',bolsa:['comum10','sanguessuga','sombrio','espinho10'],tracos:['regen','crescente']},
+  {nome:'Agiota de Capuz',tier:5,modos:['classico','duelo','aberto'],hp:41,base:5,dado:'d10',bolsa:['comum10','corrente','furtiva','espinho10'],tracos:['ganancia','pele']},
+  {nome:'Capitão da Guarda',tier:6,modos:['duelo','classico','estouro'],hp:44,base:4,dado:'d20',bolsa:['comum20','muralha','chumbo','corrente','espinhoso'],tracos:['armadura','congela']},
   {nome:'A Viúva das Apostas',chefe:true,tier:5,modos:['duelo','estouro','classico'],hp:54,base:5,dado:'d10',bolsa:['comum10','viciado','sanguessuga','espinho10','sombrio'],tracos:['divida','ganancia']}
 ];
 const ATOS=[
   {nome:'A Adega',num:'I',chefe:8,feltro:'#1e4a46'},
-  {nome:'O Salão',num:'II',chefe:9,feltro:'#4a1a22'},
+  {nome:'O Salão',num:'II',chefe:16,feltro:'#4a1a22'},
   {nome:'O Cofre',num:'III',chefe:7,feltro:'#1a2744'}
 ];
 const atoDe=r=>Math.min(ATOS.length-1,Math.floor((r||0)/4));
 const tierDe=k=>INIMIGOS[k].tier??k;
+const inimigoDoNivel=t=>{const ops=INIMIGOS.map((b,i)=>i).filter(i=>!INIMIGOS[i].chefe&&tierDe(i)===t);return ops.length?pick(ops):t};
 const MODOS={
   classico:{nome:'Clássico',seq:'jjcj',desc:'Dois lances seus, a casa lança, e o seu último lance.'},
   duelo:{nome:'Duelo',seq:'jcjcj',base:-3,desc:'Vocês alternam. A casa lança duas vezes, mas a base cai 3.'},

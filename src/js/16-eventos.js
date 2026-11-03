@@ -44,12 +44,39 @@ const EVENTOS=[
    {rot:'Receber cura',desc:'Recupera 15 de vida.',acao:()=>{S.hp=Math.min(S.max,S.hp+cm(15));SOM.cura();return{titulo:'Em paz',texto:'Você recupera 15 de vida.',bom:true}}}]},
  {id:'beco',titulo:'Duelo no Beco',ic:'espinho',cor:'#e0574a',texto:'Um apostador mal-encarado bloqueia o beco. "Uma partida. Quem perder entrega o que tem de mais valioso."',
   opcoes:()=>[
-   {rot:'Aceitar o duelo',desc:'Luta contra um elite. Vencer garante uma relíquia.',acao:()=>{const t=Math.min(6,Math.max(1,Math.floor(S.linha*.7)+1));const b=INIMIGOS[t];S.no={tipo:'elite',inimigo:t,r:S.linha,extra:pick(EXTRAS_ELITE.filter(x=>!b.tracos.includes(x)))};novaLuta()}},
+   {rot:'Aceitar o duelo',desc:'Luta contra um elite. Vencer garante uma relíquia.',acao:()=>{const t=inimigoDoNivel(Math.min(6,Math.max(1,Math.floor(S.linha*.7)+1)));const b=INIMIGOS[t];S.no={tipo:'elite',inimigo:t,r:S.linha,extra:pick(EXTRAS_ELITE.filter(x=>!b.tracos.includes(x)))};novaLuta()}},
    {rot:'Recusar',desc:'Dar a volta pela rua de trás.',acao:()=>({titulo:'Você deu a volta',texto:'O apostador ri, mas deixa você passar.'})}]},
  {id:'fundicao',titulo:'Fundição Clandestina',ic:'dupla',cor:'#d9774a',texto:'No porão, um forno derrete dados velhos e molda dados novos. O fundidor não cobra de quem traz dois iguais.',
   opcoes:()=>[
    {rot:'Fundir dois dados',desc:'De graça. O novo dado fica com o melhor de cada face e +1 em todas.',trava:!paresFundiveis().length&&'Você não tem dois dados do mesmo tipo',acao:()=>{montarLoja({titulo:'Fundição',sub:'Escolha dois dados do mesmo tipo.',espolio:[{kind:'fundir',gratis:true,id:uid++}]})}},
-   {rot:'Sair',desc:'Está quente demais aqui.',acao:()=>({titulo:'Você subiu a escada',texto:'O calor fica para trás.'})}]}
+   {rot:'Sair',desc:'Está quente demais aqui.',acao:()=>({titulo:'Você subiu a escada',texto:'O calor fica para trás.'})}]},
+ {id:'cartomante',titulo:'A Cartomante',ic:'baralho',cor:'#b98ae6',texto:'Uma mulher de véu vira três cartas sobre a mesa. "Eu vejo o seu próximo adversário. Por um preço, ele chega cansado."',
+  opcoes:()=>[
+   {rot:'Pagar 6 de ouro',desc:'O próximo inimigo começa com 30% a menos de vida.',trava:S.ouro<6&&'Você não tem 6 de ouro',acao:()=>{S.ouro-=6;SOM.ouro(3);S.proxLuta={...(S.proxLuta||{}),vida:.7};return{titulo:'A carta da Torre',texto:'Ela sorri. "Ele vai tropeçar antes mesmo de sentar."',bom:true}}},
+   {rot:'Pedir uma leitura de graça',desc:'Ela lê de má vontade: o próximo inimigo ganha um traço extra, mas você ganha 10 de ouro.',acao:()=>{S.ouro+=10;SOM.ouro(4);S.proxLuta={...(S.proxLuta||{}),extra:true};return{titulo:'A carta do Diabo',texto:'"Você pediu." Ela empurra umas moedas e some atrás da cortina.',bom:false}}},
+   {rot:'Ir embora',desc:'Futuro é coisa de quem tem tempo.',acao:()=>({titulo:'Sem leitura',texto:'As cartas ficam viradas para baixo.',bom:true})}]},
+ {id:'barril',titulo:'O Barril Esquecido',ic:'rum',cor:'#c08a4a',texto:'Um barril lacrado num canto escuro do porão. Alguém escreveu "NÃO ABRA" com giz.',
+  opcoes:()=>{const cheio=(S.cons||[]).length>=consMax();return[
+   {rot:'Abrir',desc:'Metade das vezes tem um consumível dentro. Na outra metade, vapor venenoso: perde 6 de vida.',trava:(S.hp<=6&&'Vida baixa demais')||(cheio&&'Seu bolso está cheio'),acao:()=>{if(R()<.5){const k=sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),1,.3)[0].chave;S.cons.push(k);SOM.combo();return{titulo:'Achado!',texto:`Dentro, embrulhado em palha: ${CONSUMIVEIS[k].nome}.`,bom:true}}S.hp-=6;SOM.dano();return{titulo:'Vapor verde',texto:'Você tosse até ver estrelas. Perdeu 6 de vida.',bom:false}}},
+   {rot:'Rolar até o taverneiro',desc:'Ele paga 7 de ouro pelo barril fechado.',acao:()=>{S.ouro+=7;SOM.ouro(3);return{titulo:'Negócio fechado',texto:'O taverneiro nem pergunta de onde veio.',bom:true}}}]}},
+ {id:'braco',titulo:'Queda de Braço',ic:'lamina',cor:'#e0574a',texto:'Um estivador enorme bate o cotovelo na mesa. "Quem perder paga a rodada."',
+  opcoes:()=>[
+   {rot:'Aceitar',desc:'Você perde 5 de vida no esforço. 60% de chance de ganhar 16 de ouro.',trava:S.hp<=5&&'Vida baixa demais',acao:()=>{S.hp-=5;SOM.dano();if(R()<.6){S.ouro+=16;setTimeout(()=>SOM.ouro(5),250);return{titulo:'Braço de ferro',texto:'A mesa inteira grita quando o braço dele bate na madeira. Você leva 16 de ouro.',bom:true}}return{titulo:'Ele venceu',texto:'Seu ombro estala. Pelo menos ninguém riu muito.',bom:false}}},
+   {rot:'Recusar',desc:'Você não precisa provar nada.',acao:()=>({titulo:'Covarde, mas inteiro',texto:'Ele dá de ombros e procura outro.',bom:true})}]},
+ {id:'altar',titulo:'O Altar dos Dados',ic:'fichaSorte',cor:'#f2c661',texto:'Uma pedra lisa coberta de cera de vela. Em cima, um dado partido ao meio. Dizem que o altar troca o fraco pelo forte.',
+  opcoes:()=>{const pode=S.dados.length>BOLSA_MIN;return[
+   {rot:'Sacrificar o pior dado',desc:'O dado mais fraco da sua bolsa some. O mais forte ganha +1 em todas as faces.',trava:!pode&&`Você precisa de mais de ${BOLSA_MIN} dados`,acao:()=>{const ord=S.dados.slice().sort((a,b)=>mediaNum(a)-mediaNum(b)),pior=ord[0],melhor=ord[ord.length-1];S.dados=S.dados.filter(d=>d!==pior);melhor.faces.forEach(f=>f.bonus+=1);SOM.grava();setTimeout(()=>SOM.combo(),150);return{titulo:'O altar aceitou',texto:`${DIE[pior.type].nome} virou pó. Seu ${DIE[melhor.type].nome} brilha com +1 em todas as faces.`,bom:true}}},
+   {rot:'Acender uma vela',desc:'Recupera 6 de vida.',trava:S.hp>=S.max&&'Vida cheia',acao:()=>{S.hp=Math.min(S.max,S.hp+cm(6));SOM.cura();return{titulo:'Um pouco de paz',texto:'O cheiro de cera acalma. Você recuperou 6 de vida.',bom:true}}}]}},
+ {id:'copos',titulo:'O Jogo dos Copos',ic:'copo',cor:'#c08a55',texto:'Três copos de couro viram e giram rápido demais. "Ache a moeda, leve o prêmio. Custa só 4."',
+  opcoes:()=>['da esquerda','do meio','da direita'].map(lado=>({rot:`Copo ${lado}`,desc:'4 de ouro para escolher.',trava:S.ouro<4&&'Você não tem 4 de ouro',acao:()=>{S.ouro-=4;const x=R();if(x<.34){S.ouro+=14;SOM.ouro(6);return{titulo:'Achou a moeda!',texto:'O trapaceiro fecha a cara e paga 14 de ouro.',bom:true}}if(x<.55&&(S.cons||[]).length<consMax()){S.cons.push('peso');SOM.combo();return{titulo:'Quase',texto:'Não era a moeda, mas por baixo do copo havia um Peso de Chumbo. Você guarda no bolso.',bom:true}}SOM.dano();return{titulo:'Copo vazio',texto:'Claro que estava vazio. Sempre está.',bom:false}}}))},
+ {id:'mapa',titulo:'O Mapa Rabiscado',ic:'lupa',cor:'#e3c27a',texto:'Num guardanapo manchado, alguém desenhou o caminho até o cofre de um apostador. Só que ele está de olho em você.',
+  opcoes:()=>{const k=relRandom();return[
+   {rot:'Seguir o mapa',desc:k?`Ganha ${ITENS[k].nome} agora. O próximo inimigo vem com um traço extra.`:'Não sobrou nenhuma relíquia.',trava:!k&&'Nenhuma relíquia disponível',acao:()=>{ganharItem(k);SOM.item();S.proxLuta={...(S.proxLuta||{}),extra:true};return{titulo:'Achou o esconderijo',texto:`Atrás de um tijolo solto: ${ITENS[k].nome}. Mas alguém viu você saindo.`,bom:true}}},
+   {rot:'Vender o mapa',desc:'Um curioso paga 8 de ouro.',acao:()=>{S.ouro+=8;SOM.ouro(4);return{titulo:'Problema de outro',texto:'Você embolsa 8 de ouro e o guardanapo vai embora.',bom:true}}}]}},
+ {id:'bardo',titulo:'O Bardo Desafinado',ic:'sino',cor:'#86c48f',texto:'Um bardo canta a sua última partida, errando todas as rimas. Mesmo assim, a taverna inteira para para ouvir.',
+  opcoes:()=>[
+   {rot:'Pagar 5 por uma canção',desc:'Recupera 14 de vida.',trava:(S.ouro<5&&'Você não tem 5 de ouro')||(S.hp>=S.max&&'Vida cheia'),acao:()=>{S.ouro-=5;S.hp=Math.min(S.max,S.hp+cm(14));SOM.cura();return{titulo:'Uma balada sobre você',texto:'É horrível e maravilhosa. Recuperou 14 de vida.',bom:true}}},
+   {rot:'Cantar junto',desc:'De graça. Recupera 5 de vida e ganha 3 de ouro de gorjeta.',acao:()=>{S.hp=Math.min(S.max,S.hp+cm(5));S.ouro+=3;SOM.cura();return{titulo:'Dueto improvável',texto:'Alguém joga moedas. Ninguém sabe se foi por pena.',bom:true}}}]},
 ];
 const DESCANSO={id:'descanso',titulo:'Quarto nos Fundos',ic:'rum',cor:'#86c48f',texto:'Uma cama de palha e uma lamparina. Dá para fazer uma coisa antes de voltar à mesa.',
   opcoes:()=>{const c=Math.round(S.max*.35)+10*qtdItem('cantil');return[

@@ -85,7 +85,7 @@ function texturaBolso(n,cols){
 function iniciarBolso(){
   if(BOL.r||!$('consCena'))return;
   const cv=$('consCena');
-  BOL.r=new THREE.WebGLRenderer({canvas:cv,antialias:true});BOL.r.setPixelRatio(pxQualidade());
+  BOL.r=new THREE.WebGLRenderer({canvas:cv,antialias:true});BOL.r.setPixelRatio(pxPequeno());
   BOL.r.shadowMap.enabled=qualidade().sombra;BOL.r.shadowMap.type=THREE.PCFSoftShadowMap;BOL.r.outputEncoding=THREE.sRGBEncoding;BOL.r.toneMapping=THREE.ACESFilmicToneMapping;
   BOL.sc=new THREE.Scene();BOL.sc.background=new THREE.Color('#1a110a');
   BOL.cam=new THREE.PerspectiveCamera(26,3,.1,50);
@@ -105,7 +105,7 @@ function iniciarBolso(){
 }
 function ajustarBolso(){
   if(!BOL.r)return;const cv=$('consCena'),w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
-  BOL.r.setPixelRatio(pxQualidade());BOL.r.setSize(w,h,false);BOL.cam.aspect=w/h;
+  BOL.r.setPixelRatio(pxPequeno());BOL.r.setSize(w,h,false);BOL.cam.aspect=w/h;
   const lw=BOL.cols*1.5,ld=Math.ceil(BOL.n/BOL.cols)*1.32,t=Math.tan(THREE.MathUtils.degToRad(BOL.cam.fov/2)),el=1.22;
   const d=Math.max(lw/2/(t*BOL.cam.aspect),ld/2/t*.8)*1.1;
   BOL.cam.position.set(0,d*Math.sin(el),d*Math.cos(el));BOL.cam.lookAt(0,0,0);BOL.cam.updateProjectionMatrix();
@@ -148,8 +148,9 @@ function dicaBolso(){
 function passoBolso(dt){
   passoMira();
   if(!BOL.r||$('cons').hidden)return;
-  BOL.t+=dt;
+  BOL.t+=dt;let mexe=BOL.hover>=0||MIRA.i>=0;
   BOL.itens.forEach((it,i)=>{
+    if(it.y>0||it.pulo>0||Math.abs((it.h||0))>.002||Math.abs(it.g.position.x-it.x)>.002||Math.abs(it.g.position.z-it.z)>.002)mexe=true;
     const g=it.g,hov=i===BOL.hover||i===MIRA.i,tr=!!travaCons(it.chave);
     g.position.x+=(it.x-g.position.x)*Math.min(1,dt*10);g.position.z+=(it.z-g.position.z)*Math.min(1,dt*10);
     if(it.y>0){it.vy=(it.vy||0)-28*dt;it.y=Math.max(0,it.y+it.vy*dt);if(it.y===0){if(Math.abs(it.vy)>2.5){SOM.batida(Math.abs(it.vy)*.4,it.chave==='martelo'||it.chave==='peso',.4);it.vy*=-.3;it.y=.001}else it.vy=0}}
@@ -159,5 +160,6 @@ function passoBolso(dt){
     g.rotation.y=it.ry0+(hov?Math.sin(BOL.t*2.2)*.12:0);
     g.rotation.z=hov&&!tr?Math.sin(BOL.t*3)*.04:0;
   });
-  BOL.r.render(BOL.sc,BOL.cam);
+  BOL.ocioso=mexe?0:(BOL.ocioso||0)+1;
+  if(BOL.ocioso%10===0)BOL.r.render(BOL.sc,BOL.cam);
 }

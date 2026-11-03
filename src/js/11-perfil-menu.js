@@ -43,7 +43,7 @@ function salvarPartida(){
   const onde=S.fase==='loja'?'loja':S.fase==='evento'&&S.evAtual?'evento':S.fase==='mapa'||S.fase==='evento'?'mapa':'luta';
   const L=S.loja;
   const d={v:1,uid,onde,hp:onde==='luta'?(S.hpLuta??S.hp):S.hp,max:S.max,ouro:onde==='luta'?(S.ouroLuta??S.ouro):S.ouro,cons:onde==='luta'?(S.consLuta??S.cons):S.cons,andar:S.andar,linha:S.linha,itens:S.itens,dados:S.dados,build:S.build,stats:S.stats,
-    mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,
+    mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,proxLuta:S.proxLuta||null,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,
     loja:onde==='loja'&&L?{...L,sel:null,foco:null,fundirA:null,flash:null}:null,evento:onde==='evento'?S.evAtual:null};
   try{ARMAZ.setItem(SAVE_KEY,JSON.stringify(d))}catch(e){}
 }
@@ -51,8 +51,10 @@ function carregarPartida(){
   let d=null;try{d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null')}catch(e){}
   if(!d||!d.mapa){apagarSalvo();return false}
   Object.assign(S,{hp:d.hp,max:d.max,ouro:d.ouro,cons:d.cons||[],andar:d.andar,linha:d.linha,itens:d.itens,dados:d.dados,build:d.build,stats:d.stats,mapa:d.mapa,evVistos:d.evVistos||[],
-    teste:!!d.teste,desafio:d.desafio||0,no:d.no,elitesVencidos:d.elitesVencidos||0,pausado:false,ini:null,loja:null,evAtual:null});
+    teste:!!d.teste,desafio:d.desafio||0,proxLuta:d.proxLuta||null,no:d.no,elitesVencidos:d.elitesVencidos||0,pausado:false,ini:null,loja:null,evAtual:null});
   uid=Math.max(uid,d.uid||0)+1;
+  if(S.mapa&&S.mapa.nos)Object.values(S.mapa.nos).forEach(n=>{if(n.tipo==='chefe')n.inimigo=ATOS[n.ato??atoDe(n.r)].chefe});
+  if(S.no&&S.no.tipo==='chefe')S.no.inimigo=ATOS[S.no.ato??atoDe(S.no.r)].chefe;
   RNG.ativo=d.rng!=null;if(RNG.ativo)RNG.s=d.rng;
   if(d.onde==='luta'&&S.no)novaLuta();
   else if(d.onde==='loja'&&d.loja){S.loja=d.loja;S.loja.cons=(S.loja.cons||[]).filter(o=>o.kind!=='bau');S.fase='loja';S.retomar=renderLoja;renderLoja()}

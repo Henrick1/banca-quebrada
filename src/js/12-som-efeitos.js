@@ -4,6 +4,7 @@ const SOM=(()=>{
   let ctx=null,mestre=null,ruido=null,mudo=false,ultBatida=0;
   try{mudo=ARMAZ.getItem('bq-mudo')==='1'}catch(e){}
   const iniciar=()=>{
+    if(typeof MUS!=='undefined')MUS.iniciar();
     if(ctx){if(ctx.state==='suspended')ctx.resume();return}
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
     ctx=new AC();mestre=ctx.createGain();mestre.gain.value=mudo?0:OPCOES.volume/100;
@@ -27,7 +28,7 @@ const SOM=(()=>{
   return{
     iniciar,
     get mudo(){return mudo},
-    alternar(){mudo=!mudo;try{ARMAZ.setItem('bq-mudo',mudo?'1':'0')}catch(e){}if(mestre)mestre.gain.value=mudo?0:OPCOES.volume/100;return mudo},
+    alternar(){mudo=!mudo;try{ARMAZ.setItem('bq-mudo',mudo?'1':'0')}catch(e){}if(mestre)mestre.gain.value=mudo?0:OPCOES.volume/100;if(typeof MUS!=='undefined')MUS.aplicarVolume();return mudo},
     aplicarVolume(){if(mestre)mestre.gain.value=mudo?0:OPCOES.volume/100},
     batida(v,metal,vol=1){
       if(!ok())return;const agora=ctx.currentTime;if(agora-ultBatida<.022)return;ultBatida=agora;
