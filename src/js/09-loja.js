@@ -127,7 +127,7 @@ function renderLoja(){
     <div class="status"><span class="pilula"><small>Vida</small>${S.hp}/${S.max}</span><span class="pilula ouro">${MOEDA}${S.ouro}</span></div>`;
   renderBolsaLoja();renderDetalhe();
   $('ljRodape').innerHTML=`<div class="proximo"><svg class="tipo" viewBox="0 0 24 24"><path fill="#d4a94f" fill-rule="evenodd" d="${PATHS.baralho}"/></svg><div><small>Andar ${(S.linha||0)+1} de ${MAPA_LINHAS}</small><strong>${L.titulo}</strong></div></div>
-    <div class="acoes">${L.pegou?'':'<span class="pendente">Espólio ainda não escolhido</span>'}<button class="btn" data-acao="mapa">Voltar ao mapa</button></div>`;
+    <div class="acoes">${L.mercador||L.pegou?'<button class="btn" data-acao="mapa">Voltar ao mapa</button>':'<span class="pendente">Escolha um item do espólio ou troque por ouro</span>'}</div>`;
   sincronizarLoja3D();
   L.flash=null;
   salvarPartida();
