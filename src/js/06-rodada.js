@@ -75,15 +75,15 @@ function kitDeTeste(){
   }
   Object.keys(ENCANTOS).forEach((k,i)=>{S.dados[i].encanto=k});
 }
-function novaPartida(teste,diaria){
+function novaPartida(teste){
   apagarSalvo();
-  RNG.ativo=!!diaria;if(diaria)RNG.s=sementeDe('banca-'+hojeISO());
-  const b=diaria?BUILDS.apostador:BUILDS[PERFIL.build]&&liberado(BUILDS[PERFIL.build].req)?BUILDS[PERFIL.build]:BUILDS.apostador,kit=b.montar();
-  const des=diaria||teste?0:Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0),vida=des>=5?35:45;
-  Object.assign(S,{teste:false,pausado:false,hp:vida,max:vida,ouro:kit.ouro,andar:0,itens:[],cons:['martelo'],dados:kit.dados,build:b.nome,desafio:des,diaria:diaria?{data:hojeISO()}:null,elitesVencidos:0,evAtual:null,
+  RNG.ativo=false;
+  const b=BUILDS[PERFIL.build]&&liberado(BUILDS[PERFIL.build].req)?BUILDS[PERFIL.build]:BUILDS.apostador,kit=b.montar();
+  const des=teste?0:Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0),vida=des>=5?35:45;
+  Object.assign(S,{teste:false,pausado:false,hp:vida,max:vida,ouro:kit.ouro,andar:0,itens:[],cons:['martelo'],dados:kit.dados,build:b.nome,desafio:des,elitesVencidos:0,evAtual:null,
     stats:{dano:0,maior:0,combos:0,rodadas:0,inicio:Date.now()}});
   kit.itens.forEach(ganharItem);
-  const r=diaria?RESERVAS.d6:RESERVAS[PERFIL.reserva];if(r&&(diaria||liberado(r.req)))S.dados.push(novoDado(r.tipo));
+  const r=RESERVAS[PERFIL.reserva];if(r&&liberado(r.req))S.dados.push(novoDado(r.tipo));
   S.dados.forEach(d=>{if(d.encanto)registrarVisto('encantos',d.encanto)});
   if(teste)kitDeTeste();
   S.mapa=gerarMapa();S.linha=0;S.no=null;S.evVistos=[];S.ini=null;

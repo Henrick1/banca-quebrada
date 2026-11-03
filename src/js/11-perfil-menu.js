@@ -1,5 +1,5 @@
 const PERFIL=(()=>{
-  const base={partidas:0,vitorias:0,melhorAndar:0,vistos:{itens:[],encantos:[]},build:'apostador',reserva:'d6',desafio:0,desafioMax:0,conquistas:[],diarias:{}};
+  const base={partidas:0,vitorias:0,melhorAndar:0,vistos:{itens:[],encantos:[]},build:'apostador',reserva:'d6',desafio:0,desafioMax:0,conquistas:[]};
   try{const p=JSON.parse(ARMAZ.getItem('bq-perfil')||'{}');return{...base,...p,vistos:{...base.vistos,...(p.vistos||{})}}}catch(e){return base}
 })();
 function salvarPerfil(){try{ARMAZ.setItem('bq-perfil',JSON.stringify(PERFIL))}catch(e){}}
@@ -19,7 +19,6 @@ const CONQUISTAS={
   ato2:{nome:'Dívida Quitada',desc:'Derrote a Viúva das Apostas.'},
   desafio3:{nome:'Apostador Calejado',desc:'Vença no Desafio 3 ou acima.'},
   desafio5:{nome:'Dono da Taverna',desc:'Vença no Desafio 5.'},
-  diaria:{nome:'Rotina de Taverna',desc:'Vença uma partida do dia.'},
   mosca:{nome:'Na Mosca',desc:'Acerte o teto exato no modo Estouro.'},
   estouro:{nome:'Ganância',desc:'Estoure no modo Estouro.'},
   combo3:{nome:'Reação em Cadeia',desc:'Ative 3 combos na mesma rodada.'},
@@ -36,8 +35,6 @@ function conquistar(k){
   PERFIL.conquistas.push(k);salvarPerfil();
   setTimeout(()=>{toast(`<b>Conquista</b>${CONQUISTAS[k].nome} · ${CONQUISTAS[k].desc}`,'#9fe09f');SOM.combo()},600);
 }
-const hojeISO=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-const sementeDe=txt=>[...txt].reduce((h,c)=>Math.imul(h^c.charCodeAt(0),16777619)>>>0,2166136261);
 const SAVE_KEY='bq-partida';
 function temSalvo(){try{return!!ARMAZ.getItem(SAVE_KEY)}catch(e){return false}}
 function apagarSalvo(){try{ARMAZ.removeItem(SAVE_KEY)}catch(e){}}
@@ -46,7 +43,7 @@ function salvarPartida(){
   const onde=S.fase==='loja'?'loja':S.fase==='evento'&&S.evAtual?'evento':S.fase==='mapa'||S.fase==='evento'?'mapa':'luta';
   const L=S.loja;
   const d={v:1,uid,onde,hp:onde==='luta'?(S.hpLuta??S.hp):S.hp,max:S.max,ouro:onde==='luta'?(S.ouroLuta??S.ouro):S.ouro,cons:onde==='luta'?(S.consLuta??S.cons):S.cons,andar:S.andar,linha:S.linha,itens:S.itens,dados:S.dados,build:S.build,stats:S.stats,
-    mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,diaria:S.diaria||null,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,
+    mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,
     loja:onde==='loja'&&L?{...L,sel:null,foco:null,fundirA:null,flash:null}:null,evento:onde==='evento'?S.evAtual:null};
   try{ARMAZ.setItem(SAVE_KEY,JSON.stringify(d))}catch(e){}
 }
@@ -54,7 +51,7 @@ function carregarPartida(){
   let d=null;try{d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null')}catch(e){}
   if(!d||!d.mapa){apagarSalvo();return false}
   Object.assign(S,{hp:d.hp,max:d.max,ouro:d.ouro,cons:d.cons||[],andar:d.andar,linha:d.linha,itens:d.itens,dados:d.dados,build:d.build,stats:d.stats,mapa:d.mapa,evVistos:d.evVistos||[],
-    teste:!!d.teste,desafio:d.desafio||0,diaria:d.diaria,no:d.no,elitesVencidos:d.elitesVencidos||0,pausado:false,ini:null,loja:null,evAtual:null});
+    teste:!!d.teste,desafio:d.desafio||0,no:d.no,elitesVencidos:d.elitesVencidos||0,pausado:false,ini:null,loja:null,evAtual:null});
   uid=Math.max(uid,d.uid||0)+1;
   RNG.ativo=d.rng!=null;if(RNG.ativo)RNG.s=d.rng;
   if(d.onde==='luta'&&S.no)novaLuta();
@@ -94,14 +91,14 @@ function liberado(req){return!req||((!req.andar||PERFIL.melhorAndar>=req.andar)&
 function listaLiberados(){return[...Object.values(BUILDS).filter(b=>liberado(b.req)).map(b=>`Bolsa ${b.nome}`),...Object.values(RESERVAS).filter(r=>liberado(r.req)).map(r=>r.nome)]}
 const runAtiva=()=>!!(S.stats&&S.mapa&&S.fase!=='fim');
 const podeContinuar=()=>runAtiva()||temSalvo();
-function resumoSalvo(){try{const d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null');return d?`Andar ${(d.linha||0)+1} · ${d.diaria?'partida do dia':'partida salva'}`:''}catch(e){return''}}
+function resumoSalvo(){try{const d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null');return d?`Andar ${(d.linha||0)+1} · partida salva`:''}catch(e){return''}}
 const miniDado=d=>`<span class="mini-dado" style="--c:${d.encanto?ENCANTOS[d.encanto].ui:'transparent'}" title="${DIE[d.type].nome}${d.encanto?' · '+ENCANTOS[d.encanto].nome:''}">${svgTipo(d.type)}</span>`;
 const miniReliq=k=>`<span class="reliq" title="${ITENS[k].nome}: ${ITENS[k].desc}">${svgPath(ITEM_ICONE[k]||k,ITENS[k].cor)}</span>`;
 function abrirTela(html){const o=$('overlay');o.innerHTML=html;o.hidden=false;o.scrollTop=0}
 
 function telaInicial(){
   const b=BUILDS[PERFIL.build]||BUILDS.apostador,r=RESERVAS[PERFIL.reserva]||RESERVAS.d6,kit=b.montar(),ativa=podeContinuar(),viva=runAtiva();
-  const hoje=PERFIL.diarias[hojeISO()],des=Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0);
+  const des=Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0);
   const nb=Object.values(BUILDS).filter(x=>liberado(x.req)).length;
   const vistos=PERFIL.vistos.itens.length+PERFIL.vistos.encantos.length,tot=Object.keys(ITENS).length+Object.keys(ENCANTOS).length;
   abrirTela(`<div class="menu">
@@ -112,7 +109,6 @@ function telaInicial(){
         ${ativa?`<button class="menu-item principal" data-acao="continuar"><b>Continuar</b><small>${viva?`Andar ${(S.linha||0)+1} · ${S.fase==='mapa'?'no mapa':S.fase==='loja'?'na loja':S.fase==='evento'?'num evento':S.ini?S.ini.nome:''}`:resumoSalvo()}</small></button>
         <button class="menu-item" data-acao="nova"><b>Nova partida</b><small>abandona a atual</small></button>`
         :`<button class="menu-item principal" data-acao="nova"><b>Jogar</b><small>Bolsa ${b.nome}${des?' · '+DESAFIOS[des].nome:''}</small></button>`}
-        <button class="menu-item" data-acao="diaria"><b>Partida do dia</b><small>${hoje?`hoje: andar ${hoje.andar}${hoje.venceu?' · vencida':''}`:'mesmo mapa para todos'}</small></button>
         <button class="menu-item" data-acao="builds"><b>Bolsa inicial</b><small>${nb} de ${Object.keys(BUILDS).length} liberadas</small></button>
         <button class="menu-item" data-acao="colecao"><b>Coleção</b><small>${vistos} de ${tot} · ${PERFIL.conquistas.length} conquistas</small></button>
         <button class="menu-item" data-acao="regras"><b>Como jogar</b><small>regras e combos</small></button>
@@ -208,17 +204,16 @@ function fim(venceu){
   let novoDesafio=false;
   if(!S.teste){
     PERFIL.partidas++;if(venceu)PERFIL.vitorias++;PERFIL.melhorAndar=Math.max(PERFIL.melhorAndar,andarAlc);
-    if(venceu&&!S.diaria&&(S.desafio||0)>=(PERFIL.desafioMax||0)&&(PERFIL.desafioMax||0)<DESAFIOS.length-1){PERFIL.desafioMax=(PERFIL.desafioMax||0)+1;novoDesafio=true}
-    if(S.diaria){const k=S.diaria.data,a=PERFIL.diarias[k]||{andar:0,venceu:false,tentativas:0};PERFIL.diarias[k]={andar:Math.max(a.andar,andarAlc),venceu:a.venceu||venceu,tentativas:a.tentativas+1}}
+    if(venceu&&(S.desafio||0)>=(PERFIL.desafioMax||0)&&(PERFIL.desafioMax||0)<DESAFIOS.length-1){PERFIL.desafioMax=(PERFIL.desafioMax||0)+1;novoDesafio=true}
     salvarPerfil();
-    if(venceu){conquistar('vitoria');if((S.desafio||0)>=3)conquistar('desafio3');if((S.desafio||0)>=5)conquistar('desafio5');if(S.diaria)conquistar('diaria');if(!S.itens.length)conquistar('maosLimpas')}
+    if(venceu){conquistar('vitoria');if((S.desafio||0)>=3)conquistar('desafio3');if((S.desafio||0)>=5)conquistar('desafio5');if(!S.itens.length)conquistar('maosLimpas')}
   }
   const novos=listaLiberados().filter(x=>!antes.includes(x));if(novoDesafio)novos.push(DESAFIOS[PERFIL.desafioMax].nome);
   if(venceu){SOM.vitoria();setTimeout(()=>SOM.vitoria(),700)}else{SOM.derrota();vinheta('#7a1f14')}
   const st=S.stats||{},seg=Math.round((Date.now()-(st.inicio||Date.now()))/1000),tempo=`${Math.floor(seg/60)}:${String(seg%60).padStart(2,'0')}`;
   const stat=(v,nome,dest)=>`<div class="stat${dest?' destaque':''}"><b data-alvo="${v}">0</b><small>${nome}</small></div>`;
   abrirTela(`<div class="fim${venceu?'':' derrota'}">
-    <p class="menu-sobre">${venceu?`Os ${MAPA_LINHAS} andares vencidos`:`Andar ${andarAlc} de ${MAPA_LINHAS}`} · Bolsa ${S.build||'Apostador'}${S.desafio?' · '+DESAFIOS[S.desafio].nome:''}${S.diaria?' · Partida do dia':''}${S.teste?' · teste':''}</p>
+    <p class="menu-sobre">${venceu?`Os ${MAPA_LINHAS} andares vencidos`:`Andar ${andarAlc} de ${MAPA_LINHAS}`} · Bolsa ${S.build||'Apostador'}${S.desafio?' · '+DESAFIOS[S.desafio].nome:''}${S.teste?' · teste':''}</p>
     <h1>${venceu?'Você quebrou a banca':'A casa sempre ganha'}</h1>
     <p class="fim-texto">${venceu?`${INIMIGOS[ATOS[ATOS.length-1].chefe].nome} caiu, e a taverna inteira viu. A banca agora é sua.`:`${S.ini?S.ini.nome:'A taverna'} te derrubou. Junte suas fichas e tente outra vez.`}</p>
     <div class="fim-stats">
@@ -236,7 +231,6 @@ function fim(venceu){
 function menuAcao(ac,el){
   if(ac==='nova'){novaPartida();return true}
   if(ac==='continuar'){S.pausado=false;if(runAtiva()){if(S.retomar)S.retomar();else fecharOverlay()}else if(!carregarPartida())telaInicial();return true}
-  if(ac==='diaria'){novaPartida(false,true);return true}
   if(ac==='desafio'){const k=+el.dataset.k;if(k<=(PERFIL.desafioMax||0)){PERFIL.desafio=k;salvarPerfil();SOM.compra();telaBuilds()}else SOM.traco();return true}
   if(ac==='menu'){telaInicial();return true}
   if(ac==='builds'){telaBuilds();return true}
