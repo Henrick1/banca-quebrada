@@ -71,7 +71,7 @@ function usarCons(i){
   const c=CONSUMIVEIS[k],slot=document.querySelector(`[data-cons="${i}"]`),de=slot?slot.getBoundingClientRect():null;
   S.cons.splice(i,1);
   const efeito={
-    tonico(){const q=cm(12);S.hp=Math.min(S.max,S.hp+q);SOM.cura();pulsar($('barraJ'),'flash');numeroFlutuante(`+${q}`,$('barraJ'),c.cor)},
+    tonico(){const q=cm(10);S.hp=Math.min(S.max,S.hp+q);SOM.cura();pulsar($('barraJ'),'flash');numeroFlutuante(`+${q}`,$('barraJ'),c.cor)},
     faca(){
       S.ini.hp-=8;S.stats.dano+=8;SOM.dano();tremer(.3);pulsar($('barraI'),'flash');pulsar($('barraI'),'treme');numeroFlutuante('-8',$('barraI'),'#ffd27a');
       if(de)voar(svgPath('faca',c.cor),{x:de.left+de.width/2,y:de.top+de.height/2},$('barraI'),{dur:380});

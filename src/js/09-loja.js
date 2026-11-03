@@ -62,7 +62,7 @@ function abrirRecompensa(ganho,elite){
   const esp=sortear(poolGravacoes().filter(o=>o.kind!=='pacto'&&o.kind!=='sombria'),2,bonus).map(o=>({...o,id:uid++,gratis:true}));
   const extra=elite?ofertasReliquia(1,true,bonus)[0]:null;
   esp.splice(Math.floor(R()*3),0,extra||ofertaDado(tiposDado(1,bonus)[0],true));
-  if(elite||R()<.4)esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),1,bonus)[0].chave,true));
+  if(R()<(elite?.6:.25))esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),1,bonus)[0].chave,true));
   montarLoja({titulo:S.ini&&S.ini.chefe?`Fim do ${['primeiro','segundo','terceiro'][atoDe(S.linha)]} ato`:elite?'Elite derrotado':'Vitória',sub:`${S.ini.nome} pagou ${ganho} de ouro. Leve um item do espólio${elite?': uma relíquia está garantida':''}.`,ganho,espolio:esp,podeTrocar:true});
 }
 function abrirMercado(){montarLoja({titulo:'Mercador',sub:'Gaste seu ouro no balcão. Encantamentos e gravações você aplica no dado que escolher.',mercador:true})}
