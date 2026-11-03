@@ -366,7 +366,7 @@ function criarItemLoja(o){
     const brilhoC=new THREE.Sprite(new THREE.SpriteMaterial({map:brilho(),color:en.ui,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false}));brilhoC.scale.set(.9,.9,1);obj.add(brilhoC);
     altura=.95;
   }
-  else if(o.kind==='item'){obj=criarFicha(pathItem(o.chave),ITENS[o.chave].cor,false);obj.scale.setScalar(1.55);altura=.18}
+  else if(o.kind==='item'){obj=criarFicha(pathItem(o.chave),ITENS[o.chave].cor,false,rarItem(o.chave));obj.scale.setScalar(1.55);altura=.18}
   else{obj=medalhaoLoja(o);altura=.17}
   obj.position.y=altura;obj.traverse(m=>{if(m.isMesh)m.castShadow=true});
   if(altura>.5)obj.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6);
