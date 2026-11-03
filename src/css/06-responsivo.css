@@ -32,8 +32,7 @@
 #overlay{overflow-x:hidden}
 .face{white-space:nowrap}
 @media (max-width:760px){
-  .cons{grid-template-columns:1fr;gap:5px;padding:0;align-content:center}
+  .cons{width:92px;justify-content:center}
   .cons-tit{display:none}
-  .cons-slot{width:38px}
   .cons-dica{left:auto;right:calc(100% + 8px);bottom:auto;top:0;width:220px}
 }

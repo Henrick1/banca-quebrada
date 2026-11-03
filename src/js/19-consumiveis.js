@@ -21,13 +21,8 @@ function travaCons(k){
 }
 function renderCons(){
   const el=$('cons');if(!el)return;
-  const l=S.cons||[],n=consMax();
   el.hidden=!S.ini;
-  el.innerHTML=`<span class="cons-tit">Bolso</span>`+Array.from({length:n},(_,i)=>{
-    const k=l[i];if(!k)return`<span class="cons-slot vazio" aria-hidden="true"></span>`;
-    const c=CONSUMIVEIS[k],tr=travaCons(k),desc=k==='martelo'&&S.ini&&!dadoCasaQuebravel()?'Sem dado da casa na mesa agora: quebra o próximo que ela lançar.':c.desc;
-    return`<button class="cons-slot${tr?' trava':''}" type="button" data-cons="${i}" style="--c:${c.cor}" aria-label="${c.nome}: ${desc}${tr?' ('+tr+')':''}"><svg viewBox="0 0 24 24"><path fill="${c.cor}" fill-rule="evenodd" d="${PATHS[k]}"/></svg><span class="cons-dica"><b>${c.nome}</b>${desc}${tr?`<em>${tr}</em>`:'<em class="ok">Clique para usar</em>'}</span></button>`;
-  }).join('');
+  if(!el.hidden&&typeof THREE!=='undefined'){sincronizarBolso();dicaBolso()}
 }
 function usarCons(i){
   const k=(S.cons||[])[i];if(!k)return;
@@ -55,4 +50,3 @@ function usarCons(i){
   banner(c.nome,'bom');hud();placar();renderCons();
   if(S.ini.hp<=0&&S.voando===0&&S.fase!=='resolvendo')avancar();
 }
-$('cons').addEventListener('click',e=>{const b=e.target.closest('[data-cons]');if(b)usarCons(+b.dataset.cons)});

@@ -1,5 +1,33 @@
 const MOEDA=`<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="${PATHS.ouro}"/></svg>`;
 const BOLSA_MAX=8,BOLSA_MIN=4;
+const RARIDADE={comum:{nome:'Comum',cor:'#cdbf9f'},incomum:{nome:'Incomum',cor:'#6fb7e0'},raro:{nome:'Raro',cor:'#f0bf4a'}};
+const RAR_CONS={tonico:'comum',peso:'comum',faca:'incomum',frasco:'incomum',martelo:'incomum',maoLeve:'raro'};
+function raridadeOferta(o){
+  const k=o.kind;
+  if(k==='dado')return o.tipo==='d20'?'raro':o.tipo==='d10'?'incomum':'comum';
+  if(k==='bonus')return o.n>=3?'raro':o.n===2?'incomum':'comum';
+  if(k==='fx')return o.fx.k==='dobro'?'raro':(o.fx.k==='fogo'||o.fx.k==='veneno')?'incomum':'comum';
+  if(k==='polir')return'raro';
+  if(k==='pacto'||k==='sombria')return'incomum';
+  if(k==='item'){const p=ITENS[o.chave].preco;return p>=12?'raro':p>=10?'incomum':'comum'}
+  if(k==='encanto'){const p=ENCANTOS[o.chave].preco;return p>=9?'raro':p>=8?'incomum':'comum'}
+  if(k==='cons')return RAR_CONS[o.chave]||'comum';
+  return null;
+}
+function pesoRaridade(r,bonus=0){
+  const p=Math.min(1,Math.max(0,(S.linha||0)/(MAPA_LINHAS-1)))+bonus;
+  return r==='raro'?6+22*p:r==='incomum'?26+12*p:r==='comum'?68-34*p:30;
+}
+function sortear(lista,n,bonus=0){
+  const pool=lista.slice(),out=[];
+  while(out.length<n&&pool.length){
+    const ws=pool.map(o=>pesoRaridade(raridadeOferta(o),bonus)),tot=ws.reduce((a,b)=>a+b,0);
+    let r=R()*tot,i=0;while(i<ws.length-1&&(r-=ws[i])>0)i++;
+    out.push(pool.splice(i,1)[0]);
+  }
+  return out;
+}
+const htmlRaridade=o=>{const r=raridadeOferta(o);return r?`<b class="rar" style="color:${RARIDADE[r].cor}">${RARIDADE[r].nome}</b> · `:''};
 function embaralhar(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function poolGravacoes(){
   const k=Math.floor(S.andar/3);
@@ -11,14 +39,14 @@ function poolGravacoes(){
 }
 function ofertaCons(k,gratis){return{kind:'cons',chave:k,preco:CONSUMIVEIS[k].preco,id:uid++,gratis}}
 function ofertaDado(t,gratis){return{kind:'dado',tipo:t,preco:DIE[t].preco,id:uid++,gratis}}
-function tiposDado(n){return embaralhar(['coin','d6','d10',R()<.55?'d20':'d6']).filter((t,i,a)=>a.indexOf(t)===i).slice(0,n)}
+function tiposDado(n,bonus=0){return sortear(['coin','d6','d10','d20'].map(t=>({kind:'dado',tipo:t})),n,bonus).map(o=>o.tipo)}
 function gerarEstoque(){
   const L=S.loja;
   L.dados=tiposDado(3).map(t=>ofertaDado(t,false));
-  L.grav=embaralhar(poolGravacoes()).slice(0,4).map(o=>({...o,id:uid++}));
+  L.grav=sortear(poolGravacoes(),4).map(o=>({...o,id:uid++}));
   L.reliq=ofertasReliquia(2,false);
-  L.cons=embaralhar(Object.keys(CONSUMIVEIS)).slice(0,2).map(k=>ofertaCons(k,false));
-  L.enc=embaralhar(Object.keys(ENCANTOS)).slice(0,3).map(k=>({kind:'encanto',chave:k,preco:ENCANTOS[k].preco,id:uid++,gratis:false}));
+  L.cons=sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),2).map(o=>ofertaCons(o.chave,false));
+  L.enc=sortear(Object.keys(ENCANTOS).map(k=>({kind:'encanto',chave:k,preco:ENCANTOS[k].preco})),3).map(o=>({...o,id:uid++,gratis:false}));
   L.serv.forEach(o=>{if(o.kind!=='renovar')o.feito=false});
 }
 function montarLoja(op){
@@ -30,10 +58,11 @@ function montarLoja(op){
   renderLoja();
 }
 function abrirRecompensa(ganho,elite){
-  const esp=embaralhar(poolGravacoes().filter(o=>o.kind!=='pacto'&&o.kind!=='sombria')).slice(0,2).map(o=>({...o,id:uid++,gratis:true}));
-  const extra=elite?ofertasReliquia(1,true)[0]:null;
-  esp.splice(Math.floor(R()*3),0,extra||ofertaDado(tiposDado(1)[0],true));
-  if(elite||R()<.4)esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(pick(Object.keys(CONSUMIVEIS)),true));
+  const bonus=elite?.35:0;
+  const esp=sortear(poolGravacoes().filter(o=>o.kind!=='pacto'&&o.kind!=='sombria'),2,bonus).map(o=>({...o,id:uid++,gratis:true}));
+  const extra=elite?ofertasReliquia(1,true,bonus)[0]:null;
+  esp.splice(Math.floor(R()*3),0,extra||ofertaDado(tiposDado(1,bonus)[0],true));
+  if(elite||R()<.4)esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),1,bonus)[0].chave,true));
   montarLoja({titulo:S.ini&&S.ini.chefe?`Fim do ${['primeiro','segundo','terceiro'][atoDe(S.linha)]} ato`:elite?'Elite derrotado':'Vitória',sub:`${S.ini.nome} pagou ${ganho} de ouro. Leve um item do espólio${elite?': uma relíquia está garantida':''}.`,ganho,espolio:esp,podeTrocar:true});
 }
 function abrirMercado(){montarLoja({titulo:'Mercador',sub:'Gaste seu ouro no balcão. Encantamentos e gravações você aplica no dado que escolher.',mercador:true})}
@@ -152,7 +181,7 @@ function renderDetalhe(){
   const x=infoOferta(o),e=estadoOferta(o),p=precoDe(o),sel=L.sel===o,fixo=true;
   const rot=sel?'Cancelar':o.gratis?'Pegar grátis':o.kind==='renovar'?`Renovar · ${p} de ouro`:`Comprar · ${p} de ouro`;
   el.innerHTML=`<div class="det-ic">${x.ic}</div>
-    <div class="det-corpo"><span class="o-tipo">${x.tipo}${o.gratis?' · espólio':''}</span><b class="det-tit">${x.tit}</b><p>${x.desc}</p>${e.txt?`<span class="o-motivo ${e.cls||''}">${e.txt}</span>`:''}</div>
+    <div class="det-corpo"><span class="o-tipo">${htmlRaridade(o)}${x.tipo}${o.gratis?' · espólio':''}</span><b class="det-tit">${x.tit}</b><p>${x.desc}</p>${e.txt?`<span class="o-motivo ${e.cls||''}">${e.txt}</span>`:''}</div>
     <div class="det-acao">${fixo?`<button class="btn" data-o="${o.id}" ${e.trava&&!sel?'disabled':''}>${rot}</button>`:'<small class="det-nota">Clique no item para escolher</small>'}${fixo&&o.gratis&&!L.pegou&&L.podeTrocar?'<button class="btn sec fino" data-acao="pular">Trocar espólio por 3 de ouro</button>':''}</div>`;
 }
 function iniciarLoja3D(){
@@ -325,6 +354,8 @@ function medalhaoLoja(o){
 function criarItemLoja(o){
   const g=new THREE.Group();
   const base=new THREE.Mesh(new THREE.CylinderGeometry(.74,.8,.07,40),new THREE.MeshStandardMaterial({color:lin('#1a120c'),roughness:.6}));base.position.y=.035;base.receiveShadow=true;g.add(base);
+  const rar=raridadeOferta(o);
+  if(rar==='incomum'||rar==='raro'){const c=RARIDADE[rar].cor;const aro=new THREE.Mesh(new THREE.TorusGeometry(.79,.035,8,48),new THREE.MeshStandardMaterial({color:lin(c),emissive:new THREE.Color(c),emissiveIntensity:rar==='raro'?.9:.45,metalness:.5,roughness:.35}));aro.rotation.x=-Math.PI/2;aro.position.y=.075;g.add(aro);g.userData.aroRaro=rar==='raro'?aro:null}
   let obj,altura;
   if(o.kind==='dado'){obj=criarMalha(novoDado(o.tipo),false);altura=.95}
   else if(o.kind==='encanto'){
@@ -381,6 +412,7 @@ function animarLoja3D(dt){
     const u=g.userData,a=u.alvo||{x:g.position.x,z:g.position.z};
     if(u.fora){const k=(LJ.t-u.t0)/.45;g.position.y+=dt*9;g.scale.setScalar(Math.max(.001,1-k));if(k>=1){LJ.sc.remove(g);descartarLoja(g);LJ.mapa.delete(id)}continue}
     g.position.x+=(a.x-g.position.x)*Math.min(1,dt*10);g.position.z+=(a.z-g.position.z)*Math.min(1,dt*10);
+    if(u.aroRaro)u.aroRaro.material.emissiveIntensity=.7+.35*Math.sin(LJ.t*3+id);
     if(u.caindo){u.vy=(u.vy||0)-32*dt;g.position.y+=u.vy*dt;if(g.position.y<=0){g.position.y=0;if(Math.abs(u.vy)>3){SOM.batida(Math.abs(u.vy)*.6,false,.5);u.vy*=-.32}else{u.vy=0;u.caindo=false}}}
     const hov=!u.indisp&&(LJ.hover===u.oferta||foco===u.oferta);
     u.lift+=((hov?.38:0)-u.lift)*Math.min(1,dt*10);

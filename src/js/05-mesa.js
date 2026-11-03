@@ -48,7 +48,7 @@ function iniciar3D(){
   iniciarBandeja();
   criarBolsaCasa();iniciarHoverMesa();
   let ult=performance.now();
-  const loop=t=>{const dt=Math.min(.05,(t-ult)/1000);ult=t;passo(dt);atualizarEfeitos(dt);atualizarContador(dt);passoBandeja(dt);renderer.render(scene,camera);posicionarRotulos();posicionarAncoras();requestAnimationFrame(loop)};
+  const loop=t=>{const dt=Math.min(.05,(t-ult)/1000);ult=t;passo(dt);atualizarEfeitos(dt);atualizarContador(dt);passoBandeja(dt);passoBolso(dt);renderer.render(scene,camera);posicionarRotulos();posicionarAncoras();requestAnimationFrame(loop)};
   requestAnimationFrame(loop);
 }
 function ajustar(){

@@ -1,5 +1,5 @@
 const MESA={fichas:[],bolsa:null,bolsaPulso:0,hover:null};
-function ofertasReliquia(n,gratis){return embaralhar(Object.keys(ITENS).filter(k=>!temItem(k))).slice(0,n).map(k=>({kind:'item',chave:k,preco:ITENS[k].preco,id:uid++,gratis}))}
+function ofertasReliquia(n,gratis,bonus=0){return sortear(Object.keys(ITENS).filter(k=>!temItem(k)).map(k=>({kind:'item',chave:k})),n,bonus).map(o=>({kind:'item',chave:o.chave,preco:ITENS[o.chave].preco,id:uid++,gratis}))}
 function texturaFicha(path,cor,inimigo){
   const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
   const base=inimigo?'#2d2236':'#efe4c8',borda=inimigo?'#7a5a96':'#9a2f2a';

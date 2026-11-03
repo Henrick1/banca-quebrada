@@ -40,6 +40,7 @@ src/js/                 código do jogo, na ordem dos números
   17-inicio.js          tratamento de erro e inicialização
   18-opcoes.js          tela de opções: tela cheia, volume e qualidade gráfica
   19-consumiveis.js     bolso de consumíveis: martelo, tônico, faca e outros itens de uso único
+  20-bolso3d.js         bolso em 3D: os consumíveis deitados num tapete de couro
 tools/simulador.mjs     simulador de balanceamento
 electron/main.cjs       janela do Electron
 ```

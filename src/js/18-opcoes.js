@@ -8,7 +8,7 @@ function alternarTelaCheia(){
 }
 function aplicarQualidade(){
   const q=qualidade();
-  const pares=[[typeof renderer!=='undefined'&&renderer,typeof scene!=='undefined'&&scene],[B&&B.r,B&&B.scene],[typeof LJ!=='undefined'&&LJ&&LJ.r,typeof LJ!=='undefined'&&LJ&&LJ.sc]];
+  const pares=[[typeof renderer!=='undefined'&&renderer,typeof scene!=='undefined'&&scene],[B&&B.r,B&&B.scene],[typeof LJ!=='undefined'&&LJ&&LJ.r,typeof LJ!=='undefined'&&LJ&&LJ.sc],[BOL.r,BOL.sc]];
   for(const[r,sc]of pares){
     if(!r)continue;
     r.setPixelRatio(pxQualidade());
@@ -17,6 +17,7 @@ function aplicarQualidade(){
   if(typeof ajustar==='function'&&renderer)ajustar();
   if(B&&B.r)ajustarBandeja();
   if(typeof LJ!=='undefined'&&LJ){LJ.w=0;ajustarLoja3D()}
+  ajustarBolso();
 }
 function telaOpcoes(){
   const app=noApp();
