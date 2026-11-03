@@ -240,6 +240,7 @@ const ENCANTOS={
   ametista:{nome:'Ametista',combo:'Centro',desc:'+8 se parar dentro do círculo central da mesa.',cor:'#7d45b8',ui:'#b98ae6',preco:8},
   ambar:{nome:'Âmbar',combo:'Aura',desc:'Cria um círculo na mesa. Seus outros dados dentro dele ganham +2, inclusive os que caírem depois.',cor:'#d98c1f',ui:'#f0a43a',preco:9,area:{tipo:'raio',r:3,alvo:'jogador',delta:2,cor:'#f0a43a',nome:'Aura de Âmbar'}},
   safira:{nome:'Safira',combo:'Corrente',desc:'Os 2 dados seus mais próximos dele ganham +3 cada.',cor:'#2d5fb8',ui:'#5b8fe0',preco:9,area:{tipo:'proximos',n:2,alvo:'jogador',delta:3,cor:'#5b8fe0',nome:'Corrente de Safira'}},
+  mercurio:{nome:'Mercúrio',combo:'Eco',desc:'Se cair na face mais alta, solta uma cópia menor de si que também é lançada e soma. A cópia pode se copiar de novo, até 3 vezes.',cor:'#7f9bb0',ui:'#bfe3f0',preco:10},
   cobre:{nome:'Cobre',combo:'Repulsão',desc:'Cria um círculo na mesa. Dados da casa dentro dele valem 2 a menos.',cor:'#b5582e',ui:'#d9774a',preco:8,area:{tipo:'raio',r:3,alvo:'casa',delta:-2,cor:'#d9774a',nome:'Repulsão de Cobre'}}
 };
 const temItem=k=>S.itens.includes(k);

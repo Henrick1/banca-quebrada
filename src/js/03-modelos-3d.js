@@ -43,9 +43,9 @@ function forma(tipo){
   });
   return formas[tipo]={V,F,vf,N,C,tipo};
 }
-function shapeFisica(tipo){
+function shapeFisica(tipo,e=1){
   const sd=forma(tipo);
-  return new CANNON.ConvexPolyhedron(sd.V.map(v=>new CANNON.Vec3(v[0],v[1],v[2])),sd.F.map(f=>f.slice()));
+  return new CANNON.ConvexPolyhedron(sd.V.map(v=>new CANNON.Vec3(v[0]*e,v[1]*e,v[2]*e)),sd.F.map(f=>f.slice()));
 }
 
 function texturaFace(die,k,casa){

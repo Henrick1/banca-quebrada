@@ -48,6 +48,7 @@ function aoParar(t){
   t.rotulo=el;$('rotulos').appendChild(el);
   const areaDef=t.dono==='casa'?t.die.area:(t.die.encanto&&ENCANTOS[t.die.encanto].area);
   if(areaDef)criarArea(t,areaDef);
+  if(t.dono==='jogador'&&t.die.encanto==='mercurio'&&f.v===Math.max(...DIE[t.die.type].faces)&&t.geracao<3&&(S.copias||0)<6&&S.fase!=='resolvendo')ecoMercurio(t);
   checarCombos();
   S.voando--;hud();placar();
   if(S.voando===0)avancar();
@@ -108,7 +109,7 @@ function novaLuta(){
 }
 function novaRodada(){
   limparMesa();S.bolsa.push(...S.naMesa);S.naMesa=[];
-  Object.assign(S,{pesoProx:0,primeiroFeito:false,descontoCasa:0,soma:0,escudo:0,escudoIni:0,rolagem:null,rolagens:[],aposta:0,fase:'intro',restam:0,lancados:0,voando:0,etapa:0});
+  Object.assign(S,{pesoProx:0,copias:0,primeiroFeito:false,descontoCasa:0,soma:0,escudo:0,escudoIni:0,rolagem:null,rolagens:[],aposta:0,fase:'intro',restam:0,lancados:0,voando:0,etapa:0});
   const pAntes=S.ini.rodada0?pressaoLuta():0,cAntes=calorTaverna();
   S.rodada++;S.stats.rodadas++;S.combosRodada=0;S.ini.rodada0=true;
   const subiuP=pressaoLuta()>pAntes,subiuC=calorTaverna()>cAntes;
@@ -140,6 +141,13 @@ function faseChefe(){
     I.furioso=true;I.base+=2;if(!I.tracos.includes('duplo'))I.tracos.push('duplo');montarFichas();
     setTimeout(()=>{dispararTraco('furia','Fúria! Base +2 e Mão Dupla');tremer(.6);SOM.traco();vinheta('#ff6a4a');banner(`${I.nome} perdeu a paciência`,'mau');hud()},700);
   }
+}
+function ecoMercurio(t){
+  S.copias=(S.copias||0)+1;S.voando++;
+  const p=t.mesh.position.clone(),e=(t.escala||1)*.78;
+  faiscas(p,0xbfe3f0,26,4,8);anel(p,0xbfe3f0);SOM.combo();t.punch=1.3;
+  setTimeout(()=>rotuloMesa('Eco!',p,'#bfe3f0'),120);
+  setTimeout(()=>{if(S.fase==='resolvendo'||!lancados.includes(t)){S.voando=Math.max(0,S.voando-1);return}lancar({...t.die,id:'eco'+(uid++),eco:true},'jogador',0,1,{escala:e,de:p,geracao:t.geracao+1})},380);
 }
 function podeLancar(){return S.fase==='jogador'&&S.restam>0}
 function dividirPassos(seq){const ps=[];for(const ch of seq){const u=ps[ps.length-1];if(ch==='j'&&u&&u.t==='j')u.n++;else ps.push({t:ch,n:1})}return ps}

@@ -69,14 +69,15 @@ function ajustar(){
   reposicionarEstatuas();
 }
 
-function lancar(die,dono,z,forca=1){
-  const casa=dono==='casa';
-  const mesh=criarMalha(die,casa);scene.add(mesh);
-  const body=new CANNON.Body({mass:1,material:mDado});body.addShape(shapeFisica(die.type));
+function lancar(die,dono,z,forca=1,op={}){
+  const casa=dono==='casa',e=op.escala||1;
+  const mesh=criarMalha(die,casa);mesh.scale.setScalar(e);scene.add(mesh);
+  const body=new CANNON.Body({mass:e*e*e,material:mDado});body.addShape(shapeFisica(die.type,e));
   const lado=casa?1:-1;
-  body.position.set(lado*(TW/2-1.3),2.2+Math.random(),z??rnd(TD*.28));
+  if(op.de)body.position.set(op.de.x,op.de.y+1.6,op.de.z);else body.position.set(lado*(TW/2-1.3),2.2+Math.random(),z??rnd(TD*.28));
   body.quaternion.setFromEuler(Math.random()*6.28,Math.random()*6.28,Math.random()*6.28);
-  body.velocity.set(-lado*(9+Math.random()*6)*forca,2+Math.random()*3,rnd(2.5)-body.position.z*.5);
+  if(op.de)body.velocity.set(rnd(4)-op.de.x*.15,4+Math.random()*2,rnd(4)-op.de.z*.2);
+  else body.velocity.set(-lado*(9+Math.random()*6)*forca,2+Math.random()*3,rnd(2.5)-body.position.z*.5);
   body.angularVelocity.set(rnd(24),rnd(24),rnd(24));
   body.linearDamping=.12;body.angularDamping=.14;
   world.addBody(body);
@@ -84,7 +85,7 @@ function lancar(die,dono,z,forca=1){
   body.addEventListener('collide',e=>{const v=Math.abs(e.contact.getImpactVelocityAlongNormal());if(v>1){SOM.batida(v,metal);if(v>9)tremer(.05)}});
   SOM.whoosh();
   mesh.position.copy(body.position);mesh.quaternion.copy(body.quaternion);
-  lancados.push({die,dono,mesh,body,sd:forma(die.type),parado:0,tempo:0,cutucadas:0,pronto:false,rotulo:null,punch:0});
+  lancados.push({die,dono,mesh,body,sd:forma(die.type),parado:0,tempo:0,cutucadas:0,pronto:false,rotulo:null,punch:0,geracao:op.geracao||0,escala:e});
 }
 function passo(dt){
   if(!world)return;
@@ -111,7 +112,7 @@ function posicionarRotulos(){
   const r=$('mesa').getBoundingClientRect();const v=new THREE.Vector3();
   for(const t of lancados){
     if(!t.rotulo)continue;
-    v.copy(t.mesh.position);v.y+=.95;v.project(camera);
+    v.copy(t.mesh.position);v.y+=.95*(t.escala||1);v.project(camera);
     t.rotulo.style.left=((v.x+1)/2*r.width)+'px';t.rotulo.style.top=((1-v.y)/2*r.height)+'px';
   }
 }

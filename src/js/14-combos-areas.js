@@ -1,7 +1,7 @@
 const matsBorda={};
 function matBorda(k){
   if(matsBorda[k])return matsBorda[k];
-  const e=ENCANTOS[k],metal=['bronze','prata','ouro','cobre'].includes(k),gema=['rubi','esmeralda','ametista','ambar','safira'].includes(k);
+  const e=ENCANTOS[k],metal=['bronze','prata','ouro','cobre','mercurio'].includes(k),gema=['rubi','esmeralda','ametista','ambar','safira'].includes(k);
   return matsBorda[k]=new THREE.MeshStandardMaterial({color:lin(e.cor),metalness:metal?.85:gema?.3:.1,roughness:metal?.3:k==='onix'?.2:.4,emissive:gema?lin(e.cor).multiplyScalar(.3):new THREE.Color(0)});
 }
 function bordasDado(die,mesh){

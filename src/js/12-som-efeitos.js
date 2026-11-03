@@ -98,7 +98,7 @@ function atualizarEfeitos(dt){
     const e=efeitos[i];e.t+=dt;const k=Math.min(1,e.t/e.dur);e.upd(e,k,dt);
     if(k>=1){scene.remove(e.m);if(!e.m.isSprite)e.m.geometry.dispose();e.m.material.dispose();efeitos.splice(i,1)}
   }
-  for(const t of lancados)if(t.punch>0){t.punch=Math.max(0,t.punch-dt*3.2);t.mesh.scale.setScalar(1+Math.sin(Math.min(1,t.punch)*Math.PI)*.3*t.punch)}
+  for(const t of lancados)if(t.punch>0){t.punch=Math.max(0,t.punch-dt*3.2);t.mesh.scale.setScalar((t.escala||1)*(1+Math.sin(Math.min(1,t.punch)*Math.PI)*.3*t.punch))}
   for(const f of MESA.fichas){
     if(f.cai>0){f.cai=Math.max(0,f.cai-dt*2.4);const c=Math.min(1,f.cai);f.mesh.position.y=f.y0+c*c*3;if(f.cai===0)SOM.batida(5,false,.6)}
     else if(f.pulso>0){f.pulso=Math.max(0,f.pulso-dt*1.5);f.mesh.position.y=f.y0+Math.sin(f.pulso*Math.PI)*.55;f.mesh.rotation.y+=dt*14*f.pulso;f.topos.forEach(mt=>mt.emissive.setRGB(f.pulso*.55,f.pulso*.42,f.pulso*.15))}
