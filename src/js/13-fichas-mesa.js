@@ -35,7 +35,7 @@ function montarFichas(){
     MESA.fichas.push({mesh:g,topos,tipo:'item',chave:k,y0:yl,pulso:0,cai:1+i*.08});
   });
   sets.forEach((c,i)=>{
-    const g=estatuetaConjunto(c),topos=[];g.scale.setScalar(1.2);g.traverse(o=>{if(o.isMesh&&o.material.emissive&&o.material.userData.brilha)topos.push(o.material)});
+    const g=estatuetaConjunto(c),topos=[];g.scale.setScalar(1.44);g.traverse(o=>{if(o.isMesh&&o.material.emissive&&o.material.userData.brilha)topos.push(o.material)});
     const p=posEstatua(i);g.position.set(p.x,p.y+3,p.z);scene.add(g);
     MESA.fichas.push({mesh:g,topos,tipo:'estatua',chave:c,y0:p.y,pulso:0,cai:1.2+i*.15,ord:i});
   });
@@ -106,10 +106,9 @@ function dispararItem(k,txt){const f=MESA.fichas.find(x=>x.tipo==='item'&&x.chav
 function dispararTraco(k,txt){const f=MESA.fichas.find(x=>x.tipo==='traco'&&x.chave===k);SOM.traco();if(!f)return;f.pulso=1;rotuloMesa(txt,f.mesh.position,TRACOS[k].cor)}
 
 function posEstatua(i){
-  const y=-.51,passo=1.3;
-  if(camera&&camera.aspect<.85)return{x:TW/2+2.55,y,z:CW/2+.9+i*passo};
-  const zc=-TD/2-.8-1.75+.6,esq=4;
-  return i<esq?{x:-CW/2-1.05-i*passo,y,z:zc}:{x:CW/2+1.05+(i-esq)*passo,y,z:zc};
+  const y=-.51,passo=1.45,col=i%4,lin=Math.floor(i/4);
+  if(camera&&camera.aspect<.85)return{x:TW/2+2.1+lin*1.5,y,z:CW/2+1+col*passo};
+  return{x:-CW/2-1.1-col*passo-lin*.7,y,z:-TD/2-.8-1.75+.65-lin*1.45};
 }
 function reposicionarEstatuas(){MESA.fichas.forEach(f=>{if(f.tipo!=='estatua')return;const p=posEstatua(f.ord);f.mesh.position.x=p.x;f.mesh.position.z=p.z})}
 function estatuetaConjunto(k){
