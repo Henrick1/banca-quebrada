@@ -39,6 +39,7 @@ src/js/                 código do jogo, na ordem dos números
   16-eventos.js         fusão, eventos de taverna e descanso
   17-inicio.js          tratamento de erro e inicialização
   18-opcoes.js          tela de opções: tela cheia, volume e qualidade gráfica
+  19-consumiveis.js     bolso de consumíveis: martelo, tônico, faca e outros itens de uso único
 tools/simulador.mjs     simulador de balanceamento
 electron/main.cjs       janela do Electron
 ```

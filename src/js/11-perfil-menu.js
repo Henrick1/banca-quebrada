@@ -45,7 +45,7 @@ function salvarPartida(){
   if(!S.mapa||S.fase==='fim')return;
   const onde=S.fase==='loja'?'loja':S.fase==='evento'&&S.evAtual?'evento':S.fase==='mapa'||S.fase==='evento'?'mapa':'luta';
   const L=S.loja;
-  const d={v:1,uid,onde,hp:onde==='luta'?(S.hpLuta??S.hp):S.hp,max:S.max,ouro:onde==='luta'?(S.ouroLuta??S.ouro):S.ouro,andar:S.andar,linha:S.linha,itens:S.itens,dados:S.dados,build:S.build,stats:S.stats,
+  const d={v:1,uid,onde,hp:onde==='luta'?(S.hpLuta??S.hp):S.hp,max:S.max,ouro:onde==='luta'?(S.ouroLuta??S.ouro):S.ouro,cons:onde==='luta'?(S.consLuta??S.cons):S.cons,andar:S.andar,linha:S.linha,itens:S.itens,dados:S.dados,build:S.build,stats:S.stats,
     mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,diaria:S.diaria||null,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,
     loja:onde==='loja'&&L?{...L,sel:null,foco:null,fundirA:null,flash:null}:null,evento:onde==='evento'?S.evAtual:null};
   try{ARMAZ.setItem(SAVE_KEY,JSON.stringify(d))}catch(e){}
@@ -53,7 +53,7 @@ function salvarPartida(){
 function carregarPartida(){
   let d=null;try{d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null')}catch(e){}
   if(!d||!d.mapa){apagarSalvo();return false}
-  Object.assign(S,{hp:d.hp,max:d.max,ouro:d.ouro,andar:d.andar,linha:d.linha,itens:d.itens,dados:d.dados,build:d.build,stats:d.stats,mapa:d.mapa,evVistos:d.evVistos||[],
+  Object.assign(S,{hp:d.hp,max:d.max,ouro:d.ouro,cons:d.cons||[],andar:d.andar,linha:d.linha,itens:d.itens,dados:d.dados,build:d.build,stats:d.stats,mapa:d.mapa,evVistos:d.evVistos||[],
     teste:!!d.teste,desafio:d.desafio||0,diaria:d.diaria,no:d.no,elitesVencidos:d.elitesVencidos||0,pausado:false,ini:null,loja:null,evAtual:null});
   uid=Math.max(uid,d.uid||0)+1;
   RNG.ativo=d.rng!=null;if(RNG.ativo)RNG.s=d.rng;
@@ -176,6 +176,7 @@ function telaRegras(){
     <div class="tela-topo"><div><p class="menu-sobre">Três atos entre você e o dono da taverna</p><h2>Como jogar</h2></div><button class="btn sec" data-acao="menu">Voltar</button></div>
     <div class="regras">
       <div class="regra"><b>Os atos</b><p>A taverna tem três atos: a Adega, o Salão e o Cofre. Cada um termina num chefe com uma regra própria. Vencer um chefe recupera 15 de vida e garante uma relíquia.</p></div>
+      <div class="regra"><b>O bolso</b><p>Consumíveis ficam no bolso, embaixo da bandeja, até 3 por vez. Cada um se usa uma vez durante a luta: o Martelo quebra o dado da casa, o Tônico cura, a Faca fere direto. Você começa com um Martelo.</p></div>
       <div class="regra"><b>A rodada</b><p>Cada inimigo alterna roteiros: Clássico, Duelo, Às Cegas, Desafio Aberto e Estouro. As lâmpadas do contador mostram a ordem dos lances.</p></div>
       <div class="regra"><b>Pressão</b><p>A cada 3 rodadas na mesma luta a base sobe 1 e os erros doem mais. A cada 12 rodadas na partida, a taverna esquenta e tudo fica 1 mais difícil, até +3.</p></div>
       <div class="regra"><b>Estouro</b><p>Fique entre o alvo e o teto. Passou do teto, estourou e o dano é seu. Puxe a alavanca do contador para parar a tempo.</p></div>

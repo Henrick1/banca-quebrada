@@ -26,6 +26,7 @@ function aoParar(t){
     if(temItem('ferradura')&&f.v+f.bonus===1){val=3*(f.fx&&f.fx.k==='dobro'?2:1);dispararItem('ferradura','1 vale 3')}
     if(temItem('dadoOuro')&&f.v===Math.max(...DIE[t.die.type].faces)){const q=qtdItem('dadoOuro');S.ouro+=q;dispararItem('dadoOuro',`+${q} ouro`)}
     val+=bonusFace(t,f);
+    if(S.pesoProx){const q=S.pesoProx;val+=q;S.pesoProx=0;numeroFlutuante(`Chumbo +${q}`,$('soma'),CONSUMIVEIS.peso.cor);faiscas(t.mesh.position,0x9aa3ad,14,3,5);renderCons()}
     S.soma+=val;t.num=f.v+f.bonus;t.valor=val;
     let extra='';
     anel(t.mesh.position,f.fx?FX[f.fx.k].cor:0xd4a94f);SOM.tok(val);tremer(.04);
@@ -53,7 +54,7 @@ function aoParar(t){
 }
 
 function kitDeTeste(){
-  S.teste=true;S.ouro=60;
+  S.teste=true;S.ouro=60;S.cons=Object.keys(CONSUMIVEIS);
   S.itens=[];Object.keys(ITENS).forEach(ganharItem);
   const g=(tipo,mods)=>{const d=novoDado(tipo);for(const i in mods)Object.assign(d.faces[i],mods[i]);return d};
   S.dados=[
@@ -77,7 +78,7 @@ function novaPartida(teste,diaria){
   RNG.ativo=!!diaria;if(diaria)RNG.s=sementeDe('banca-'+hojeISO());
   const b=diaria?BUILDS.apostador:BUILDS[PERFIL.build]&&liberado(BUILDS[PERFIL.build].req)?BUILDS[PERFIL.build]:BUILDS.apostador,kit=b.montar();
   const des=diaria||teste?0:Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0),vida=des>=5?35:45;
-  Object.assign(S,{teste:false,pausado:false,hp:vida,max:vida,ouro:kit.ouro,andar:0,itens:[],dados:kit.dados,build:b.nome,desafio:des,diaria:diaria?{data:hojeISO()}:null,elitesVencidos:0,evAtual:null,
+  Object.assign(S,{teste:false,pausado:false,hp:vida,max:vida,ouro:kit.ouro,andar:0,itens:[],cons:['martelo'],dados:kit.dados,build:b.nome,desafio:des,diaria:diaria?{data:hojeISO()}:null,elitesVencidos:0,evAtual:null,
     stats:{dano:0,maior:0,combos:0,rodadas:0,inicio:Date.now()}});
   kit.itens.forEach(ganharItem);
   const r=diaria?RESERVAS.d6:RESERVAS[PERFIL.reserva];if(r&&(diaria||liberado(r.req)))S.dados.push(novoDado(r.tipo));
@@ -98,7 +99,7 @@ function novaLuta(){
   S.ini.base0=S.ini.base;S.serie=0;S.escudoProx=0;
   if((elite||n.tipo==='chefe')&&temItem('velaNegra')){S.ini.max=S.ini.hp=Math.round(S.ini.max*Math.pow(.85,qtdItem('velaNegra')));setTimeout(()=>dispararItem('velaNegra','−15% de vida'),900)}
   if(S.ini.tracos.includes('armadura')){S.ini.armaduraMax=6+S.andar;S.ini.armadura=S.ini.armaduraMax}
-  S.hpLuta=S.hp;S.ouroLuta=S.ouro;
+  S.hpLuta=S.hp;S.ouroLuta=S.ouro;S.consLuta=[...(S.cons||[])];
   S.veneno=0;S.rodada=0;
   if(temItem('algibeira')){const q=3*qtdItem('algibeira');S.ouro+=q;setTimeout(()=>{dispararItem('algibeira',`+${q} ouro`);SOM.ouro(3);hud()},900)}
   montarFichas();
@@ -107,7 +108,7 @@ function novaLuta(){
 }
 function novaRodada(){
   limparMesa();S.bolsa.push(...S.naMesa);S.naMesa=[];
-  Object.assign(S,{primeiroFeito:false,descontoCasa:0,soma:0,escudo:0,escudoIni:0,rolagem:null,rolagens:[],aposta:0,fase:'intro',restam:0,lancados:0,voando:0,etapa:0});
+  Object.assign(S,{pesoProx:0,primeiroFeito:false,descontoCasa:0,soma:0,escudo:0,escudoIni:0,rolagem:null,rolagens:[],aposta:0,fase:'intro',restam:0,lancados:0,voando:0,etapa:0});
   const pAntes=S.ini.rodada0?pressaoLuta():0,cAntes=calorTaverna();
   S.rodada++;S.stats.rodadas++;S.combosRodada=0;S.ini.rodada0=true;
   const subiuP=pressaoLuta()>pAntes,subiuC=calorTaverna()>cAntes;

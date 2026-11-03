@@ -48,6 +48,12 @@ const PATHS={
   moedaPesada:'M12 2.5 A9.5 9.5 0 1 1 11.99 2.5 Z M9 9 H15 V15 H9 Z',
   dadoOsso:'M5.5 3 H18.5 A2.5 2.5 0 0 1 21 5.5 V18.5 A2.5 2.5 0 0 1 18.5 21 H5.5 A2.5 2.5 0 0 1 3 18.5 V5.5 A2.5 2.5 0 0 1 5.5 3 Z M12 9.2 A2.8 2.8 0 1 0 12.01 9.2 Z',
   cantil:'M10 1.5 H14 V5 H10 Z M12 4.5 A8.5 8.5 0 1 1 11.99 4.5 Z M12 9 A4 4 0 1 0 12.01 9 Z',
+  martelo:'M2.5 7.5 L7.5 2.5 L12.5 7.5 L10.6 9.4 L21 19.8 L19.8 21 L9.4 10.6 L7.5 12.5 Z',
+  tonico:'M10 2 H14 V4 H13.5 V8 C17 9 19 11.5 19 15 A7 7 0 0 1 5 15 C5 11.5 7 9 10.5 8 V4 H10 Z M8 15 A4 4 0 0 0 16 15 Z',
+  faca:'M4 20 L15.5 8.5 C17.5 6.5 20 3.5 21.5 2.5 C20.5 4 17.5 6.5 15.5 8.5 L17 10 L5.5 21.5 Z M2.5 21.5 L4 20 L5.5 21.5 L4 23 Z',
+  frasco:'M10 2 H14 V7 C17.5 8.2 20 11.2 20 15 A8 7 0 0 1 4 15 C4 11.2 6.5 8.2 10 7 Z M7 15 C7 18 9 19.5 12 19.5 C15 19.5 17 18 17 15 Z',
+  peso:'M9 3 H15 V6 H17 L20 21 H4 L7 6 H9 Z M10.5 4.4 V6 H13.5 V4.4 Z',
+  maoLeve:'M7 11 V5 A1.5 1.5 0 0 1 10 5 V10 V3.5 A1.5 1.5 0 0 1 13 3.5 V10 V4.5 A1.5 1.5 0 0 1 16 4.5 V11 V7.5 A1.5 1.5 0 0 1 19 7.5 V14 C19 18.5 16 21.5 12 21.5 C8.5 21.5 6.5 19.5 5 16.5 L3 12.5 A1.5 1.5 0 0 1 5.6 11 Z',
   fichaSorte:'M12 1.5 L15.2 8.6 L22.8 9.1 L17 14 L18.8 21.5 L12 17.4 L5.2 21.5 L7 14 L1.2 9.1 L8.8 8.6 Z',
   sino:'M12 1.5 C13 1.5 13.6 2.1 13.6 3 C17.2 3.9 18.7 7 18.7 11 V16 L21.2 19 H2.8 L5.3 16 V11 C5.3 7 6.8 3.9 10.4 3 C10.4 2.1 11 1.5 12 1.5 Z M9.6 20 H14.4 A2.4 2.4 0 0 1 9.6 20 Z',
   pergaminho:'M5 2.5 H17 A3 3 0 0 1 20 5.5 V19 A3 3 0 0 1 17 22 H7 A3 3 0 0 1 4 19 V16.5 H7 V5.5 A3 3 0 0 0 5 2.5 Z M10 8 H17 V9.5 H10 Z M10 12 H17 V13.5 H10 Z',
@@ -154,6 +160,16 @@ const ITENS={
   dadoOsso:{nome:'Dado de Osso',desc:'Seus D6 que caem no 1 valem 6.',cor:'#efe3c6',preco:9},
   cantil:{nome:'Cantil de Couro',desc:'Dormir no descanso cura 10 a mais.',cor:'#a8794a',preco:7}
 };
+const CONSUMIVEIS={
+  martelo:{nome:'Martelo',desc:'Quebra o dado mais alto da casa que está na mesa. Ele passa a valer 0 nesta rodada.',cor:'#c9cdd6',preco:6},
+  tonico:{nome:'Tônico',desc:'Recupera 12 de vida na hora.',cor:'#86c48f',preco:5},
+  faca:{nome:'Faca de Arremesso',desc:'Causa 8 de dano direto na casa, sem precisar acertar o alvo.',cor:'#d9dde6',preco:5},
+  frasco:{nome:'Frasco de Veneno',desc:'Aplica 5 de veneno na casa.',cor:'#a7c25c',preco:5},
+  peso:{nome:'Peso de Chumbo',desc:'O próximo dado seu que parar na mesa nesta rodada vale +6.',cor:'#9aa3ad',preco:5},
+  maoLeve:{nome:'Mão Leve',desc:'Puxa 2 dados da bolsa para a mão sem aumentar o alvo.',cor:'#d9b07a',preco:6}
+};
+const CONS_MAX=3;
+const consMax=()=>S.teste?6:CONS_MAX;
 const ITEM_ICONE={escudo:'escudo',fogo:'fogo',punhal:'roubo'};
 const CONJUNTOS={
   trapaceiro:{nome:'Trapaceiro',pecas:['lupa','baralho','luva'],desc:'Todos os seus dados valem +1.'},

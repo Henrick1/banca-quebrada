@@ -15,6 +15,7 @@ function hud(){
     $('iniInfo').innerHTML=`Base <b>${baseAtual()}</b> · Bolsa <b>${S.ini.bolsa.length} dados</b>`;
     $('veneno').textContent=S.veneno;
   }
+  if(typeof renderCons==='function')renderCons();
 }
 function bandeja(){
   $('contagem').textContent=`${S.mao.length}/${maoMax()} na mão`;

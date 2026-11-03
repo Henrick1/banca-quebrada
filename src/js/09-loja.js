@@ -9,6 +9,7 @@ function poolGravacoes(){
     {kind:'fx',fx:{k:'veneno',n:2+k},preco:6},{kind:'fx',fx:{k:'fogo',n:4+k},preco:6},{kind:'fx',fx:{k:'ouro',n:2+k},preco:4},{kind:'pacto',preco:4},{kind:'sombria',preco:6},{kind:'polir',preco:9},{kind:'polir',preco:9}
   ];
 }
+function ofertaCons(k,gratis){return{kind:'cons',chave:k,preco:CONSUMIVEIS[k].preco,id:uid++,gratis}}
 function ofertaDado(t,gratis){return{kind:'dado',tipo:t,preco:DIE[t].preco,id:uid++,gratis}}
 function tiposDado(n){return embaralhar(['coin','d6','d10',R()<.55?'d20':'d6']).filter((t,i,a)=>a.indexOf(t)===i).slice(0,n)}
 function gerarEstoque(){
@@ -16,6 +17,7 @@ function gerarEstoque(){
   L.dados=tiposDado(3).map(t=>ofertaDado(t,false));
   L.grav=embaralhar(poolGravacoes()).slice(0,4).map(o=>({...o,id:uid++}));
   L.reliq=ofertasReliquia(2,false);
+  L.cons=embaralhar(Object.keys(CONSUMIVEIS)).slice(0,2).map(k=>ofertaCons(k,false));
   L.enc=embaralhar(Object.keys(ENCANTOS)).slice(0,3).map(k=>({kind:'encanto',chave:k,preco:ENCANTOS[k].preco,id:uid++,gratis:false}));
   L.serv.forEach(o=>{if(o.kind!=='renovar')o.feito=false});
 }
@@ -23,7 +25,7 @@ function montarLoja(op){
   S.fase='loja';S.retomar=renderLoja;
   const esp=op.espolio||[];
   S.loja={titulo:op.titulo,sub:op.sub,ganho:op.ganho||0,espolio:esp,pegou:!esp.length,pulou:false,podeTrocar:!!op.podeTrocar,mercador:!!op.mercador,
-    dados:[],grav:[],reliq:[],enc:[],serv:op.mercador?[{kind:'cura',n:12,preco:5,id:uid++},{kind:'queimar',preco:4,id:uid++},{kind:'fundir',preco:7,id:uid++},{kind:'renovar',id:uid++}]:[],renov:0,sel:null,foco:null};
+    dados:[],grav:[],reliq:[],enc:[],cons:[],serv:op.mercador?[{kind:'cura',n:12,preco:5,id:uid++},{kind:'queimar',preco:4,id:uid++},{kind:'fundir',preco:7,id:uid++},{kind:'renovar',id:uid++}]:[],renov:0,sel:null,foco:null};
   if(op.mercador)gerarEstoque();
   renderLoja();
 }
@@ -31,6 +33,7 @@ function abrirRecompensa(ganho,elite){
   const esp=embaralhar(poolGravacoes().filter(o=>o.kind!=='pacto'&&o.kind!=='sombria')).slice(0,2).map(o=>({...o,id:uid++,gratis:true}));
   const extra=elite?ofertasReliquia(1,true)[0]:null;
   esp.splice(Math.floor(R()*3),0,extra||ofertaDado(tiposDado(1)[0],true));
+  if(elite||R()<.4)esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(pick(Object.keys(CONSUMIVEIS)),true));
   montarLoja({titulo:S.ini&&S.ini.chefe?`Fim do ${['primeiro','segundo','terceiro'][atoDe(S.linha)]} ato`:elite?'Elite derrotado':'Vitória',sub:`${S.ini.nome} pagou ${ganho} de ouro. Leve um item do espólio${elite?': uma relíquia está garantida':''}.`,ganho,espolio:esp,podeTrocar:true});
 }
 function abrirMercado(){montarLoja({titulo:'Mercador',sub:'Gaste seu ouro no balcão. Encantamentos e gravações você aplica no dado que escolher.',mercador:true})}
@@ -39,6 +42,7 @@ function mediaDado(d){return(d.faces.reduce((s,f)=>s+valorFace(f),0)/d.faces.len
 function iconeFx(k,cor){return`<svg viewBox="0 0 24 24"><path fill="${cor}" fill-rule="evenodd" d="${PATHS[k]}"/></svg>`}
 function infoOferta(o){
   if(o.kind==='encanto'){const en=ENCANTOS[o.chave];return{tipo:'Encantamento · você escolhe o dado',tit:`${en.nome}: ${en.combo}`,desc:`Só a moldura: depois de comprar, você escolhe um dado da sua bolsa para receber as bordas de ${en.nome.toLowerCase()}. ${en.desc} Troca o encantamento que o dado já tiver.`,ic:`<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="${en.cor}" stroke-width="3.2"/><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="#0006" stroke-width=".8"/></svg>`}}
+  if(o.kind==='cons'){const c=CONSUMIVEIS[o.chave];return{tipo:`Consumível · vai para o bolso, usa uma vez na luta (${(S.cons||[]).length}/${consMax()})`,tit:c.nome,desc:c.desc,ic:svgPath(o.chave,c.cor)}}
   if(o.kind==='item'){const it=ITENS[o.chave];return{tipo:'Relíquia · fica na mesa',tit:it.nome,desc:it.desc+' '+htmlConjunto(o.chave),ic:svgPath(ITEM_ICONE[o.chave]||o.chave,it.cor)}}
   if(o.kind==='dado'){
     const d=DIE[o.tipo];const fake=novoDado(o.tipo);
@@ -66,6 +70,7 @@ function estadoOferta(o){
   if(L.sel===o)return{txt:o.kind==='fundir'?'Escolha os dois dados na bolsa':(o.kind==='queimar'||o.kind==='encanto'||o.kind==='polir')?'Clique no dado na bolsa':'Clique na face na bolsa',cls:'ok'};
   if(o.kind==='dado'&&S.dados.length>=bolsaMax())return{txt:'Bolsa cheia',trava:true};
   if(o.kind==='item'&&temItem(o.chave)&&!S.teste)return{txt:'Você já tem',trava:true};
+  if(o.kind==='cons'&&(S.cons||[]).length>=consMax())return{txt:'Bolso cheio',trava:true};
   if(o.kind==='item'&&S.itens.length>=itensMax())return{txt:'Canto da mesa cheio',trava:true};
   if(o.kind==='cura'&&S.hp>=S.max)return{txt:'Vida cheia',trava:true};
   if(o.kind==='queimar'&&S.dados.length<=BOLSA_MIN)return{txt:`Mínimo de ${BOLSA_MIN} dados`,trava:true};
@@ -81,7 +86,7 @@ function cartaOferta(o){
     ${preco}</button>`;
 }
 let LJ=null;
-const LJ_SECOES=[['espolio','Espólio','#5a1f24'],['reliq','Relíquias','#1f2f4a'],['dados','Dados','#1e4a46'],['enc','Encantamentos','#35234a'],['grav','Gravações','#4a3520'],['serv','Serviços','#2c2a28']];
+const LJ_SECOES=[['espolio','Espólio','#5a1f24'],['reliq','Relíquias','#1f2f4a'],['cons','Consumíveis','#3d2a18'],['dados','Dados','#1e4a46'],['enc','Encantamentos','#35234a'],['grav','Gravações','#4a3520'],['serv','Serviços','#2c2a28']];
 function renderLoja(){
   const L=S.loja;
   if(!$('lojaShell'))criarShellLoja();
@@ -204,7 +209,7 @@ function enquadrarLoja(){
 function sincronizarLoja3D(){
   if(!LJ||!S.loja)return;const L=S.loja;
   const secs=LJ_SECOES.map(([k,nome,cor])=>({k,nome,cor,itens:L[k]||[]})).filter(x=>x.itens.length);
-  const grupos=[['espolio','reliq'],['dados','enc'],['grav','serv']];
+  const grupos=[['espolio','reliq','cons'],['dados','enc'],['grav','serv']];
   const linhas=LJ.modo==='col'?secs.map(x=>[x]):grupos.map(gr=>secs.filter(x=>gr.includes(x.k))).filter(l=>l.length);
   const SP=1.9,GAP=1.1,PZ=3.15,pos=new Map(),decos=[];
   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;
@@ -270,6 +275,7 @@ function medalhaoLoja(o){
   else if(o.kind==='fundir')ic('dupla','#d9774a',128,120);
   else if(o.kind==='polir'){x.fillStyle='#f2c661';x.font='600 70px "IBM Plex Mono",monospace';x.fillText('+1',128,110);x.font='800 26px "Alegreya Sans",sans-serif';x.fillText('TODAS',128,176)}
   else if(o.kind==='cura')ic('cura','#86c48f',128,124);
+  else if(o.kind==='cons')ic(o.chave,CONSUMIVEIS[o.chave].cor,128,128);
   else if(o.kind==='queimar')ic('fogo','#e5803f',128,124);
   else{x.save();x.translate(128-62,128-62);x.scale(124/24,124/24);x.strokeStyle='#f2c661';x.lineWidth=2.6;x.lineCap='round';x.stroke(new Path2D('M19 8 A8 8 0 1 0 20 13 M19 3 V8 H14'));x.restore()}
   const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;
@@ -383,7 +389,7 @@ function autoSairLoja(){
   const L=S.loja;if(!L||L.mercador||!L.pegou)return;
   setTimeout(()=>{if(S.loja===L&&S.fase==='loja'){const t=$('lojaShell');if(t){t.style.transition='opacity .3s';t.style.opacity='0'}setTimeout(()=>{if(S.loja===L&&S.fase==='loja'){S.loja=null;telaMapa()}},reduzir?0:300)}},reduzir?300:1000);
 }
-function todasOfertas(){const L=S.loja;return[...L.espolio,...L.enc,...L.reliq,...L.dados,...L.grav,...L.serv]}
+function todasOfertas(){const L=S.loja;return[...L.espolio,...L.enc,...L.reliq,...(L.cons||[]),...L.dados,...L.grav,...L.serv]}
 function previaFace(el){
   const L=S.loja,o=L&&L.sel,p=$('previa');if(!o||!p)return;
   const d=S.dados.find(x=>x.id===+el.dataset.d),i=+el.dataset.f,f=d.faces[i];
