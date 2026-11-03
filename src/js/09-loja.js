@@ -179,7 +179,7 @@ function iniciarLoja3D(){
   cv.addEventListener('pointermove',e=>{
     if(!LJ)return;const o=achar(e);if(o===LJ.hover)return;
     LJ.hover=o;$('ljCenaBox').classList.toggle('mao',!!o);clearTimeout(LJ.tFoco);
-    if(o)LJ.tFoco=setTimeout(()=>{if(LJ&&LJ.hover===o&&S.loja&&S.loja.foco!==o){S.loja.foco=o;SOM.batida(2.5,false,.4);renderDetalhe()}},110);
+    if(o&&S.loja&&S.loja.foco!==o){S.loja.foco=o;SOM.batida(2.5,false,.4);renderDetalhe()}
   });
   cv.addEventListener('pointerleave',()=>{if(LJ){clearTimeout(LJ.tFoco);LJ.hover=null;$('ljCenaBox').classList.remove('mao')}});
   cv.addEventListener('click',e=>{if(!LJ)return;const o=achar(e);if(!o)return;S.loja.foco=o;SOM.batida(6,o.kind==='item'||o.kind==='bonus'||o.kind==='fx');const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;renderDetalhe()});
