@@ -228,7 +228,7 @@ function sincronizarLoja3D(){
   const assin=LJ.modo+'|'+decos.map(d=>d.nome+d.w+d.z).join(',');
   if(assin!==LJ.assin){
     LJ.assin=assin;
-    LJ.deco.forEach(m=>{LJ.sc.remove(m);m.geometry.dispose();if(m.material.map)m.material.map.dispose();m.material.dispose()});LJ.deco=[];
+    LJ.deco.forEach(m=>{LJ.sc.remove(m);m.geometry.dispose();if(m.material.map)m.material.map.dispose();if(m.material.bumpMap)m.material.bumpMap.dispose();m.material.dispose()});LJ.deco=[];
     decos.forEach(criarSecaoLoja);enquadrarLoja();
   }
   const todas=todasOfertas(),vivos=new Set();
@@ -261,17 +261,28 @@ function texturaTapete(cor,w,h,franja){
   const rx=F,rw=W-F*2;
   x.fillStyle=tom(0,.05);x.fillRect(rx,0,rw,H);
   const img=x.getImageData(rx,0,rw,H),dd=img.data;
-  for(let yy=0;yy<H;yy++)for(let xx=0;xx<rw;xx++){const i=(yy*rw+xx)*4,n=((xx+yy)%4<2?6:-6)+(Math.random()-.5)*14;dd[i]+=n;dd[i+1]+=n;dd[i+2]+=n}
-  x.putImageData(img,rx,0);
+  const bc=document.createElement('canvas');bc.width=W;bc.height=H;const bx=bc.getContext('2d');bx.fillStyle='#808080';bx.fillRect(0,0,W,H);
+  const bimg=bx.getImageData(rx,0,rw,H),bd=bimg.data,T=5;
+  for(let yy=0;yy<H;yy++)for(let xx=0;xx<rw;xx++){
+    const cx=Math.floor(xx/T),cy=Math.floor(yy/T),u=(xx%T)/T,v=(yy%T)/T,trama=(cx+cy)%2===0;
+    const fio=trama?Math.sin(v*Math.PI):Math.sin(u*Math.PI);
+    const pelo=(Math.random()-.5)*22,n=(fio-.5)*30+pelo,i=(yy*rw+xx)*4;
+    dd[i]+=n;dd[i+1]+=n;dd[i+2]+=n;
+    const h=128+(fio-.5)*150+pelo*1.5;bd[i]=bd[i+1]=bd[i+2]=h;
+  }
+  x.putImageData(img,rx,0);bx.putImageData(bimg,rx,0);
   const g=x.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,Math.max(rw,H)*.75);g.addColorStop(0,'rgba(255,235,200,.08)');g.addColorStop(1,'rgba(0,0,0,.28)');x.fillStyle=g;x.fillRect(rx,0,rw,H);
   const m=H*.07;
   x.strokeStyle=ouroE;x.lineWidth=5;x.strokeRect(rx+m,m,rw-m*2,H-m*2);
   x.strokeStyle=ouro;x.lineWidth=2.6;x.strokeRect(rx+m,m,rw-m*2,H-m*2);
-  const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;return tex;
+  const tex=new THREE.CanvasTexture(c);tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;
+  const relevo=new THREE.CanvasTexture(bc);relevo.anisotropy=8;
+  return{tex,relevo};
 }
 function criarSecaoLoja(d){
   const tw=d.w+.2,td=2.55,franja=.22;
-  const pano=new THREE.Mesh(new THREE.PlaneGeometry(tw+franja*2,td),new THREE.MeshStandardMaterial({map:texturaTapete(d.cor,tw,td,franja),transparent:true,alphaTest:.4,roughness:.92}));
+  const tt=texturaTapete(d.cor,tw,td,franja);
+  const pano=new THREE.Mesh(new THREE.PlaneGeometry(tw+franja*2,td),new THREE.MeshStandardMaterial({map:tt.tex,bumpMap:tt.relevo,bumpScale:.035,transparent:true,alphaTest:.4,roughness:.96}));
   pano.rotation.x=-Math.PI/2;pano.position.set(d.cx,.006,d.z+.12);pano.receiveShadow=true;LJ.sc.add(pano);LJ.deco.push(pano);
   const c=document.createElement('canvas');c.width=512;c.height=96;const x=c.getContext('2d');
   const g=x.createLinearGradient(0,0,512,96);g.addColorStop(0,'#a77a2e');g.addColorStop(.5,'#e6c06a');g.addColorStop(1,'#a77a2e');
