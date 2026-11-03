@@ -104,7 +104,6 @@ function criarMalha(die,casa){
   geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
   const m=new THREE.Mesh(geo,mats);m.castShadow=true;m.receiveShadow=true;
   if(die.encanto&&!casa)bordasDado(die,m);
-  if(T&&T.borda)bordasDado(die,m,new THREE.MeshStandardMaterial({color:lin(T.borda),metalness:.8,roughness:.3}));
   return m;
 }
 
