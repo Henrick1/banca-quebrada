@@ -50,8 +50,10 @@ function shapeFisica(tipo,e=1){
 
 function texturaFace(die,k,casa){
   const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
-  const def=DIE[die.type];const corpo=casa?(die.cor||CASA.cor):def.cor,tinta=casa?CASA.tinta:def.tinta;
+  const def=DIE[die.type],T=casa?temaCasa():null;const corpo=casa?corCasa(die):def.cor,tinta=casa?(T?T.tinta:CASA.tinta):def.tinta;
   x.fillStyle=corpo;x.fillRect(0,0,128,128);
+  if(T&&T.grao){const img=x.getImageData(0,0,128,128),d=img.data;for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*T.grao;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(img,0,0)}
+  if(T&&T.veios){x.strokeStyle='rgba(0,0,0,.22)';x.lineWidth=2;for(let y=8;y<128;y+=11){x.beginPath();x.moveTo(0,y);x.bezierCurveTo(40,y+rnd(5),88,y+rnd(5),128,y+rnd(3));x.stroke()}}
   if(def.metal){x.strokeStyle=tinta;x.globalAlpha=.5;x.lineWidth=4;x.beginPath();x.arc(64,64,52,0,Math.PI*2);x.stroke();x.globalAlpha=1}
   const f=die.faces[k];const n=f.v+f.bonus;const s=String(n);
   const sz=128*def.txt*(f.fx?.86:1);
@@ -78,8 +80,9 @@ function texturaFace(die,k,casa){
 
 function criarMalha(die,casa){
   const sd=forma(die.type);const def=DIE[die.type];
-  const base={roughness:def.metal?.35:.42,metalness:def.metal&&!casa?.55:0};
-  const mats=[new THREE.MeshStandardMaterial({color:lin(casa?(die.cor||CASA.cor):def.cor),...base})];
+  const T=casa?temaCasa():null;
+  const base=T?{roughness:T.rough,metalness:T.metal||0,...(T.vidro?{transparent:true,opacity:.88,emissive:lin(T.brilho),emissiveIntensity:.35}:{})}:{roughness:def.metal?.35:.42,metalness:def.metal&&!casa?.55:0};
+  const mats=[new THREE.MeshStandardMaterial({color:lin(casa?corCasa(die):def.cor),...base})];
   const matDe={};
   sd.vf.forEach((fi,k)=>{matDe[fi]=mats.length;mats.push(new THREE.MeshStandardMaterial({map:texturaFace(die,k,casa),...base}))});
   const pos=[],nor=[],uv=[];const geo=new THREE.BufferGeometry();let ini=0;
@@ -101,6 +104,7 @@ function criarMalha(die,casa){
   geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
   const m=new THREE.Mesh(geo,mats);m.castShadow=true;m.receiveShadow=true;
   if(die.encanto&&!casa)bordasDado(die,m);
+  if(T&&T.borda)bordasDado(die,m,new THREE.MeshStandardMaterial({color:lin(T.borda),metalness:.8,roughness:.3}));
   return m;
 }
 

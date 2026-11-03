@@ -46,7 +46,7 @@ function gerarEstoque(){
   L.grav=sortear(poolGravacoes(),4).map(o=>({...o,id:uid++}));
   L.reliq=ofertasReliquia(2,false);
   L.cons=sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),2).map(o=>ofertaCons(o.chave,false));
-  L.enc=sortear(Object.keys(ENCANTOS).map(k=>({kind:'encanto',chave:k,preco:ENCANTOS[k].preco})),3).map(o=>({...o,id:uid++,gratis:false}));
+  L.enc=sortear(encantosAtivos().map(k=>({kind:'encanto',chave:k,preco:ENCANTOS[k].preco})),3).map(o=>({...o,id:uid++,gratis:false}));
   L.serv.forEach(o=>{if(o.kind!=='renovar')o.feito=false});
 }
 function montarLoja(op){

@@ -1,12 +1,12 @@
 const matsBorda={};
 function matBorda(k){
   if(matsBorda[k])return matsBorda[k];
-  const e=ENCANTOS[k],metal=['bronze','prata','ouro','cobre','mercurio'].includes(k),gema=['rubi','esmeralda','ametista','ambar','safira'].includes(k);
+  const e=ENCANTOS[k],metal=['bronze','prata','ouro','cobre','mercurio','magnetita'].includes(k),gema=['rubi','esmeralda','ametista','ambar','safira','granada','cinabrio'].includes(k);
   return matsBorda[k]=new THREE.MeshStandardMaterial({color:lin(e.cor),metalness:metal?.85:gema?.3:.1,roughness:metal?.3:k==='onix'?.2:.4,emissive:gema?lin(e.cor).multiplyScalar(.3):new THREE.Color(0)});
 }
-function bordasDado(die,mesh){
+function bordasDado(die,mesh,matOver){
   const sd=forma(die.type),faces=die.type==='coin'?sd.vf.map(i=>sd.F[i]):sd.F;
-  const vistos=new Set(),r=die.type==='coin'?.045:.055,mat=matBorda(die.encanto),cima=new THREE.Vector3(0,1,0);
+  const vistos=new Set(),r=die.type==='coin'?.045:.055,mat=matOver||matBorda(die.encanto),cima=new THREE.Vector3(0,1,0);
   for(const f of faces)for(let i=0;i<f.length;i++){
     const a=f[i],b=f[(i+1)%f.length],chave=a<b?a+'-'+b:b+'-'+a;
     if(vistos.has(chave))continue;vistos.add(chave);

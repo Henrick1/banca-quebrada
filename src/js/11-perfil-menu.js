@@ -66,8 +66,8 @@ const gravado=(d,mods)=>{for(const i in mods)Object.assign(d.faces[i],mods[i]);r
 const BUILDS={
   apostador:{nome:'Apostador',desc:'A bolsa clássica: três dados e uma moeda para arriscar.',req:null,
     montar:()=>({dados:[novoDado('d6'),novoDado('d6'),novoDado('d6'),novoDado('coin')],itens:[],ouro:0})},
-  numerologo:{nome:'Numerólogo',desc:'Dados encantados que gostam de números primos e trincas.',req:{andar:3,txt:'Chegue ao andar 3'},
-    montar:()=>({dados:[comEncanto(novoDado('d6'),'onix'),comEncanto(novoDado('d6'),'marfim'),novoDado('d10'),novoDado('coin')],itens:[],ouro:0})},
+  numerologo:{nome:'Numerólogo',desc:'Dados encantados que gostam de números primos e de números vizinhos.',req:{andar:3,txt:'Chegue ao andar 3'},
+    montar:()=>({dados:[comEncanto(novoDado('d6'),'onix'),comEncanto(novoDado('d6'),'rubi'),novoDado('d10'),novoDado('coin')],itens:[],ouro:0})},
   alquimista:{nome:'Alquimista',desc:'Começa envenenando e se curando.',req:{andar:5,txt:'Chegue ao andar 5'},
     montar:()=>({dados:[gravado(novoDado('d6'),{5:{fx:{k:'veneno',n:2}}}),gravado(novoDado('d6'),{5:{fx:{k:'cura',n:3}}}),novoDado('d6'),novoDado('coin')],itens:['peconha'],ouro:0})},
   trapaceiro:{nome:'Trapaceiro',desc:'Sabe o que a casa vai tirar e ainda marca as cartas.',req:{partidas:5,txt:'Jogue 5 partidas'},
@@ -100,7 +100,7 @@ function telaInicial(){
   const b=BUILDS[PERFIL.build]||BUILDS.apostador,r=RESERVAS[PERFIL.reserva]||RESERVAS.d6,kit=b.montar(),ativa=podeContinuar(),viva=runAtiva();
   const des=Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0);
   const nb=Object.values(BUILDS).filter(x=>liberado(x.req)).length;
-  const vistos=PERFIL.vistos.itens.length+PERFIL.vistos.encantos.length,tot=Object.keys(ITENS).length+Object.keys(ENCANTOS).length;
+  const vistos=PERFIL.vistos.itens.length+PERFIL.vistos.encantos.length,tot=Object.keys(ITENS).length+encantosAtivos().length;
   abrirTela(`<div class="menu">
     <div class="menu-esq">
       <p class="menu-sobre">Um roguelike de dados na taverna</p>
@@ -112,6 +112,7 @@ function telaInicial(){
         <button class="menu-item" data-acao="builds"><b>Bolsa inicial</b><small>${nb} de ${Object.keys(BUILDS).length} liberadas</small></button>
         <button class="menu-item" data-acao="colecao"><b>Coleção</b><small>${vistos} de ${tot} · ${PERFIL.conquistas.length} conquistas</small></button>
         <button class="menu-item" data-acao="regras"><b>Como jogar</b><small>regras e combos</small></button>
+        <button class="menu-item" data-acao="historico"><b>Histórico</b><small>${(PERFIL.historico||[]).length?`${(PERFIL.historico||[]).length} partidas registradas`:'nenhuma partida ainda'}</small></button>
         <button class="menu-item" data-acao="opcoes"><b>Opções</b><small>tela, som e gráficos</small></button>
         <button class="menu-item" data-acao="teste"><b>Partida de teste</b><small>tudo liberado</small></button>
       </nav>
@@ -163,8 +164,29 @@ function telaColecao(){
   abrirTela(`<div class="tela">
     <div class="tela-topo"><div><p class="menu-sobre">Tudo o que você já encontrou</p><h2>Coleção</h2></div><button class="btn sec" data-acao="menu">Voltar</button></div>
     <section class="bloco"><h3>Relíquias · ${vi.length} de ${Object.keys(ITENS).length}</h3><div class="grade-colecao">${Object.keys(ITENS).map(pecaI).join('')}</div></section>
-    <section class="bloco"><h3>Encantamentos · ${ve.length} de ${Object.keys(ENCANTOS).length}</h3><div class="grade-colecao">${Object.keys(ENCANTOS).map(pecaE).join('')}</div></section>
+    <section class="bloco"><h3>Encantamentos · ${ve.filter(k=>ENCANTOS[k]&&!ENCANTOS[k].antigo).length} de ${encantosAtivos().length}</h3><div class="grade-colecao">${encantosAtivos().map(pecaE).join('')}</div></section>
     <section class="bloco"><h3>Conquistas · ${PERFIL.conquistas.length} de ${Object.keys(CONQUISTAS).length}</h3><div class="grade-colecao">${Object.entries(CONQUISTAS).map(([k,c])=>{const ok=PERFIL.conquistas.includes(k);return`<div class="peca${ok?'':' oculta'}" title="${c.desc}"><span class="reliq">${svgPath(ok?'fichaSorte':'cadeado',ok?'#f2c661':'#5a4a3c')}</span><span>${c.nome}<small>${c.desc}</small></span></div>`}).join('')}</div></section>
+  </div>`);
+}
+function telaHistorico(){
+  const H=PERFIL.historico||[];
+  const dur=ms=>{const m=Math.round(ms/60000);return m<1?'menos de 1 min':m<60?`${m} min`:`${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}`};
+  const quando=t=>{const d=(Date.now()-t)/1000;if(d<3600)return`há ${Math.max(1,Math.round(d/60))} min`;if(d<86400)return`há ${Math.round(d/3600)} h`;if(d<86400*7)return`há ${Math.round(d/86400)} dia${Math.round(d/86400)>1?'s':''}`;return new Date(t).toLocaleDateString('pt-BR')};
+  const melhor=H.reduce((m,h)=>!m||h.andar>m.andar||(h.andar===m.andar&&h.maior>m.maior)?h:m,null);
+  const vit=H.filter(h=>h.venceu).length,golpe=H.reduce((m,h)=>Math.max(m,h.maior),0),algoz={};
+  H.forEach(h=>{if(h.por){const n=h.por.replace(' (Elite)','');algoz[n]=(algoz[n]||0)+1}});
+  const pior=Object.entries(algoz).sort((a,b)=>b[1]-a[1])[0];
+  const linha=h=>`<div class="hist${h.venceu?' venceu':''}">
+    <span class="hist-res">${h.venceu?'Vitória':'Derrota'}</span>
+    <div class="hist-corpo"><b>Andar ${h.andar} de ${MAPA_LINHAS} · ${ATOS[Math.min(ATOS.length-1,h.ato||0)].nome}</b>
+      <span>Bolsa ${h.bolsa} · ${DESAFIOS[h.desafio]?DESAFIOS[h.desafio].nome:'Normal'}${h.por?` · derrotado por ${h.por}`:''}</span></div>
+    <div class="hist-num"><span><b>${h.maior}</b>maior golpe</span><span><b>${h.rodadas}</b>rodadas</span><span><b>${h.reliq}</b>relíquias</span></div>
+    <small class="hist-quando">${quando(h.data)} · ${dur(h.dur)}</small>
+  </div>`;
+  abrirTela(`<div class="tela">
+    <div class="tela-topo"><div><p class="menu-sobre">Suas últimas partidas</p><h2>Histórico</h2></div><button class="btn sec" data-acao="menu">Voltar</button></div>
+    ${H.length?`<div class="progresso hist-resumo"><div><b>${vit}/${H.length}</b><small>Vitórias</small></div><div><b>${melhor?melhor.andar:0}</b><small>Melhor andar</small></div><div><b>${golpe}</b><small>Maior golpe</small></div><div><b>${pior?pior[1]:0}</b><small>${pior?'Vezes contra '+pior[0]:'Sem derrotas'}</small></div></div>
+    <section class="bloco"><div class="hist-lista">${H.map(linha).join('')}</div></section>`:`<p class="op-nota">Nenhuma partida terminada ainda. Jogue uma e ela aparece aqui.</p>`}
   </div>`);
 }
 function telaRegras(){
@@ -204,6 +226,9 @@ function fim(venceu){
   let novoDesafio=false;
   if(!S.teste){
     PERFIL.partidas++;if(venceu)PERFIL.vitorias++;PERFIL.melhorAndar=Math.max(PERFIL.melhorAndar,andarAlc);
+    const st=S.stats||{};
+    (PERFIL.historico=PERFIL.historico||[]).unshift({data:Date.now(),venceu,andar:andarAlc,ato:atoDe((S.linha||0)),bolsa:S.build||'Apostador',desafio:S.desafio||0,por:venceu?null:(S.ini?S.ini.nome:null),maior:st.maior||0,dano:st.dano||0,rodadas:st.rodadas||0,combos:st.combos||0,dur:st.inicio?Date.now()-st.inicio:0,reliq:new Set(S.itens).size,dados:S.dados.length});
+    PERFIL.historico=PERFIL.historico.slice(0,25);
     if(venceu&&(S.desafio||0)>=(PERFIL.desafioMax||0)&&(PERFIL.desafioMax||0)<DESAFIOS.length-1){PERFIL.desafioMax=(PERFIL.desafioMax||0)+1;novoDesafio=true}
     salvarPerfil();
     if(venceu){conquistar('vitoria');if((S.desafio||0)>=3)conquistar('desafio3');if((S.desafio||0)>=5)conquistar('desafio5');if(!S.itens.length)conquistar('maosLimpas')}
@@ -236,6 +261,7 @@ function menuAcao(ac,el){
   if(ac==='builds'){telaBuilds();return true}
   if(ac==='colecao'){telaColecao();return true}
   if(ac==='regras'){telaRegras();return true}
+  if(ac==='historico'){telaHistorico();return true}
   if(opcoesAcao(ac,el))return true;
   if(ac==='build'){const k=el.dataset.k;if(liberado(BUILDS[k].req)){PERFIL.build=k;salvarPerfil();SOM.compra();telaBuilds()}else SOM.traco();return true}
   if(ac==='reserva'){const k=el.dataset.k;if(liberado(RESERVAS[k].req)){PERFIL.reserva=k;salvarPerfil();SOM.batida(6,k==='coin');telaBuilds()}else SOM.traco();return true}

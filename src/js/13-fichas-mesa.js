@@ -66,7 +66,7 @@ function htmlMesa(a){
   if(a.tipo==='traco'){const tr=TRACOS[a.chave];return`<h4>${tr.nome}<small>Traço da casa</small></h4><ul><li>${tr.desc}</li></ul>`}
   if(!S.ini)return'<h4>Bolsa da casa</h4>';
   const lupa=temItem('lupa')&&S.proxCasa&&S.fase!=='resolvendo'?S.proxCasa:[];
-  return`<h4>Bolsa da casa<small>${S.ini.bolsa.length} dados</small></h4>
+  return`<h4>Bolsa da casa<small>${S.ini.bolsa.length} dados${temaCasa()?' · '+temaCasa().nome.toLowerCase():''}</small></h4>
     <p class="nota">A casa sorteia ${temTraco('duplo')?'2 dados':'1 dado'} desta bolsa a cada rodada.</p>
     ${S.ini.bolsa.map(d=>`<div class="dc${lupa.includes(d)?' prox':''}">${svgTipo(d.type,d.cor||CASA.cor)}<b>${d.nome}</b>${lupa.includes(d)?'<em>Vai sair</em>':'<span></span>'}<span class="faces">${d.faces.map((_,i)=>chip(d,i)).join('')}</span>${d.area?`<span class="nota" style="grid-column:1/-1;color:${d.area.cor}"><b>${d.area.nome}:</b> ${descArea(d.area)}</span>`:''}</div>`).join('')}
     ${temItem('lupa')?'':'<p class="nota">Com a Lupa do Trapaceiro você vê qual dado vai sair.</p>'}`;

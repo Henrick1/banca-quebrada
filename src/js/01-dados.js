@@ -5,6 +5,20 @@ const DIE={
   d20:{nome:'Dado de 20',curto:'D20',faces:Array.from({length:20},(_,i)=>i+1),cor:'#8a2d37',tinta:'#f3e9d5',up:'#f2c661',preco:18,txt:.34}
 };
 const CASA={cor:'#2a2830',tinta:'#e8d8ae'};
+const TEMAS_CASA={
+  'Rato da Adega':{nome:'Osso roído',base:'#d6c9aa',mix:.78,tinta:'#3a2a1a',rough:.78,grao:22},
+  'Batedor de Bolsos':{nome:'Madeira gasta',base:'#6e4b2a',mix:.62,tinta:'#f0dcb0',rough:.62,grao:16,veios:true},
+  'Crupiê Trapaceiro':{nome:'Marfim de cassino',base:'#1e5a3c',mix:.5,tinta:'#f2d68a',rough:.24,borda:'#d4a94f'},
+  'Guarda Endividado':{nome:'Ferro amassado',base:'#6a7179',mix:.62,tinta:'#16161a',rough:.42,metal:.35,grao:10},
+  'Bruxa das Fichas':{nome:'Vidro encantado',base:'#5a2a80',mix:.6,tinta:'#d8f07a',rough:.12,vidro:true,brilho:'#7a3ab0'},
+  'Cavaleiro Falido':{nome:'Aço com friso',base:'#9aa3ad',mix:.56,tinta:'#24180c',rough:.3,metal:.45,borda:'#c99a3f'},
+  'Ogro Apostador':{nome:'Pedra lascada',base:'#6c6a60',mix:.68,tinta:'#ece4cc',rough:.92,grao:30},
+  'O Dono da Casa':{nome:'Ouro maciço',base:'#c9a040',mix:.72,tinta:'#1a1208',rough:.3,metal:.5,borda:'#2a1c10'},
+  'O Taberneiro Caolho':{nome:'Tampa de barril',base:'#4e2e18',mix:.66,tinta:'#ecca8c',rough:.58,grao:14,veios:true,borda:'#8a8f96'},
+  'A Viúva das Apostas':{nome:'Ônix de luto',base:'#151017',mix:.78,tinta:'#e6a6c4',rough:.16,borda:'#b6bfcc'}
+};
+const temaCasa=()=>S.ini&&S.ini.tema?TEMAS_CASA[S.ini.tema]:null;
+function corCasa(die){const T=temaCasa(),c=die.cor||CASA.cor;if(!T)return c;return '#'+new THREE.Color(c).lerp(new THREE.Color(T.base),T.mix).getHexString()}
 const ICONE_TIPO={
   d6:'<rect x="4" y="4" width="16" height="16" rx="3"/>',
   coin:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5" fill="none"/>',
@@ -230,19 +244,24 @@ const TRACOS={
 };
 const ITENS_MAX=6;
 const ENCANTOS={
-  bronze:{nome:'Bronze',combo:'Parceiro',desc:'+4 se outro dado seu do mesmo tipo estiver na mesa nesta rodada.',cor:'#b0703a',ui:'#d08a4e',preco:6},
+  bronze:{antigo:true,nome:'Bronze',combo:'Parceiro',desc:'+4 se outro dado seu do mesmo tipo estiver na mesa nesta rodada.',cor:'#b0703a',ui:'#d08a4e',preco:6},
   prata:{nome:'Prata',combo:'Atração',desc:'+5 se parar perto de outro dado seu.',cor:'#cfd6de',ui:'#cfd6de',preco:7},
   ouro:{nome:'Ouro',combo:'Gêmeos',desc:'Valor dobrado se outro dado seu cair no mesmo número.',cor:'#e6b94a',ui:'#e6b94a',preco:9},
   onix:{nome:'Ônix',combo:'Primo',desc:'+5 se cair num número primo (2, 3, 5, 7, 11, 13, 17, 19).',cor:'#1c1820',ui:'#a99bc0',preco:7},
-  marfim:{nome:'Marfim',combo:'Trinca',desc:'+6 se cair num múltiplo de 3.',cor:'#f3ecdc',ui:'#f3ecdc',preco:7},
+  marfim:{antigo:true,nome:'Marfim',combo:'Trinca',desc:'+6 se cair num múltiplo de 3.',cor:'#f3ecdc',ui:'#f3ecdc',preco:7},
   rubi:{nome:'Rubi',combo:'Escada',desc:'+4 se cair num número vizinho (um a mais ou um a menos) de outro dado seu.',cor:'#b3263a',ui:'#e0566a',preco:8},
   esmeralda:{nome:'Esmeralda',combo:'Encosto',desc:'Se parar perto do dado da casa, o dado da casa vale 3 a menos.',cor:'#2f9e6b',ui:'#4fc28c',preco:8},
   ametista:{nome:'Ametista',combo:'Centro',desc:'+8 se parar dentro do círculo central da mesa.',cor:'#7d45b8',ui:'#b98ae6',preco:8},
   ambar:{nome:'Âmbar',combo:'Aura',desc:'Cria um círculo na mesa. Seus outros dados dentro dele ganham +2, inclusive os que caírem depois.',cor:'#d98c1f',ui:'#f0a43a',preco:9,area:{tipo:'raio',r:3,alvo:'jogador',delta:2,cor:'#f0a43a',nome:'Aura de Âmbar'}},
   safira:{nome:'Safira',combo:'Corrente',desc:'Os 2 dados seus mais próximos dele ganham +3 cada.',cor:'#2d5fb8',ui:'#5b8fe0',preco:9,area:{tipo:'proximos',n:2,alvo:'jogador',delta:3,cor:'#5b8fe0',nome:'Corrente de Safira'}},
   mercurio:{nome:'Mercúrio',combo:'Eco',desc:'Se cair na face mais alta, solta uma cópia menor de si que também é lançada e soma. A cópia pode se copiar de novo, até 3 vezes.',cor:'#7f9bb0',ui:'#bfe3f0',preco:10},
+  magnetita:{nome:'Magnetita',combo:'Ímã',desc:'Ao parar, puxa o dado da casa mais próximo para junto dele, e esse dado da casa passa a valer metade.',cor:'#3b4048',ui:'#9aa4b4',preco:9},
+  granada:{nome:'Granada',combo:'Sangria',desc:'Se cair no número mais baixo, rola de novo sozinho. Soma as duas vezes, e a segunda ganha +2.',cor:'#7a1426',ui:'#d8405a',preco:8},
+  obsidiana:{nome:'Obsidiana',combo:'Sombra',desc:'Se parar antes da casa terminar de lançar, fica escondido. Quando a casa termina, ele se revela e vale +4.',cor:'#120e16',ui:'#8a76b8',preco:9},
+  cinabrio:{nome:'Cinábrio',combo:'Fênix',desc:'Se cair no número mais baixo, queima e volta para a sua mão. Você lança de novo, e esse lance não conta. Uma vez por rodada.',cor:'#c9442a',ui:'#ff7a4a',preco:9},
   cobre:{nome:'Cobre',combo:'Repulsão',desc:'Cria um círculo na mesa. Dados da casa dentro dele valem 2 a menos.',cor:'#b5582e',ui:'#d9774a',preco:8,area:{tipo:'raio',r:3,alvo:'casa',delta:-2,cor:'#d9774a',nome:'Repulsão de Cobre'}}
 };
+const encantosAtivos=()=>Object.keys(ENCANTOS).filter(k=>!ENCANTOS[k].antigo);
 const temItem=k=>S.itens.includes(k);
 const temTraco=k=>!!(S.ini&&S.ini.tracos.includes(k));
 const qtdItem=k=>S.itens.filter(x=>x===k).length;

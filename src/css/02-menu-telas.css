@@ -77,3 +77,37 @@
 .op-slider{width:min(320px,50%);accent-color:var(--latao);height:24px;cursor:pointer}
 .op-nota{color:var(--osso-2);line-height:1.6;margin:0}
 .op-nota code{font-family:var(--f-mono,monospace);color:var(--osso);font-size:13px;word-break:break-all}
+.chefe-intro{position:fixed;inset:0;z-index:40;display:grid;place-items:start center;padding:9vh 16px 0;cursor:pointer;
+  background:radial-gradient(ellipse at 50% 28%,#0a0706f2 0%,#0a0706d9 38%,#0a070655 70%,#0a070600 100%);animation:ciEntra .5s ease-out both}
+.chefe-intro.sai{animation:ciSai .45s ease-in both}
+.ci-caixa{max-width:640px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.ci-ato{margin:0;font-size:12px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:var(--osso-2);animation:ciSobe .6s .1s ease-out both}
+.ci-nome{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(44px,7vw,78px);line-height:1;color:var(--latao);text-shadow:0 4px 30px #000,0 0 40px #d4a94f55;animation:ciNome .9s .2s cubic-bezier(.2,1.4,.3,1) both}
+.ci-titulo{margin:0 0 14px;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:#e8d6a6;animation:ciSobe .6s .45s ease-out both}
+.ci-regras{display:flex;flex-direction:column;gap:10px;width:100%}
+.ci-regra{display:flex;gap:14px;align-items:center;text-align:left;padding:14px 18px;border-radius:14px;background:#1a120ce6;border:1px solid color-mix(in srgb,var(--c) 60%,#000);box-shadow:0 0 30px -8px var(--c);animation:ciSobe .6s .7s ease-out both}
+.ci-regra svg{width:40px;height:40px;flex:none;filter:drop-shadow(0 0 8px var(--c))}
+.ci-regra b{display:block;color:var(--c);font-size:17px;margin-bottom:2px}
+.ci-regra span{color:var(--osso);font-size:15px;line-height:1.4}
+.ci-info{margin:10px 0 0;color:var(--osso-2);font-size:13.5px;animation:ciSobe .6s .9s ease-out both}
+.ci-dica{margin:14px 0 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d4a94f;animation:ciSobe .6s 1.3s ease-out both,ciPisca 1.6s 2s ease-in-out infinite}
+@keyframes ciEntra{from{opacity:0}to{opacity:1}}
+@keyframes ciSai{to{opacity:0;transform:translateY(-14px)}}
+@keyframes ciSobe{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes ciNome{from{opacity:0;transform:scale(1.6);letter-spacing:.2em}to{opacity:1;transform:none}}
+@keyframes ciPisca{50%{opacity:.45}}
+.hist-resumo{grid-template-columns:repeat(4,1fr);margin-bottom:6px}
+.hist-lista{display:flex;flex-direction:column;gap:8px}
+.hist{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;gap:4px 16px;align-items:center;padding:12px 16px;border-radius:12px;background:#1a120d;border:1px solid var(--linha);border-left:4px solid #9a4a3a}
+.hist.venceu{border-left-color:var(--latao);background:linear-gradient(90deg,#2a1f10,#1a120d 40%)}
+.hist-res{grid-row:1/3;font-family:var(--f-display);font-size:20px;color:#e0806a;min-width:72px}
+.hist.venceu .hist-res{color:var(--latao)}
+.hist-corpo{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hist-corpo b{font-size:15px}
+.hist-corpo span{font-size:13px;color:var(--osso-2)}
+.hist-num{grid-row:1/3;grid-column:3;display:flex;gap:16px}
+.hist-num span{display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--osso-2);text-transform:uppercase;letter-spacing:.06em}
+.hist-num b{font-family:var(--f-num);font-size:18px;color:var(--osso)}
+.hist-quando{grid-column:2;color:#8a7a62;font-size:12px}
+@media (max-width:760px){.hist{grid-template-columns:auto 1fr}.hist-num{grid-column:1/-1;grid-row:auto;justify-content:space-around}.hist-res{grid-row:auto}.hist-resumo{grid-template-columns:repeat(2,1fr)}}
+.hist-resumo div{background:#1a120d;border:1px solid var(--linha)}
