@@ -224,7 +224,7 @@ function ajustarLoja3D(){
   if(!LJ)return;const box=$('ljCenaBox');if(!box)return;const w=box.clientWidth,h=box.clientHeight;if(!w||!h)return;
   if(w===LJ.w&&h===LJ.h)return;LJ.w=w;LJ.h=h;
   LJ.r.setSize(w,h,false);LJ.cam.aspect=w/h;
-  const modo=w/h<1.25?'col':'lin';if(modo!==LJ.modo){LJ.modo=modo;LJ.assin='';if(S.loja)sincronizarLoja3D()}
+  LJ.modo=w/h;if(S.loja)sincronizarLoja3D();
   enquadrarLoja();
 }
 function enquadrarLoja(){
@@ -235,12 +235,27 @@ function enquadrarLoja(){
   LJ.cam.position.set(cx,d*Math.sin(el),cz+d*Math.cos(el));LJ.cam.lookAt(cx,.35,cz);LJ.cam.updateProjectionMatrix();
   LJ.sol.position.set(cx-7,24,cz+9);LJ.sol.target.position.set(cx,0,cz);
 }
+function layoutLoja(secs,grupos,aspecto,SP,GAP,PZ){
+  const larg=l=>l.reduce((a,x)=>a+x.itens.length*SP,0)+GAP*(l.length-1);
+  const custo=ls=>Math.max((Math.max(...ls.map(larg))/2+.7)/aspecto,(ls.length*PZ/2)*Math.sin(.98)+.9);
+  const fixo=grupos.map(gr=>secs.filter(x=>gr.includes(x.k))).filter(l=>l.length);
+  let melhor=fixo,mc=custo(fixo);
+  const limites=[...new Set(secs.map(x=>x.itens.length*SP).concat(fixo.map(larg)))];
+  for(let a=0;a<secs.length;a++)for(let b=a;b<secs.length;b++)limites.push(larg(secs.slice(a,b+1)));
+  for(const L of limites){
+    const ls=[];let cur=[];
+    for(const x of secs){if(cur.length&&larg([...cur,x])>L+1e-6){ls.push(cur);cur=[]}cur.push(x)}
+    if(cur.length)ls.push(cur);
+    const c=custo(ls);if(c<mc-1e-6){mc=c;melhor=ls}
+  }
+  return melhor;
+}
 function sincronizarLoja3D(){
   if(!LJ||!S.loja)return;const L=S.loja;
   const secs=LJ_SECOES.map(([k,nome,cor])=>({k,nome,cor,itens:L[k]||[]})).filter(x=>x.itens.length);
   const grupos=[['espolio','reliq','cons'],['dados','enc'],['grav','serv']];
-  const linhas=LJ.modo==='col'?secs.map(x=>[x]):grupos.map(gr=>secs.filter(x=>gr.includes(x.k))).filter(l=>l.length);
   const SP=1.9,GAP=1.1,PZ=3.15,pos=new Map(),decos=[];
+  const linhas=layoutLoja(secs,grupos,typeof LJ.modo==='number'?LJ.modo:1.6,SP,GAP,PZ);
   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;
   linhas.forEach((lin,ri)=>{
     const z=(ri-(linhas.length-1)/2)*PZ;
@@ -254,7 +269,7 @@ function sincronizarLoja3D(){
     x0=Math.min(x0,-larg/2);x1=Math.max(x1,larg/2);z0=Math.min(z0,z-1.55);z1=Math.max(z1,z+1.4);
   });
   LJ.limites={x0,x1,z0,z1};
-  const assin=LJ.modo+'|'+decos.map(d=>d.nome+d.w+d.z).join(',');
+  const assin=decos.map(d=>d.nome+d.w+d.z).join(',');
   if(assin!==LJ.assin){
     LJ.assin=assin;
     LJ.deco.forEach(m=>{LJ.sc.remove(m);m.geometry.dispose();if(m.material.map)m.material.map.dispose();if(m.material.bumpMap)m.material.bumpMap.dispose();m.material.dispose()});LJ.deco=[];
