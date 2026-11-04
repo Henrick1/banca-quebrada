@@ -182,10 +182,9 @@ function renderDetalhe(){
   const L=S.loja,o=L.sel||L.foco;
   if(!o){el.innerHTML='<p class="det-dica">Toque num item do balcão para ver o que ele faz.</p>';return}
   const x=infoOferta(o),e=estadoOferta(o),p=precoDe(o),sel=L.sel===o,fixo=true;
-  const rot=sel?'Cancelar':o.gratis?'Pegar grátis':o.kind==='renovar'?`Renovar · ${p} de ouro`:`Comprar · ${p} de ouro`;
   el.innerHTML=`<div class="det-ic">${x.ic}</div>
     <div class="det-corpo"><span class="o-tipo">${htmlRaridade(o)}${x.tipo}${o.gratis?' · espólio':''}</span><b class="det-tit">${x.tit}</b><p>${x.desc}</p>${e.txt?`<span class="o-motivo ${e.cls||''}">${e.txt}</span>`:''}</div>
-    <div class="det-acao">${o.gratis?'':`<button class="btn" data-o="${o.id}" ${e.trava&&!sel?'disabled':''}>${rot}</button>`}</div>`;
+`;
 }
 function iniciarLoja3D(){
   if(LJ){cancelAnimationFrame(LJ.raf);if(LJ.ro)LJ.ro.disconnect();LJ.r.dispose();LJ=null}
@@ -215,8 +214,8 @@ function iniciarLoja3D(){
   });
   cv.addEventListener('pointerleave',()=>{if(LJ){clearTimeout(LJ.tFoco);LJ.hover=null;$('ljCenaBox').classList.remove('mao')}});
   cv.addEventListener('click',e=>{if(!LJ)return;const o=achar(e);if(!o)return;
-    if(o.gratis){const est=estadoOferta(o);if(est.trava&&S.loja.sel!==o){SOM.batida(3,false);return}S.loja.foco=o;const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;acionarOferta(o);return}
-    S.loja.foco=o;SOM.batida(6,o.kind==='item'||o.kind==='bonus'||o.kind==='fx');const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;renderDetalhe()});
+    const est=estadoOferta(o);if(est.trava&&S.loja.sel!==o){S.loja.foco=o;SOM.batida(3,false);renderDetalhe();return}
+    S.loja.foco=o;const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;acionarOferta(o)});
   let ult=performance.now();
   const loop=t=>{
     if(!LJ)return;
