@@ -113,11 +113,9 @@ function telaInicial(){
   const b=BUILDS[PERFIL.build]||BUILDS.apostador,r=RESERVAS[PERFIL.reserva]||RESERVAS.d6,kit=b.montar(),ativa=podeContinuar(),viva=runAtiva();
   const des=Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0);
   const vistos=PERFIL.vistos.itens.length+PERFIL.vistos.encantos.length,tot=Object.keys(ITENS).length+encantosAtivos().length;
-  const versao=window.bqArquivo&&window.bqArquivo.versao?'Versão '+window.bqArquivo.versao():'Versão de navegador';
   const item=(acao,ic,tit,sub,cls='')=>`<button class="menu-item${cls}" data-acao="${acao}">${iconeMenu(ic)}<span class="mi-txt"><b>${tit}</b>${sub?`<small>${sub}</small>`:''}</span><span class="mi-seta">›</span></button>`;
   abrirTela(`<div class="menu">
     <div class="menu-esq">
-      <p class="menu-sobre">Um roguelike de dados na taverna</p>
       <h1 class="menu-titulo"><span>Banca</span><span>Quebrada</span></h1>
       <div class="menu-orn"><i></i>${svgPath('dadoMenu','#d4a94f')}<i></i></div>
       <nav class="menu-nav">
@@ -147,9 +145,8 @@ function telaInicial(){
       </div>
       <p class="menu-dica" id="menuDica"><b>Dica</b><span>${DICAS_MENU[Math.floor(Math.random()*DICAS_MENU.length)]}</span></p>
     </aside>
-    <p class="menu-rodape">${versao}</p>
   </div>`);
-  $('overlay').classList.add('ov-menu');document.body.classList.add('em-menu');MESA.orbita=true;
+  $('overlay').classList.add('ov-menu');document.body.classList.add('em-menu');MESA.orbita=true;if(typeof ajustar==='function'&&renderer)ajustar();
 }
 function telaBuilds(){
   const cartaB=([k,b])=>{
