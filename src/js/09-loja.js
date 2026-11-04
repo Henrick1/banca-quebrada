@@ -4,7 +4,7 @@ const RARIDADE={comum:{nome:'Comum',cor:'#cdbf9f'},incomum:{nome:'Incomum',cor:'
 const RAR_CONS={tonico:'comum',peso:'comum',faca:'incomum',frasco:'incomum',martelo:'incomum',maoLeve:'raro'};
 function raridadeOferta(o){
   const k=o.kind;
-  if(k==='dado')return o.tipo==='d20'?'raro':o.tipo==='d10'?'incomum':'comum';
+  if(k==='dado')return o.tipo==='d20'?'raro':(o.tipo==='d10'||o.tipo==='d12')?'incomum':'comum';
   if(k==='bonus')return o.n>=3?'raro':o.n===2?'incomum':'comum';
   if(k==='fx')return o.fx.k==='dobro'?'raro':(o.fx.k==='fogo'||o.fx.k==='veneno')?'incomum':'comum';
   if(k==='polir')return'raro';
@@ -39,7 +39,7 @@ function poolGravacoes(){
 }
 function ofertaCons(k,gratis){return{kind:'cons',chave:k,preco:CONSUMIVEIS[k].preco,id:uid++,gratis}}
 function ofertaDado(t,gratis){return{kind:'dado',tipo:t,preco:DIE[t].preco,id:uid++,gratis}}
-function tiposDado(n,bonus=0){return sortear(['coin','d6','d10','d20'].map(t=>({kind:'dado',tipo:t})),n,bonus).map(o=>o.tipo)}
+function tiposDado(n,bonus=0){return sortear(['coin','d4','d6','d8','d10','d12','d20'].map(t=>({kind:'dado',tipo:t})),n,bonus).map(o=>o.tipo)}
 function gerarEstoque(){
   const L=S.loja;
   L.dados=tiposDado(3).map(t=>ofertaDado(t,false));

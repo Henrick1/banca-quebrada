@@ -114,7 +114,7 @@ function passo(dt){
 }
 function avaliar(t){
   let melhor=-2,k=0;
-  t.sd.vf.forEach((fi,i)=>{const y=t.sd.N[fi].clone().applyQuaternion(t.mesh.quaternion).y;if(y>melhor){melhor=y;k=i}});
+  const sg=t.die.type==='d4'?-1:1;t.sd.vf.forEach((fi,i)=>{const y=sg*t.sd.N[fi].clone().applyQuaternion(t.mesh.quaternion).y;if(y>melhor){melhor=y;k=i}});
   if(melhor<.9&&t.cutucadas<5){t.cutucadas++;t.parado=0;t.tempo=Math.min(t.tempo,6);t.body.velocity.set(rnd(1.5),5,rnd(1.5));t.body.angularVelocity.set(rnd(9),rnd(9),rnd(9));return}
   t.pronto=true;t.face=k;aoParar(t);
 }

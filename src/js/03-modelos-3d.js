@@ -17,6 +17,23 @@ function forma(tipo){
     for(let i=0;i<p.count;i++){const k=chave(p.getX(i),p.getY(i),p.getZ(i));if(!(k in mapa)){mapa[k]=V.length;V.push([p.getX(i),p.getY(i),p.getZ(i)])}idx.push(mapa[k])}
     for(let i=0;i<idx.length;i+=3)F.push([idx[i],idx[i+1],idx[i+2]]);
     vf=F.map((_,i)=>i);
+  }else if(tipo==='d4'||tipo==='d8'||tipo==='d12'){
+    const g=tipo==='d4'?new THREE.TetrahedronGeometry(1,0):tipo==='d8'?new THREE.OctahedronGeometry(.84,0):new THREE.DodecahedronGeometry(.8,0);
+    const p=g.attributes.position,chave=(x,y,z)=>[x,y,z].map(n=>n.toFixed(4)).join(),mapa={},idx=[];
+    for(let i=0;i<p.count;i++){const k=chave(p.getX(i),p.getY(i),p.getZ(i));if(!(k in mapa)){mapa[k]=V.length;V.push([p.getX(i),p.getY(i),p.getZ(i)])}idx.push(mapa[k])}
+    const grupos=[];
+    for(let i=0;i<idx.length;i+=3){
+      const t=[idx[i],idx[i+1],idx[i+2]].map(j=>new THREE.Vector3(...V[j]));
+      const nn=new THREE.Vector3().subVectors(t[1],t[0]).cross(new THREE.Vector3().subVectors(t[2],t[0])).normalize();
+      let gr=grupos.find(q=>q.n.dot(nn)>.999);if(!gr){gr={n:nn,vs:new Set()};grupos.push(gr)}
+      [idx[i],idx[i+1],idx[i+2]].forEach(j=>gr.vs.add(j));
+    }
+    F=grupos.map(gr=>{
+      const vs=[...gr.vs],c=vs.reduce((s,j)=>s.add(new THREE.Vector3(...V[j])),new THREE.Vector3()).divideScalar(vs.length);
+      const u=new THREE.Vector3(...V[vs[0]]).sub(c).normalize(),w=new THREE.Vector3().crossVectors(gr.n,u);
+      return vs.map(j=>{const d=new THREE.Vector3(...V[j]).sub(c);return[Math.atan2(d.dot(w),d.dot(u)),j]}).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+    });
+    vf=tipo==='d4'?V.map((_,k)=>F.findIndex(f=>!f.includes(k))):F.map((_,i)=>i);
   }else if(tipo==='d10'){
     const r=.8,h=.82,c=Math.cos(Math.PI/5),a=h*(1-c)/(1+c);
     V=[[0,h,0],[0,-h,0]];
@@ -78,21 +95,43 @@ function texturaFace(die,k,casa){
   const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;
 }
 
+function texturaD4(die,cantos,casa){
+  const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
+  const def=DIE[die.type],T=casa?temaCasa():null,corpo=casa?corCasa(die):def.cor,tinta=casa?(T?T.tinta:CASA.tinta):def.tinta;
+  x.fillStyle=corpo;x.fillRect(0,0,128,128);
+  const sz=128*def.txt;
+  cantos.forEach(({k,uv})=>{
+    const f=die.faces[k],s=String(f.v+f.bonus),px=uv[0]*128,py=(1-uv[1])*128,dx=px-64,dy=py-64;
+    x.save();x.translate(64+dx*.6,64+dy*.6);x.rotate(Math.atan2(dy,dx)+Math.PI/2);
+    x.font=`800 ${sz}px "Alegreya Sans",sans-serif`;x.textAlign='center';x.textBaseline='middle';
+    x.fillStyle=f.bonus&&!casa?def.up:tinta;x.fillText(s,0,0);
+    if(f.fx){const is=sz*.55;x.translate(0,sz*.72);
+      if(f.fx.k==='dobro'){x.fillStyle=FX.dobro.cor;x.font=`800 ${is}px "Alegreya Sans",sans-serif`;x.fillText('×2',0,0)}
+      else{x.translate(-is/2,-is/2);x.scale(is/24,is/24);x.fillStyle=FX[f.fx.k].cor;x.strokeStyle='#0009';x.lineWidth=1.5;const p=new Path2D(PATHS[f.fx.k]);x.stroke(p);x.fill(p,'evenodd')}}
+    x.restore();
+  });
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;
+}
+
 function criarMalha(die,casa){
   const sd=forma(die.type);const def=DIE[die.type];
   const T=casa?temaCasa():null;
   const base=T?{roughness:T.rough,metalness:T.metal||0,...(T.vidro?{transparent:true,opacity:.88,emissive:lin(T.brilho),emissiveIntensity:.35}:{})}:{roughness:def.metal?.35:.42,metalness:def.metal&&!casa?.55:0};
   const mats=[new THREE.MeshStandardMaterial({color:lin(casa?corCasa(die):def.cor),...base})];
   const matDe={};
-  sd.vf.forEach((fi,k)=>{matDe[fi]=mats.length;mats.push(new THREE.MeshStandardMaterial({map:texturaFace(die,k,casa),...base}))});
-  const pos=[],nor=[],uv=[];const geo=new THREE.BufferGeometry();let ini=0;
-  sd.F.forEach((f,fi)=>{
-    const ps=f.map(i=>new THREE.Vector3(...sd.V[i]));const c=sd.C[fi],n=sd.N[fi];
+  const base3=fi=>{
+    const ps=sd.F[fi].map(i=>new THREE.Vector3(...sd.V[i]));const c=sd.C[fi],n=sd.N[fi];
     let u,w;
     if(die.type==='d10'){w=new THREE.Vector3().subVectors(ps[0],c);w.sub(n.clone().multiplyScalar(w.dot(n))).normalize();u=new THREE.Vector3().crossVectors(w,n)}
     else{u=new THREE.Vector3().subVectors(ps[1],ps[0]).normalize();w=new THREE.Vector3().crossVectors(n,u)}
     let ext=0;ps.forEach(p=>{const d=p.clone().sub(c);ext=Math.max(ext,Math.abs(d.dot(u)),Math.abs(d.dot(w)))});
-    const uvDe=p=>{const d=p.clone().sub(c);return[.5+d.dot(u)/(2*ext),.5+d.dot(w)/(2*ext)]};
+    return{ps,n,uvDe:p=>{const d=p.clone().sub(c);return[.5+d.dot(u)/(2*ext),.5+d.dot(w)/(2*ext)]}};
+  };
+  if(die.type==='d4')sd.F.forEach((f,fi)=>{const b=base3(fi);matDe[fi]=mats.length;mats.push(new THREE.MeshStandardMaterial({map:texturaD4(die,f.map((j,q)=>({k:j,uv:b.uvDe(b.ps[q])})),casa),...base}))});
+  else sd.vf.forEach((fi,k)=>{matDe[fi]=mats.length;mats.push(new THREE.MeshStandardMaterial({map:texturaFace(die,k,casa),...base}))});
+  const pos=[],nor=[],uv=[];const geo=new THREE.BufferGeometry();let ini=0;
+  sd.F.forEach((f,fi)=>{
+    const{ps,n,uvDe}=base3(fi);
     let cnt=0;
     for(let i=1;i<ps.length-1;i++){
       for(const p of[ps[0],ps[i],ps[i+1]]){pos.push(p.x,p.y,p.z);nor.push(n.x,n.y,n.z);uv.push(...uvDe(p));cnt++}

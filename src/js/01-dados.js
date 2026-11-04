@@ -1,7 +1,10 @@
 const DIE={
   d6:{nome:'Dado de 6',curto:'D6',faces:[1,2,3,4,5,6],cor:'#e9e0cb',tinta:'#2b211a',up:'#9a640e',preco:6,txt:.5},
   coin:{nome:'Moeda',curto:'Moeda',faces:[4,1],rot:['Cara','Coroa'],cor:'#c89838',tinta:'#3a280b',up:'#7a1f14',preco:4,txt:.46,metal:true},
+  d4:{nome:'Dado de 4',curto:'D4',faces:[1,2,3,4],cor:'#d07a34',tinta:'#fff3e0',up:'#3a1f08',preco:3,txt:.27},
+  d8:{nome:'Dado de 8',curto:'D8',faces:[1,2,3,4,5,6,7,8],cor:'#2f5590',tinta:'#eef2fa',up:'#f2c661',preco:8,txt:.42},
   d10:{nome:'Dado de 10',curto:'D10',faces:[1,2,3,4,5,6,7,8,9,10],cor:'#2e6a6c',tinta:'#f1e8d4',up:'#f0c35e',preco:11,txt:.4},
+  d12:{nome:'Dado de 12',curto:'D12',faces:Array.from({length:12},(_,i)=>i+1),cor:'#5b3a7e',tinta:'#f3e9fb',up:'#f2c661',preco:14,txt:.38},
   d20:{nome:'Dado de 20',curto:'D20',faces:Array.from({length:20},(_,i)=>i+1),cor:'#8a2d37',tinta:'#f3e9d5',up:'#f2c661',preco:18,txt:.34}
 };
 const CASA={cor:'#2a2830',tinta:'#e8d8ae'};
@@ -29,6 +32,9 @@ function corCasa(die){const T=temaCasa(),c=die.cor||CASA.cor;if(!T)return c;retu
 const ICONE_TIPO={
   d6:'<rect x="4" y="4" width="16" height="16" rx="3"/>',
   coin:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5" fill="none"/>',
+  d4:'<path d="M12 3 L21.5 20 H2.5 Z"/><path d="M12 3 V20" fill="none"/>',
+  d8:'<path d="M12 2 L20 12 L12 22 L4 12 Z"/><path d="M4 12 H20" fill="none"/>',
+  d12:'<path d="M12 2 L21.5 9 L18 21 H6 L2.5 9 Z"/><path d="M12 6.5 L16.5 10 L15 15.5 H9 L7.5 10 Z" fill="none"/>',
   d10:'<path d="M12 2 L21 10 L12 22 L3 10 Z"/><path d="M3 10 L12 13 L21 10 M12 13 V22" fill="none"/>',
   d20:'<path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z"/><path d="M12 6 L17.5 15 H6.5 Z" fill="none"/>'
 };

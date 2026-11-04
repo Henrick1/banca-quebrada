@@ -251,13 +251,16 @@ function desenharEtiqueta(){
   x.fillStyle=ilho;x.beginPath();x.arc(52,H/2,17,0,Math.PI*2);x.fill();
   x.fillStyle=pode?'#3a2414':'#6b5640';x.font=`${titulo.length>6?66:100}px "Pirata One",serif`;x.textAlign='left';x.textBaseline='alphabetic';
   x.fillText(titulo,84,112);
-  const cor={d6:['#efe6cf','#2b211a'],coin:['#d9a83e','#6b4a10'],d10:['#2e6a6c','#f1e8d4'],d20:['#8a2d37','#f3e9d5']};
+  const cor={d6:['#efe6cf','#2b211a'],coin:['#d9a83e','#6b4a10'],d10:['#2e6a6c','#f1e8d4'],d20:['#8a2d37','#f3e9d5'],d4:['#d07a34','#fff3e0'],d8:['#2f5590','#eef2fa'],d12:['#5b3a7e','#f3e9fb']};
   const q=Math.min(tipos.length,5),R=19;
   tipos.slice(0,q).forEach((t,i)=>{
     const cx=104+i*46,cy=166,[f,l]=cor[t];x.fillStyle=f;x.strokeStyle='rgba(40,24,10,.75)';x.lineWidth=3;
     x.beginPath();
     if(t==='coin')x.arc(cx,cy,R,0,Math.PI*2);
     else if(t==='d20'){for(let k=0;k<6;k++){const a=Math.PI/6+k*Math.PI/3;x.lineTo(cx+R*1.08*Math.cos(a),cy+R*1.08*Math.sin(a))}x.closePath()}
+    else if(t==='d4'){x.moveTo(cx,cy-R*1.15);x.lineTo(cx+R*1.15,cy+R*.85);x.lineTo(cx-R*1.15,cy+R*.85);x.closePath()}
+    else if(t==='d8'){x.moveTo(cx,cy-R*1.15);x.lineTo(cx+R*.95,cy);x.lineTo(cx,cy+R*1.15);x.lineTo(cx-R*.95,cy);x.closePath()}
+    else if(t==='d12'){for(let k=0;k<5;k++){const a=-Math.PI/2+k*Math.PI*2/5;x.lineTo(cx+R*1.12*Math.cos(a),cy+R*1.12*Math.sin(a))}x.closePath()}
     else if(t==='d10'){x.moveTo(cx,cy-R*1.15);x.lineTo(cx+R*1.05,cy-2);x.lineTo(cx,cy+R*1.15);x.lineTo(cx-R*1.05,cy-2);x.closePath()}
     else x.roundRect?x.roundRect(cx-R,cy-R,R*2,R*2,7):x.rect(cx-R,cy-R,R*2,R*2);
     x.fill();x.stroke();x.fillStyle=l;x.beginPath();x.arc(cx,cy,4.5,0,Math.PI*2);x.fill();

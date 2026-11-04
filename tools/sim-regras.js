@@ -1,6 +1,6 @@
 const CFG=Object.assign({missFlat:0,missTier:3,eliteMult:1.25,vida:45,pressDiv:3,calorDiv:12,calorMax:3,polir:.5,botEsperto:1,armK:6},ARGS);
 const sorteia=a=>a[Math.floor(Math.random()*a.length)];
-const RAR={d20:'raro',d10:'incomum',d6:'comum',coin:'comum',tonico:'comum',peso:'comum',faca:'incomum',frasco:'incomum',martelo:'incomum',maoLeve:'raro'};
+const RAR={d20:'raro',d10:'incomum',d12:'incomum',d8:'comum',d4:'comum',d6:'comum',coin:'comum',tonico:'comum',peso:'comum',faca:'incomum',frasco:'incomum',martelo:'incomum',maoLeve:'raro'};
 const pesoR=(r,linha,bonus=0)=>{const p=Math.min(1,linha/11)+bonus;return r==='raro'?6+22*p:r==='incomum'?26+12*p:68-34*p};
 const sorteiaR=(lista,linha,bonus=0)=>{if(CFG.semRaridade)return sorteia(lista);const w=lista.map(k=>pesoR(RAR[k]||'comum',linha,bonus)),t=w.reduce((a,b)=>a+b,0);let r=Math.random()*t,i=0;while(i<w.length-1&&(r-=w[i])>0)i++;return lista[i]};
 const usa=(P,k)=>{if(CFG.semCons)return false;const i=P.cons.indexOf(k);if(i<0)return false;P.cons.splice(i,1);P.usados=(P.usados||0)+1;return true};
@@ -85,7 +85,7 @@ function partida(){
       if(no.tipo==='chefe')P.hp=Math.min(P.max,P.hp+(des>=5?8:15));
       if(CFG.curaVitoria)P.hp=Math.min(P.max,P.hp+Math.round(P.max*CFG.curaVitoria));P.ouro+=Math.round((6+tierDe(no.inimigo)*2)*(no.tipo==='elite'||no.tipo==='chefe'?1.5:1)*(des>=3?.75:1)*(CFG.ouroMult||1));
       if(Math.random()<(no.tipo==='luta'?(CFG.dropCons??.25):(CFG.dropElite??.6)))ganhaCons(P,linha,no.tipo==='luta'?0:.35);
-      if(no.tipo==='elite'||no.tipo==='chefe'){P.reliq++;P.danoExtra+=CFG.reliqDano??2}else{const ofer=sorteiaR(['coin','d6','d10','d20'],linha);if(CFG.botEsperto&&(ofer==='d10'||ofer==='d20')&&P.dados.length<8)P.dados.push(novoDado(ofer));else if(!CFG.botEsperto&&Math.random()<.5&&P.dados.length<8)P.dados.push(novoDado(sorteia(['d6','d10','coin'])));else melhorar(P,2)}
+      if(no.tipo==='elite'||no.tipo==='chefe'){P.reliq++;P.danoExtra+=CFG.reliqDano??2}else{const ofer=sorteiaR(['coin','d4','d6','d8','d10','d12','d20'],linha);if(CFG.botEsperto&&(ofer==='d10'||ofer==='d12'||ofer==='d20')&&P.dados.length<8)P.dados.push(novoDado(ofer));else if(!CFG.botEsperto&&Math.random()<.5&&P.dados.length<8)P.dados.push(novoDado(sorteia(['d6','d10','coin'])));else melhorar(P,2)}
     }else if(no.tipo==='loja'){
       if(!CFG.semCons&&P.ouro>=12&&P.cons.length<3&&Math.random()<.5){P.ouro-=(CFG.precoCons??7);ganhaCons(P,linha,0)}
       while(P.ouro>=5){
