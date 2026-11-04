@@ -1,6 +1,9 @@
 name: Instalador Windows
 
 on:
+  push:
+    branches: [main]
+    paths: ['package.json']
   workflow_dispatch:
 
 permissions:

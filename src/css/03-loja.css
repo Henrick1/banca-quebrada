@@ -1,4 +1,4 @@
-@media (max-width:760px){.menu{grid-template-columns:minmax(0,1fr);min-height:0;gap:24px}.menu-item b{font-size:22px}.tela-topo h2{font-size:34px}}
+@media (max-width:760px){.tela-topo h2{font-size:34px}}
 .loja#lojaShell{width:min(1440px,100%);height:calc(100vh - 60px);gap:12px;margin-top:0}
 .loja .loja-corpo{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:14px;align-items:stretch}
 .loja .loja-bolsa{position:static;overflow-y:auto;overflow-x:hidden;min-height:0;gap:14px}

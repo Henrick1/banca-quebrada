@@ -54,7 +54,7 @@ $('overlay').addEventListener('keydown',e=>{const no=e.target.closest&&e.target.
 document.addEventListener('keydown',e=>{if((e.key==='p'||e.key==='P')&&podeParar())parar()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.fase==='loja'&&S.loja&&S.loja.sel){S.loja.sel=null;S.loja.fundirA=null;renderLoja()}});
 
-function fecharOverlay(){$('overlay').hidden=true;$('overlay').innerHTML=''}
+function fecharOverlay(){$('overlay').hidden=true;$('overlay').innerHTML='';$('overlay').classList.remove('ov-menu');document.body.classList.remove('em-menu');if(MESA.orbita){MESA.orbita=false;MESA.voltarCam=true}}
 
 function acionarOferta(o){
   const L=S.loja;if(!L||!o)return;

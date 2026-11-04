@@ -96,39 +96,60 @@ const podeContinuar=()=>runAtiva()||temSalvo();
 function resumoSalvo(){try{const d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null');return d?`Andar ${(d.linha||0)+1} · partida salva`:''}catch(e){return''}}
 const miniDado=d=>`<span class="mini-dado" style="--c:${d.encanto?ENCANTOS[d.encanto].ui:'transparent'}" title="${DIE[d.type].nome}${d.encanto?' · '+ENCANTOS[d.encanto].nome:''}">${svgTipo(d.type)}</span>`;
 const miniReliq=k=>`<span class="reliq" title="${ITENS[k].nome}: ${ITENS[k].desc}">${svgPath(ITEM_ICONE[k]||k,ITENS[k].cor)}</span>`;
-function abrirTela(html){const o=$('overlay');o.innerHTML=html;o.hidden=false;o.scrollTop=0}
+function abrirTela(html){const o=$('overlay');o.classList.remove('ov-menu');document.body.classList.remove('em-menu');if(MESA.orbita){MESA.orbita=false;MESA.voltarCam=true}o.innerHTML=html;o.hidden=false;o.scrollTop=0}
 
+const DICAS_MENU=[
+  'Guardar um dado de volta na bolsa é de graça. Puxar um a mais custa no alvo.',
+  'No modo Estouro, puxe a alavanca do contador para parar antes de passar do teto.',
+  'Completar 3 relíquias de um conjunto vira uma estatueta com um bônus extra.',
+  'Encantamentos só mudam a moldura do dado. Passe o mouse para ver o combo.',
+  'O Martelo quebra o dado mais forte da casa. Guarde para o chefe.',
+  'Juntar ouro também é estratégia: o Mercador tem relíquias raras.',
+  'Cada chefe tem uma regra própria. Leia o cartão antes de sentar à mesa.',
+  'Errar o alvo por pouco dói pouco. Errar por muito dói muito.'
+];
+const iconeMenu=k=>`<span class="mi-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="${PATHS[k]}"/></svg></span>`;
 function telaInicial(){
   const b=BUILDS[PERFIL.build]||BUILDS.apostador,r=RESERVAS[PERFIL.reserva]||RESERVAS.d6,kit=b.montar(),ativa=podeContinuar(),viva=runAtiva();
   const des=Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0);
   const vistos=PERFIL.vistos.itens.length+PERFIL.vistos.encantos.length,tot=Object.keys(ITENS).length+encantosAtivos().length;
+  const versao=window.bqArquivo&&window.bqArquivo.versao?'Versão '+window.bqArquivo.versao():'Versão de navegador';
+  const item=(acao,ic,tit,sub,cls='')=>`<button class="menu-item${cls}" data-acao="${acao}">${iconeMenu(ic)}<span class="mi-txt"><b>${tit}</b>${sub?`<small>${sub}</small>`:''}</span><span class="mi-seta">›</span></button>`;
   abrirTela(`<div class="menu">
     <div class="menu-esq">
       <p class="menu-sobre">Um roguelike de dados na taverna</p>
-      <h1>Banca Quebrada</h1>
+      <h1 class="menu-titulo"><span>Banca</span><span>Quebrada</span></h1>
+      <div class="menu-orn"><i></i>${svgPath('dadoMenu','#d4a94f')}<i></i></div>
       <nav class="menu-nav">
-        ${ativa?`<button class="menu-item principal" data-acao="continuar"><b>Continuar</b><small>${viva?`Andar ${(S.linha||0)+1} · ${S.fase==='mapa'?'no mapa':S.fase==='loja'?'na loja':S.fase==='evento'?'num evento':S.ini?S.ini.nome:''}`:resumoSalvo()}</small></button>
-        <button class="menu-item" data-acao="nova"><b>Nova partida</b><small>abandona a atual</small></button>`
-        :`<button class="menu-item principal" data-acao="nova"><b>Jogar</b>${des?`<small>${DESAFIOS[des].nome}</small>`:''}</button>`}
-        <button class="menu-item" data-acao="colecao"><b>Coleção</b><small>${vistos} de ${tot} · ${PERFIL.conquistas.length} conquistas</small></button>
-        <button class="menu-item" data-acao="regras"><b>Como jogar</b><small>regras e combos</small></button>
-        <button class="menu-item" data-acao="historico"><b>Histórico</b><small>${(PERFIL.historico||[]).length?`${(PERFIL.historico||[]).length} partidas registradas`:'nenhuma partida ainda'}</small></button>
-        <button class="menu-item" data-acao="opcoes"><b>Opções</b><small>tela, som e gráficos</small></button>
-        <button class="menu-item" data-acao="teste"><b>Partida de teste</b><small>tudo liberado</small></button>
+        ${ativa?item('continuar','dadoMenu','Continuar',viva?`Andar ${(S.linha||0)+1} · ${S.fase==='mapa'?'no mapa':S.fase==='loja'?'na loja':S.fase==='evento'?'num evento':S.ini?S.ini.nome:''}`:resumoSalvo(),' principal')+item('nova','espinho','Nova partida','abandona a atual'):item('nova','dadoMenu','Jogar',des?DESAFIOS[des].nome:'',' principal')}
+        <div class="menu-grade">
+          ${item('colecao','grimorio','Coleção',`${vistos} de ${tot}`)}
+          ${item('historico','relogio','Histórico',(PERFIL.historico||[]).length?`${(PERFIL.historico||[]).length} partidas`:'vazio')}
+          ${item('regras','pergaminho','Como jogar','regras e combos')}
+          ${item('opcoes','engrenagem','Opções','tela, som, velocidade')}
+        </div>
+        <button class="menu-link" data-acao="teste">Partida de teste · tudo liberado</button>
       </nav>
     </div>
     <aside class="menu-dir">
-      <div class="cartao"><h3>Seu histórico</h3>
-        <div class="progresso"><div><b>${PERFIL.vitorias}</b><small>Vitórias</small></div><div><b>${PERFIL.melhorAndar}</b><small>Melhor andar</small></div><div><b>${PERFIL.partidas}</b><small>Partidas</small></div></div>
-        <p>Dificuldade: <b>${DESAFIOS[des].nome}</b>${PERFIL.desafioMax?` · liberado até ${DESAFIOS[PERFIL.desafioMax].nome}`:' · vença para liberar desafios'}</p>
-      </div>
-      <div class="cartao"><h3>Bolsa escolhida</h3>
+      <div class="cartao menu-bolsa">
+        <p class="cartao-rot">Sua bolsa</p>
         <strong class="cartao-tit">${b.nome}</strong><p>${b.desc}</p>
         <div class="kit">${kit.dados.map(miniDado).join('')}<span class="mini-dado mais" title="${r.nome}">${svgTipo(r.tipo)}</span>${kit.itens.map(miniReliq).join('')}</div>
-        <button class="btn sec fino" data-acao="builds">Trocar bolsa</button>
+        <button class="btn sec fino" data-acao="builds">Trocar bolsa e dificuldade</button>
       </div>
+      <div class="cartao menu-stats">
+        <div class="ms"><b>${PERFIL.vitorias}</b><small>Vitórias</small></div>
+        <div class="ms"><b>${PERFIL.melhorAndar}</b><small>Melhor andar</small></div>
+        <div class="ms"><b>${PERFIL.partidas}</b><small>Partidas</small></div>
+        <div class="ms"><b>${PERFIL.conquistas.length}</b><small>Conquistas</small></div>
+        <p class="ms-des">Dificuldade <b>${DESAFIOS[des].nome}</b>${PERFIL.desafioMax?` · até ${DESAFIOS[PERFIL.desafioMax].nome}`:''}</p>
+      </div>
+      <p class="menu-dica" id="menuDica"><b>Dica</b><span>${DICAS_MENU[Math.floor(Math.random()*DICAS_MENU.length)]}</span></p>
     </aside>
+    <p class="menu-rodape">${versao}</p>
   </div>`);
+  $('overlay').classList.add('ov-menu');document.body.classList.add('em-menu');MESA.orbita=true;
 }
 function telaBuilds(){
   const cartaB=([k,b])=>{
