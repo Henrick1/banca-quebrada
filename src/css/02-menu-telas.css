@@ -26,6 +26,10 @@
 .build .ouro-ini{color:var(--latao);font-weight:700}
 .build.pequeno .kit b{font-size:15px;font-weight:800}
 .build.trancado{cursor:not-allowed}
+.build.segredo{border-style:dashed;border-color:#7d4fa8}
+.build.segredo>b{font-size:26px;letter-spacing:.2em;opacity:.55}
+.build.segredo>p{font-style:italic;color:#d9c2f0;opacity:.85!important;filter:none!important}
+.build.segredo .mini-dado{color:#7d4fa8;font-weight:800}
 .build.trancado>:not(.cadeado){opacity:.3;filter:grayscale(1)}
 .cadeado{display:flex;gap:6px;align-items:center;font-size:12.5px;font-weight:800;color:#f0b07e}
 .cadeado svg{width:14px;height:14px}

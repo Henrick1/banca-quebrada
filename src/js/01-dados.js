@@ -264,6 +264,7 @@ const TRACOS={
   barril:{nome:'Barril de Reserva',desc:'Na primeira vez que fica abaixo da metade da vida, bebe do barril: recupera 12 de vida e ganha Pele Grossa.',cor:'#c08a4a',ic:'rum'},
   divida:{nome:'Livro de Dívidas',desc:'Cada erro seu sobe a base dela em 2 até o fim da luta. Cada acerto seu tira 1, até a base original.',cor:'#c97bd9',ic:'subir'},
   furia:{nome:'Fúria do Dono',desc:'Abaixo da metade da vida, perde a paciência: a base sobe 2 e ele passa a lançar 2 dados e ficar com o maior.',cor:'#ff6a4a',ic:'coroa'},
+  mascara:{nome:'Sem Máscara',desc:'Levantou de novo. A base sobe 3, ele lança 2 dados e fica com o maior, e recupera 3 de vida por rodada.',cor:'#ff3b5c',ic:'coroa'},
   cobrador:{nome:'Cobrador',desc:'A partir do terceiro dado que você lança na rodada, cada um custa 2 de vida.',cor:'#e0574a',ic:'espinho'}
 };
 const ITENS_MAX=6;

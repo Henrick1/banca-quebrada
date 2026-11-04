@@ -180,7 +180,7 @@ function novaLuta(){
     if(P.extra){const mais=EXTRAS_ELITE.filter(x=>!S.ini.tracos.includes(x));if(mais.length){S.ini.tracos.push(pick(mais));setTimeout(()=>banner('Você foi seguido: a casa ganhou um traço','mau'),900)}}}
   if((elite||n.tipo==='chefe')&&temItem('velaNegra')){S.ini.max=S.ini.hp=Math.round(S.ini.max*Math.pow(.85,qtdItem('velaNegra')));setTimeout(()=>dispararItem('velaNegra','−15% de vida'),900)}
   if(S.ini.tracos.includes('armadura')){S.ini.armaduraMax=6+S.andar;S.ini.armadura=S.ini.armaduraMax}
-  S.hpLuta=S.hp;S.ouroLuta=S.ouro;S.consLuta=[...(S.cons||[])];
+  S.hpLuta=S.hp;S.ouroLuta=S.ouro;S.perdidasLuta=0;S.consLuta=[...(S.cons||[])];
   S.veneno=0;S.rodada=0;
   if(temItem('algibeira')){const q=3*qtdItem('algibeira');S.ouro+=q;setTimeout(()=>{dispararItem('algibeira',`+${q} ouro`);SOM.ouro(3);hud()},900)}
   montarFichas();
@@ -214,13 +214,13 @@ function novaRodada(){
 }
 const TITULOS_CHEFE={'O Taberneiro Caolho':'Guardião da Adega','A Viúva das Apostas':'Dona do Salão','O Dono da Casa':'Senhor do Cofre'};
 function apresentarChefe(n,depois){
-  const ato=ATOS[atoDe(n.r??S.linha)],I=S.ini,proprios=I.tracos.filter(k=>['barril','divida','furia'].includes(k)),outros=I.tracos.filter(k=>!proprios.includes(k));
+  const ato=ATOS[atoDe(n.r??S.linha)],I=S.ini,proprios=I.tracos.filter(k=>['barril','divida','furia','mascara'].includes(k)),outros=I.tracos.filter(k=>!proprios.includes(k));
   hud();
   const el=document.createElement('div');el.id='chefeIntro';el.className='chefe-intro';
   el.innerHTML=`<div class="ci-caixa">
     <p class="ci-ato">Ato ${ato.num} · ${ato.nome}</p>
     <h2 class="ci-nome">${I.nome}</h2>
-    <p class="ci-titulo">${TITULOS_CHEFE[I.tema]||'Chefe'}</p>
+    <p class="ci-titulo">${I.titulo||TITULOS_CHEFE[I.tema]||'Chefe'}</p>
     <div class="ci-regras">${proprios.map(k=>`<div class="ci-regra" style="--c:${TRACOS[k].cor}">${svgPath(TRACOS[k].ic,TRACOS[k].cor)}<div><b>${TRACOS[k].nome}</b><span>${TRACOS[k].desc}</span></div></div>`).join('')}</div>
     <p class="ci-info">Vida ${I.max} · Base ${I.base}${outros.length?' · '+outros.map(k=>TRACOS[k].nome).join(', '):''} · Rodadas: ${(I.modos||['classico']).map(k=>MODOS[k].nome).join(', ')}</p>
     <p class="ci-dica">Clique para sentar à mesa</p>
@@ -370,7 +370,7 @@ function resolver(){
       lancados.forEach(t=>{if(t.dono==='jogador'){t.punch=1;faiscas(t.mesh.position,0xffc861,10,3,6)}});
       faiscas(new THREE.Vector3(TW/2-2,0,0),0xffb04a,30,5,9);
     }else{
-      if(estoura)conquistar('estouro');
+      if(estoura)conquistar('estouro');S.perdidasLuta=(S.perdidasLuta||0)+1;
       let bruto=(estoura?S.soma-maxT:alvo-S.soma)+Math.floor(S.andar/3)+danoExtra();
       if(temTraco('vinganca')){bruto+=2;dispararTraco('vinganca','+2 de dano')}
       S.serie=0;
@@ -395,7 +395,21 @@ function resolver(){
     setTimeout(()=>{if(S.hp<=0)fim(false);else if(S.ini.hp<=0)venceuLuta();else novaRodada()},2100);
   },reduzir?0:480);
 }
+function segundaForma(){
+  const I=S.ini;if(!I||!I.chefe||I.tema!=='O Dono da Casa'||I.segunda||S.perdidasLuta)return false;
+  I.segunda=true;I.nome='O Dono, Sem Máscara';I.titulo='A Casa de Verdade';
+  I.max=I.hp=Math.round(I.max*.75);I.base=I.base0+3;I.base0=I.base;I.furioso=true;
+  I.tracos=[...new Set([...I.tracos.filter(k=>k!=='furia'),'mascara','duplo','regen'])];
+  I.bolsa.push(DADOS_CASA.vicD20(),DADOS_CASA.espinho10());
+  S.fase='intro';S.barraSemAnim=true;S.veneno=0;
+  tremer(.9);hitStop=.2;SOM.tensao();vinheta('#ff3b5c');faiscas(new THREE.Vector3(TW/2-2,0,0),0xff3b5c,70,7,12);
+  banner('Ele se levanta de novo...','mau');montarFichas();hud();
+  setTimeout(()=>{if(S.ini===I)apresentarChefe(S.no,novaRodada)},reduzir?300:1600);
+  return true;
+}
 function venceuLuta(){
+  if(segundaForma())return;
+  if(S.ini&&S.ini.segunda)revelarSegredo('herdeiro');
   let ganho=Math.round((6+S.andar*2)*(S.ini.elite||S.ini.chefe?1.5:1)*((S.desafio||0)>=3?.75:1));const elite=S.ini.elite;
   if(elite){S.elitesVencidos=(S.elitesVencidos||0)+1;if(S.elitesVencidos>=3)conquistar('elites')}
   if(S.hp<=3)conquistar('porUmFio');

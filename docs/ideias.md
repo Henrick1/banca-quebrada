@@ -25,6 +25,10 @@ As coisas secretas aparecem na coleção como silhueta "???", com uma frase enig
 
 Sugestão para começar: a vela, o 777, a vitória sem lançar dados, as 8 moedas e o Rato da Adega, junto com a tela de coleção.
 
+## Já feitos
+- **O Mendigo da Porta** (libera a bolsa O Benfeitor).
+- **Segunda forma do Dono** (libera a bolsa Herdeiro da Casa).
+
 ## Dados especiais
 - **Chumbo:** faces 3, 3, 4, 4, 5, 5.
 - **Vidro:** faces de 2 a 12. Quebra se cair na face mais baixa.

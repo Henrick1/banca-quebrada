@@ -9,6 +9,18 @@ function relRandom(){const l=Object.keys(ITENS).filter(k=>!temItem(k));return l.
 function amaldicoar(){const d=pick(S.dados),f=pick(d.faces);f.bonus+=5;f.fx={k:'pacto',n:2};return d}
 const mediaNum=d=>d.faces.reduce((s,f)=>s+valorFace(f),0)/d.faces.length;
 const EVENTOS=[
+ {id:'mendigo',titulo:'O Mendigo da Porta',ic:'luva',cor:'#9a8a70',
+  texto:()=>{const n=PERFIL.mendigo||0;return temSegredo('benfeitor')?'O velho da porta continua ali, de capa rasgada. Só você sabe quem ele é de verdade. Ele pisca quando você passa.':n>=2?'O velho está à sua espera. "Você de novo", ele diz, e a voz não parece de mendigo.':n===1?'O mesmo velho da porta. Ele levanta os olhos quando você passa, como se te reconhecesse.':'Encolhido na porta da taverna, um velho de capa rasgada estende a mão. Ninguém olha para ele.'},
+  opcoes:()=>[
+   {rot:'Dar 5 de ouro',desc:'Uma moeda não vai fazer falta. Ou vai?',trava:S.ouro<5&&'Você não tem 5 de ouro',acao:()=>{
+     S.ouro-=5;SOM.ouro(2);
+     if(temSegredo('benfeitor')){S.hp=Math.min(S.max,S.hp+cm(8));SOM.cura();return{titulo:'Um velho amigo',texto:'Ele devolve a moeda com uma piscadela e um gole do cantil dele. Você recuperou 8 de vida.',bom:true}}
+     if(!S.teste){PERFIL.mendigo=(PERFIL.mendigo||0)+1;salvarPerfil()}
+     const n=PERFIL.mendigo||0;
+     if(n>=3){S.ouro+=20;revelarSegredo('benfeitor');chuvaMoedas();return{titulo:'O mendigo tira o capuz',texto:'Por baixo da capa, um anel de ouro e um sorriso conhecido: é o antigo dono da banca. "Quem dá sem esperar nada merece sentar à minha mesa." Ele deixa 20 de ouro na sua mão e some na fumaça.',bom:true}}
+     return n===2?{titulo:'Ele guarda a moeda com cuidado',texto:'"Eu vou lembrar de você", ele diz, sem tirar os olhos dos seus.',bom:true}:{titulo:'Ele agradece baixinho',texto:'"Que os dados caiam a seu favor."',bom:true}}},
+   {rot:'Passar reto',desc:'Você tem os seus próprios problemas.',acao:()=>({titulo:'Você entrou',texto:'Ele nem levanta a cabeça.'})},
+   {rot:'Chutar o pote dele',desc:'Umas moedas rolam pela calçada.',acao:()=>{S.ouro+=4;SOM.ouro(3);if(!S.teste&&!temSegredo('benfeitor')){PERFIL.mendigo=0;salvarPerfil()}return{titulo:'Você pegou 4 de ouro',texto:'O velho só observa. Alguma coisa nos olhos dele se apaga.',bom:false}}}]},
  {id:'bebado',titulo:'O Bêbado e o Dado',ic:'rum',cor:'#d9a83e',texto:'Um velho cambaleia até a sua mesa com um dado lascado. "Dobro ou nada, forasteiro. Eu nunca perco."',
   opcoes:()=>[
    {rot:'Apostar 10 de ouro',desc:'Metade das vezes você volta com 20.',trava:S.ouro<10&&'Você não tem 10 de ouro',acao:()=>{if(R()<.5){S.ouro+=10;SOM.ouro(5);return{titulo:'Ele perdeu',texto:'O velho resmunga e paga. Você ganhou 10 de ouro.',bom:true}}S.ouro-=10;SOM.derrota();return{titulo:'Ele nunca perde',texto:'O dado dele parece ter dois seis. Você perdeu 10 de ouro.',bom:false}}},
@@ -83,7 +95,7 @@ const DESCANSO={id:'descanso',titulo:'Quarto nos Fundos',ic:'rum',cor:'#86c48f',
    {rot:'Dormir',desc:`Recupera ${c} de vida.`,trava:S.hp>=S.max&&'Vida cheia',acao:()=>{S.hp=Math.min(S.max,S.hp+cm(c));SOM.cura();return{titulo:'Bem descansado',texto:`Você recuperou ${c} de vida.`,bom:true}}},
    {rot:'Afiar um dado',desc:'+3 numa face que você escolhe, de graça.',acao:()=>{montarLoja({titulo:'Afiar',sub:'Escolha a face que vai receber +3.',espolio:[{kind:'bonus',n:3,gratis:true,id:uid++}]})}},
    {rot:'Fundir dois dados',desc:'Junta dois dados iguais num só, mais forte.',trava:!paresFundiveis().length&&'Você não tem dois dados do mesmo tipo',acao:()=>{montarLoja({titulo:'Fundir',sub:'Escolha dois dados do mesmo tipo.',espolio:[{kind:'fundir',gratis:true,id:uid++}]})}}]}};
-function abrirEvento(){const v=S.evVistos||(S.evVistos=[]);let l=EVENTOS.filter(e=>!v.includes(e.id));if(!l.length)l=EVENTOS;const ev=l[Math.floor(R()*l.length)];v.push(ev.id);telaEvento(ev)}
+function abrirEvento(){const v=S.evVistos||(S.evVistos=[]);let l=EVENTOS.filter(e=>!v.includes(e.id));if(!l.length)l=EVENTOS;let ev=l[Math.floor(R()*l.length)];if(!v.includes('mendigo')&&!temSegredo('benfeitor')&&R()<.25)ev=EVENTOS.find(e=>e.id==='mendigo');v.push(ev.id);telaEvento(ev)}
 function abrirDescanso(){telaEvento(DESCANSO)}
 function statusRun(){return`<div class="status"><span class="pilula"><small>Vida</small>${S.hp}/${S.max}</span><span class="pilula ouro">${MOEDA}${S.ouro}</span><span class="pilula"><small>Dados</small>${S.dados.length}</span></div>`}
 function telaEvento(ev){
@@ -91,7 +103,7 @@ function telaEvento(ev){
   const ops=ev.opcoes();S.evOps=ops;
   abrirTela(`<div class="evento">
     <div class="ev-topo"><div class="ev-selo" style="--c:${ev.cor}">${svgPath(ev.ic,'#2a1a0c')}</div><div><p class="menu-sobre">${ev===DESCANSO?'Descanso':'Evento'} · andar ${(S.linha||0)+1}</p><h2>${ev.titulo}</h2></div></div>
-    <p class="ev-texto">${ev.texto}</p>
+    <p class="ev-texto">${typeof ev.texto==='function'?ev.texto():ev.texto}</p>
     <div class="ev-ops">${ops.map((o,i)=>`<button class="ev-op" data-acao="ev" data-i="${i}" ${o.trava?'disabled':''}><b>${o.rot}</b><span>${o.desc||''}</span>${o.trava?`<em>${o.trava}</em>`:''}</button>`).join('')}</div>
     ${statusRun()}
   </div>`);

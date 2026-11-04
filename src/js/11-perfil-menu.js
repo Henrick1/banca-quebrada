@@ -1,5 +1,5 @@
 const PERFIL=(()=>{
-  const base={partidas:0,vitorias:0,melhorAndar:0,vistos:{itens:[],encantos:[]},build:'apostador',reserva:'d6',desafio:0,desafioMax:0,conquistas:[]};
+  const base={partidas:0,vitorias:0,melhorAndar:0,vistos:{itens:[],encantos:[]},build:'apostador',reserva:'d6',desafio:0,desafioMax:0,conquistas:[],segredos:[],mendigo:0};
   try{const p=JSON.parse(ARMAZ.getItem('bq-perfil')||'{}');return{...base,...p,vistos:{...base.vistos,...(p.vistos||{})}}}catch(e){return base}
 })();
 function salvarPerfil(){try{ARMAZ.setItem('bq-perfil',JSON.stringify(PERFIL))}catch(e){}}
@@ -30,6 +30,16 @@ const CONQUISTAS={
   porUmFio:{nome:'Por um Fio',desc:'Vença uma luta com 3 de vida ou menos.'},
   maosLimpas:{nome:'Mãos Limpas',desc:'Vença o chefe sem nenhuma relíquia.'}
 };
+const SEGREDOS={
+  benfeitor:{nome:'Bolsa O Benfeitor'},
+  herdeiro:{nome:'Bolsa Herdeiro da Casa'}
+};
+function temSegredo(k){return(PERFIL.segredos||[]).includes(k)}
+function revelarSegredo(k){
+  if(S.teste||!SEGREDOS[k]||temSegredo(k))return;
+  (PERFIL.segredos=PERFIL.segredos||[]).push(k);salvarPerfil();
+  setTimeout(()=>{toast(`<b>Segredo descoberto</b>${SEGREDOS[k].nome} liberada`,'#d9a0ff');SOM.traco();setTimeout(()=>SOM.combo(),250);vinheta('#9b6fe0')},700);
+}
 function conquistar(k){
   if(S.teste||!CONQUISTAS[k]||PERFIL.conquistas.includes(k))return;
   PERFIL.conquistas.push(k);salvarPerfil();
@@ -81,7 +91,11 @@ const BUILDS={
   viciado:{nome:'Ossos Viciados',desc:'D6 de osso que transformam o 1 em 6, e um deles já vem com Fogo no 6.',req:{andar:6,txt:'Chegue ao andar 6'},
     montar:()=>({dados:[gravado(novoDado('d6'),{5:{fx:{k:'fogo',n:3}}}),novoDado('d6'),novoDado('d6'),novoDado('coin')],itens:['dadoOsso'],ouro:0})},
   gigante:{nome:'Pedra Grande',desc:'Poucos dados e muito alcance: um D20 com Grimório e um D10. Tudo ou nada.',req:{andar:9,txt:'Chegue ao Cofre (andar 9)'},
-    montar:()=>({dados:[novoDado('d20'),novoDado('d10'),novoDado('coin'),novoDado('coin')],itens:['grimorio'],ouro:0})}
+    montar:()=>({dados:[novoDado('d20'),novoDado('d10'),novoDado('coin'),novoDado('coin')],itens:['grimorio'],ouro:0})},
+  benfeitor:{nome:'O Benfeitor',desc:'Quem dá, recebe. Começa com ouro, a Algibeira e um dado abençoado pelo velho da porta.',req:{segredo:'benfeitor',txt:'Segredo'},dica:'Quem dá três vezes na porta, um dia é recebido à mesa.',
+    montar:()=>({dados:[gravado(novoDado('d6'),{0:{fx:{k:'cura',n:3}},5:{fx:{k:'dobro'}}}),novoDado('d6'),novoDado('d6'),novoDado('coin')],itens:['algibeira'],ouro:15})},
+  herdeiro:{nome:'Herdeiro da Casa',desc:'A bolsa do próprio Dono: um D20 viciado e o baralho marcado da casa.',req:{segredo:'herdeiro',txt:'Segredo'},dica:'O Dono só mostra o rosto para quem nunca perdeu uma rodada para ele.',
+    montar:()=>({dados:[gravado(novoDado('d20'),{0:{bonus:7},19:{fx:{k:'dobro'}}}),novoDado('d10'),novoDado('d6'),novoDado('coin')],itens:['baralho'],ouro:5})}
 };
 const RESERVAS={
   d6:{nome:'D6 de reserva',tipo:'d6',req:null},
@@ -89,7 +103,7 @@ const RESERVAS={
   d10:{nome:'D10 de reserva',tipo:'d10',req:{andar:4,txt:'Chegue ao andar 4'}},
   d20:{nome:'D20 de reserva',tipo:'d20',req:{vitorias:1,txt:'Vença uma partida'}}
 };
-function liberado(req){return!req||((!req.andar||PERFIL.melhorAndar>=req.andar)&&(!req.vitorias||PERFIL.vitorias>=req.vitorias)&&(!req.partidas||PERFIL.partidas>=req.partidas))}
+function liberado(req){return!req||((!req.segredo||temSegredo(req.segredo))&&(!req.andar||PERFIL.melhorAndar>=req.andar)&&(!req.vitorias||PERFIL.vitorias>=req.vitorias)&&(!req.partidas||PERFIL.partidas>=req.partidas))}
 function listaLiberados(){return[...Object.values(BUILDS).filter(b=>liberado(b.req)).map(b=>`Bolsa ${b.nome}`),...Object.values(RESERVAS).filter(r=>liberado(r.req)).map(r=>r.nome)]}
 const runAtiva=()=>!!(S.stats&&S.mapa&&S.fase!=='fim');
 const podeContinuar=()=>runAtiva()||temSalvo();
@@ -151,6 +165,7 @@ function telaInicial(){
 function telaBuilds(){
   const cartaB=([k,b])=>{
     const ok=liberado(b.req),kit=b.montar(),sel=PERFIL.build===k;
+    if(!ok&&b.req.segredo)return`<button class="build trancado segredo" data-acao="build" data-k="${k}" aria-disabled="true"><b>???</b><p>${b.dica}</p><div class="kit">${kit.dados.map(()=>'<span class="mini-dado">?</span>').join('')}</div><span class="cadeado">${svgPath('lupa','#d9a0ff')}Segredo</span></button>`;
     return`<button class="build${sel?' sel':''}${ok?'':' trancado'}" data-acao="build" data-k="${k}" ${ok?'':'aria-disabled="true"'}>
       ${sel?'<span class="selo">Escolhida</span>':''}
       <b>${b.nome}</b><p>${b.desc}</p>
