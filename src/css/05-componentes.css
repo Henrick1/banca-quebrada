@@ -1,5 +1,5 @@
 @media (max-width:760px){.mapa-tela{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:calc(100vh - 40px)}.mapa-lado{order:-1;overflow:visible}.mapa-lado .cartao,.mapa-lado .legenda{display:none}.mapa-lado h2{font-size:34px}.evento{padding:20px;margin-top:2vh}.evento h2{font-size:30px}.ev-selo{width:60px;height:60px}}
-.reliq{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#1f1712;border:2px solid #9a2f2a;box-shadow:inset 0 0 0 2px #efe4c8}
+.reliq{flex:none;width:34px;height:34px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:#1f1712;border:2px solid #9a2f2a;box-shadow:inset 0 0 0 2px #efe4c8}
 .reliq svg{width:18px;height:18px}
 .reliq.nova{animation:gravada 1s ease-out}
 #placar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;padding:6px 14px;border-radius:999px;background:#0d0a08d9;border:1px solid var(--linha);max-width:calc(100% - 20px);box-sizing:border-box;pointer-events:none}
