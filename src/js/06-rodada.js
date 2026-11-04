@@ -73,7 +73,7 @@ function animarBonus(t,tela,base0,passos,somaAntes){
     if(p.ouro){SOM.ouro(1);hud()}
     valor+=p.v;t.punch=.7;
     if(p.v){corrente+=p.v;SOM.tok(valor+i*2);contar($('soma'),corrente,false);pulsar($('soma'));
-      if(t.rotulo){const tx=[...t.rotulo.childNodes].find(x=>x.nodeType===3);if(tx)tx.textContent=String(valor)}}
+      if(t.rotulo){const tx=[...t.rotulo.childNodes].find(x=>x.nodeType===3);if(tx)tx.textContent=String(valor);t.rotulo.classList.remove('pula');void t.rotulo.offsetWidth;t.rotulo.classList.add('pula')}}
     setTimeout(()=>roda(i+1),step);
   };
   setTimeout(()=>roda(0),step);

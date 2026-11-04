@@ -47,11 +47,7 @@
 #mesa{position:relative;min-height:0;border-radius:14px;overflow:hidden;background:#0c0908}
 #mesa canvas{display:block;width:100%;height:100%}
 #rotulos{position:absolute;inset:0;pointer-events:none}
-.rotulo{position:absolute;transform:translate(-50%,-100%);padding:3px 8px;border-radius:6px;background:#0d0a08e6;border:1px solid var(--latao);font-family:var(--f-num);font-weight:600;font-size:14px;white-space:nowrap;display:flex;gap:6px;align-items:center;animation:sobe .35s ease-out}
-.rotulo.casa{border-color:#8d7fa3}
-.rotulo small{font-family:var(--f-texto);font-size:11px;font-weight:700}
 @keyframes sobe{0%{transform:translate(-50%,-30%) scale(.3);opacity:0}55%{transform:translate(-50%,-115%) scale(1.3);opacity:1}100%{transform:translate(-50%,-100%) scale(1)}}
-.rotulo{animation-duration:.5s;animation-timing-function:cubic-bezier(.2,.9,.3,1.2)}
 .barra em{position:absolute;inset:0 auto 0 0;background:#f1dcae;transition:width .55s ease .4s}
 .ini .barra em{left:auto;right:0}
 .barra i{z-index:1}
@@ -116,3 +112,16 @@ body.mirando #cena{cursor:crosshair}
 .golpe.g3 b{font-size:156px;filter:drop-shadow(0 0 14px #ff4a10) drop-shadow(0 0 40px #ff2a00) drop-shadow(0 0 70px #ff7a2a88)}
 .golpe.g3 small{font-size:19px;color:#fff0c0}
 @keyframes chamaTxt{from{transform:skewX(-2deg) translateY(0)}to{transform:skewX(2deg) translateY(-2px)}}
+
+.rotulo{position:absolute;transform:translate(-50%,-100%);min-width:34px;height:34px;padding:0 10px;border-radius:999px;display:flex;gap:6px;align-items:center;justify-content:center;white-space:nowrap;
+  font-family:var(--f-num);font-weight:700;font-size:19px;line-height:1;color:#2a1a0c;
+  background:radial-gradient(circle at 35% 28%,#fff1c2,#f2cf72 40%,#c99a3f 75%,#9a6e24);border:2px solid #6a4a16;
+  box-shadow:inset 0 1px 0 #fff8,inset 0 -2px 3px #0004,0 4px 10px #000a,0 0 0 1px #f6dc8a55;
+  animation:sobe .5s cubic-bezier(.2,.9,.3,1.25) both;text-shadow:0 1px 0 #fff6}
+.rotulo::after{content:'';position:absolute;left:50%;bottom:-7px;width:10px;height:10px;margin-left:-5px;background:#a87a2a;border-right:2px solid #6a4a16;border-bottom:2px solid #6a4a16;transform:rotate(45deg);z-index:-1}
+.rotulo.casa{color:#f6ecff;background:radial-gradient(circle at 35% 28%,#c9a6e6,#7d4fa8 45%,#4a2a6a 80%,#2e1844);border-color:#1e1030;box-shadow:inset 0 1px 0 #ffffff55,inset 0 -2px 3px #0006,0 4px 10px #000a,0 0 0 1px #b98ae655;text-shadow:0 1px 0 #0008}
+.rotulo.casa::after{background:#3e2258;border-color:#1e1030}
+.rotulo small{font-family:var(--f-texto);font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:999px;background:#2a1a0c;color:#f6dc8a;text-shadow:none}
+.rotulo.casa small{background:#1a0e26;color:#e6d4ff}
+.rotulo.pula{animation:rotPula .32s cubic-bezier(.2,.9,.3,1.6)}
+@keyframes rotPula{0%{transform:translate(-50%,-100%) scale(1)}40%{transform:translate(-50%,-112%) scale(1.28)}100%{transform:translate(-50%,-100%) scale(1)}}
