@@ -42,13 +42,39 @@ function montarFichas(){
   (S.ini?S.ini.tracos:[]).forEach((k,i)=>{const tr=TRACOS[k];const {g,topos}=pilha(PATHS[tr.ic],tr.cor,true,1);g.position.set(TW/2-1.15-i*.95,y+3,-TD/2-.4);scene.add(g);MESA.fichas.push({mesh:g,topos,tipo:'traco',chave:k,y0:y,pulso:0,cai:1.4+i*.25})});
   ajustar();
 }
+function texturaVeludo(){
+  const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');
+  x.fillStyle='#4a2652';x.fillRect(0,0,512,256);
+  const img=x.getImageData(0,0,512,256),d=img.data;
+  for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*20;d[i]+=n*.9;d[i+1]+=n*.6;d[i+2]+=n}
+  x.putImageData(img,0,0);
+  for(let k=0;k<26;k++){const px=Math.random()*512;const g=x.createLinearGradient(px-14,0,px+14,0);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.5,'rgba(0,0,0,.22)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-14,40,28,216)}
+  const v=x.createLinearGradient(0,0,0,256);v.addColorStop(0,'rgba(0,0,0,.45)');v.addColorStop(.4,'rgba(255,220,255,.05)');v.addColorStop(1,'rgba(0,0,0,.45)');x.fillStyle=v;x.fillRect(0,0,512,256);
+  x.strokeStyle='rgba(212,169,79,.75)';x.lineWidth=3;x.setLineDash([8,6]);x.beginPath();x.moveTo(0,226);x.lineTo(512,226);x.stroke();x.beginPath();x.moveTo(0,70);x.lineTo(512,70);x.stroke();x.setLineDash([]);
+  x.fillStyle='rgba(212,169,79,.7)';for(let k=0;k<512;k+=32){x.beginPath();x.moveTo(k+16,190);x.lineTo(k+24,200);x.lineTo(k+16,210);x.lineTo(k+8,200);x.closePath();x.fill()}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=THREE.RepeatWrapping;return t;
+}
 function criarBolsaCasa(){
-  const pts=[[0,0],[.5,.04],[.66,.25],[.66,.55],[.52,.82],[.3,.98],[.24,1.04],[.3,1.12],[.42,1.28],[.3,1.34],[0,1.3]].map(p=>new THREE.Vector2(p[0],p[1]));
-  const g=new THREE.Group();
-  const corpo=new THREE.Mesh(new THREE.LatheGeometry(pts,28),new THREE.MeshStandardMaterial({color:lin('#5a3462'),roughness:.85,side:THREE.DoubleSide}));
-  corpo.castShadow=corpo.receiveShadow=true;g.add(corpo);
-  const laco=new THREE.Mesh(new THREE.TorusGeometry(.26,.05,10,24),new THREE.MeshStandardMaterial({color:'#d4a94f',metalness:.6,roughness:.35}));
-  laco.rotation.x=Math.PI/2;laco.position.y=1.03;g.add(laco);
+  const pts=[[0,0],[.42,.03],[.62,.2],[.68,.44],[.6,.7],[.42,.88],[.24,.98],[.19,1.03],[.22,1.08],[.33,1.17],[.44,1.26],[.46,1.3],[.42,1.31]].map(p=>new THREE.Vector2(p[0],p[1]));
+  const g=new THREE.Group(),fig=new THREE.Group();
+  const geo=new THREE.LatheGeometry(pts,48),pa=geo.attributes.position;
+  for(let i=0;i<pa.count;i++){const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i),a=Math.atan2(z,x);let f=1+.05*Math.sin(a*7+y*2.5)+.025*Math.sin(a*13);if(y>1.05)f*=1+.22*Math.sin(a*11)*Math.min(1,(y-1.05)/.14);pa.setXYZ(i,x*f,y,z*f*.9)}
+  geo.computeVertexNormals();
+  const veludo=new THREE.MeshStandardMaterial({map:texturaVeludo(),roughness:.95,side:THREE.DoubleSide});
+  const corpo=new THREE.Mesh(geo,veludo);corpo.castShadow=corpo.receiveShadow=true;fig.add(corpo);
+  const ouro=new THREE.MeshStandardMaterial({color:lin('#d4a94f'),metalness:.8,roughness:.3});
+  const laco=new THREE.Mesh(new THREE.TorusGeometry(.21,.045,10,28),ouro);laco.rotation.x=Math.PI/2;laco.position.y=1.03;fig.add(laco);
+  [[.2,.42,-.35],[.1,.36,.2]].forEach(([dx,len,rz],i)=>{const f=new THREE.Mesh(new THREE.CylinderGeometry(.024,.024,len,8),ouro);f.position.set(dx,1.03-len/2,.18+i*.05);f.rotation.z=rz;f.castShadow=true;fig.add(f);
+    const borla=new THREE.Mesh(new THREE.ConeGeometry(.07,.16,10),ouro);borla.position.set(dx+Math.sin(rz)*len*.5,1.03-len-.04,.19+i*.05);borla.castShadow=true;fig.add(borla)});
+  const cv=document.createElement('canvas');cv.width=cv.height=128;const xm=cv.getContext('2d');
+  xm.fillStyle='#d4a94f';xm.beginPath();xm.arc(64,64,60,0,Math.PI*2);xm.fill();xm.fillStyle='#2a1430';xm.beginPath();xm.arc(64,64,50,0,Math.PI*2);xm.fill();
+  xm.fillStyle='#d4a94f';xm.beginPath();xm.moveTo(30,82);xm.lineTo(26,44);xm.lineTo(46,62);xm.lineTo(64,34);xm.lineTo(82,62);xm.lineTo(102,44);xm.lineTo(98,82);xm.closePath();xm.fill();xm.fillRect(30,86,68,9);
+  const tm=new THREE.CanvasTexture(cv);tm.encoding=THREE.sRGBEncoding;
+  const med=new THREE.Mesh(new THREE.CircleGeometry(.2,32),new THREE.MeshStandardMaterial({map:tm,metalness:.5,roughness:.35}));med.position.set(0,.46,.645);fig.add(med);
+  const esc=new THREE.MeshStandardMaterial({color:lin('#1e1a24'),roughness:.4});
+  const d1=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2),esc);d1.position.set(-.05,1.2,.02);d1.rotation.set(.5,.7,.3);d1.castShadow=true;fig.add(d1);
+  const d2=new THREE.Mesh(new THREE.IcosahedronGeometry(.13),new THREE.MeshStandardMaterial({color:lin('#7a1a2a'),roughness:.35}));d2.position.set(.11,1.16,-.06);d2.castShadow=true;fig.add(d2);
+  fig.rotation.x=-.42;g.add(fig);
   g.position.set(TW/2+.4,.76,-TD/2-.4);g.scale.setScalar(.95);
   scene.add(g);MESA.bolsa=g;
 }
