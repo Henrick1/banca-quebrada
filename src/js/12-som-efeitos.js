@@ -64,8 +64,7 @@ const SOM=(()=>{
 })();
 document.addEventListener('pointerdown',()=>SOM.iniciar(),true);
 document.addEventListener('keydown',()=>SOM.iniciar(),true);
-function botaoSom(){$('btnSom').innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="currentColor"/>${SOM.mudo?'<path d="M17 9 L22 14 M22 9 L17 14"/>':'<path d="M17 8.5 C18.5 10 18.5 14 17 15.5 M19.5 6 C22.5 9 22.5 15 19.5 18"/>'}</svg>${SOM.mudo?'Som desligado':'Som ligado'}`;$('btnSom').setAttribute('aria-pressed',String(!SOM.mudo))}
-$('btnSom').addEventListener('click',()=>{SOM.iniciar();SOM.alternar();botaoSom()});
+function botaoSom(){if(!$('btnSom'))return;$('btnSom').innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9 H8 L13 5 V19 L8 15 H4 Z" fill="currentColor"/>${SOM.mudo?'<path d="M17 9 L22 14 M22 9 L17 14"/>':'<path d="M17 8.5 C18.5 10 18.5 14 17 15.5 M19.5 6 C22.5 9 22.5 15 19.5 18"/>'}</svg>${SOM.mudo?'Som desligado':'Som ligado'}`;$('btnSom').setAttribute('aria-pressed',String(!SOM.mudo))}
 $('btnMenu').addEventListener('click',()=>{if(runAtiva())S.pausado=true;telaInicial()});
 botaoSom();
 
