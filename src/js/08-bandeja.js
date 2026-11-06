@@ -157,38 +157,51 @@ function lacoCorrente(pts,mat,geo,passo){
   }
   return g;
 }
-function caminhoCorrente(tipo,h){
-  const pts=[];
-  if(tipo==='d6'){const H=h+.035,rc=.07,c=H-rc;[[c,c,0],[-c,c,Math.PI/2],[-c,-c,Math.PI],[c,-c,Math.PI*1.5]].forEach(([cx,cy,a0])=>{for(let i=0;i<=6;i++){const a=a0+i/6*Math.PI/2;pts.push(new THREE.Vector3(cx+Math.cos(a)*rc,cy+Math.sin(a)*rc,0))}})}
-  else for(let i=0;i<40;i++){const a=i/40*Math.PI*2;pts.push(new THREE.Vector3(Math.cos(a)*h,Math.sin(a)*h,0))}
-  return pts;
+function secaoDado(geo,esc,n,u,v,folga){
+  const pa=geo.attributes.position,ix=geo.index,tri=ix?ix.count:pa.count,P=i=>new THREE.Vector3(pa.getX(i),pa.getY(i),pa.getZ(i)).multiplyScalar(esc),pts=[];
+  for(let t=0;t<tri;t+=3){
+    const vs=[0,1,2].map(k=>P(ix?ix.getX(t+k):t+k)),ds=vs.map(p=>p.dot(n));
+    for(let k=0;k<3;k++){const a=vs[k],b=vs[(k+1)%3],da=ds[k],db=ds[(k+1)%3];if((da<=0&&db>0)||(da>0&&db<=0)){const p=a.clone().lerp(b,da/(da-db));pts.push([p.dot(u),p.dot(v)])}}
+  }
+  pts.sort((p,q)=>p[0]-q[0]||p[1]-q[1]);
+  const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]),lo=[],hi=[];
+  for(const p of pts){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p)}
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];while(hi.length>=2&&cr(hi[hi.length-2],hi[hi.length-1],p)<=0)hi.pop();hi.push(p)}
+  const casca=lo.slice(0,-1).concat(hi.slice(0,-1)),m=casca.length,out=[];
+  const nor=i=>{const p=casca[i],q=casca[(i+1)%m],dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy)||1;return Math.atan2(-dx/L,dy/L)};
+  for(let i=0;i<m;i++){
+    const p=casca[i];let a0=nor((i-1+m)%m),a1=nor(i);while(a1<a0)a1+=Math.PI*2;if(a1-a0>Math.PI*1.99)a1=a0;
+    const st=Math.max(1,Math.ceil((a1-a0)/.35));
+    for(let k=0;k<=st;k++){const a=a0+(a1-a0)*k/st,x=p[0]+Math.cos(a)*folga,y=p[1]+Math.sin(a)*folga;out.push(u.clone().multiplyScalar(x).add(v.clone().multiplyScalar(y)))}
+  }
+  return out;
 }
 function criarCorrente(it){
   if(B.corrente){B.scene.remove(B.corrente.g);B.corrente.g.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
-  const g=new THREE.Group(),ferro=new THREE.MeshStandardMaterial({color:lin('#9aa1a9'),metalness:.65,roughness:.38}),elo=new THREE.TorusGeometry(.042,.013,6,14);elo.scale(1.65,1,1);
-  if(!it.mesh.geometry.boundingSphere)it.mesh.geometry.computeBoundingSphere();
-  const tipo=it.die.type,r=it.mesh.geometry.boundingSphere.radius*it.mesh.scale.x,h=tipo==='d6'?r/Math.sqrt(3):r*.82;
-  const quadro=new THREE.Group();g.add(quadro);
-  const l1=lacoCorrente(caminhoCorrente(tipo,h),ferro,elo,.105),l2=lacoCorrente(caminhoCorrente(tipo,h+.02),ferro,elo,.105);l2.rotation.y=Math.PI/2;quadro.add(l1,l2);
+  const g=new THREE.Group(),ferro=new THREE.MeshStandardMaterial({color:lin('#9aa1a9'),metalness:.65,roughness:.38}),elo=new THREE.TorusGeometry(.04,.012,6,14);elo.scale(1.5,1,1);
+  const geo=it.mesh.geometry,esc=it.mesh.scale.x;
+  const U=new THREE.Vector3(0,1,0).applyQuaternion(it.mesh.quaternion.clone().invert()).normalize();
+  const aux=Math.abs(U.x)<.9?new THREE.Vector3(1,0,0):new THREE.Vector3(0,0,1),V=new THREE.Vector3().crossVectors(U,aux).normalize(),W=new THREE.Vector3().crossVectors(U,V).normalize();
+  const l1=lacoCorrente(secaoDado(geo,esc,W,U,V,.035),ferro,elo,.09),l2=lacoCorrente(secaoDado(geo,esc,V,U,W,.05),ferro,elo,.09);g.add(l1,l2);
+  let topo=0,fundo=0;const pa=geo.attributes.position;for(let i=0;i<pa.count;i++){const d=(pa.getX(i)*U.x+pa.getY(i)*U.y+pa.getZ(i)*U.z)*esc;topo=Math.max(topo,d);fundo=Math.min(fundo,d)}
+  [l1,l2].forEach(l=>l.children.forEach(m=>{if(m.position.dot(U)<fundo+.06)m.visible=false}));
   const cad=new THREE.Group(),latao=new THREE.MeshStandardMaterial({color:lin('#c9a24a'),metalness:.8,roughness:.28});
   const corpo=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.08,24),latao);corpo.rotation.x=Math.PI/2;corpo.scale.set(1.15,1,1);corpo.castShadow=true;cad.add(corpo);
   const base=new THREE.Mesh(new THREE.BoxGeometry(.25,.12,.08),latao);base.position.y=-.06;base.castShadow=true;cad.add(base);
   const arco=new THREE.Mesh(new THREE.TorusGeometry(.075,.022,10,20,Math.PI),ferro);arco.position.y=.07;cad.add(arco);
   const fur=new THREE.Mesh(new THREE.CircleGeometry(.025,12),new THREE.MeshBasicMaterial({color:'#1a120b'}));fur.position.set(0,-.02,.042);cad.add(fur);
   const fen=new THREE.Mesh(new THREE.PlaneGeometry(.016,.045),fur.material);fen.position.set(0,-.05,.042);cad.add(fen);
-  cad.position.set(0,h+.13,0);quadro.add(cad);
-  B.scene.add(g);B.corrente={g,quadro,cad,id:it.die.id,t:0,h};SOM.batida(7,true);
+  const suporte=new THREE.Group();suporte.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),U);
+  cad.position.set(0,topo+.13,0);suporte.add(cad);g.add(suporte);
+  B.scene.add(g);B.corrente={g,cad,id:it.die.id,t:0};SOM.batida(7,true);
 }
 function sincronizarCorrente(){
   if(!B.scene)return;
   const it=S.congelado?B.itens.find(x=>x.die.id===S.congelado):null;
-  if(!it){if(B.corrente)B.corrente.g.visible=false;return}
+  if(!it){if(B.corrente){B.corrente.g.visible=false;B.corrente.id=null}return}
   if(!B.corrente||B.corrente.id!==it.die.id)criarCorrente(it);
   const c=B.corrente;c.t=Math.min(1,c.t+.06);c.g.visible=true;
-  c.g.position.copy(it.mesh.position);
-  const inv=it.mesh.quaternion.clone().invert(),up=new THREE.Vector3(0,1,0).applyQuaternion(inv),ax=['x','y','z'].reduce((m,k)=>Math.abs(up[k])>Math.abs(up[m])?k:m,'x'),eixo=new THREE.Vector3();eixo[ax]=Math.sign(up[ax]);
-  c.quadro.quaternion.copy(it.mesh.quaternion).multiply(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),eixo));
-  const s=1+(1-c.t)*.5;c.quadro.scale.setScalar(s);
+  c.g.position.copy(it.mesh.position);c.g.quaternion.copy(it.mesh.quaternion);c.g.scale.setScalar(1+(1-c.t)*.5);
   c.cad.rotation.set(-1.15,0,Math.sin(performance.now()/300)*.1);c.cad.scale.setScalar(1.45*(.5+.5*c.t));
 }
 function marcar(){
