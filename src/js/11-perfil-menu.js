@@ -163,17 +163,6 @@ function telaInicial(){
   $('overlay').classList.add('ov-menu');document.body.classList.add('em-menu');MESA.orbita=true;if(typeof ajustar==='function'&&renderer)ajustar();
 }
 function telaBuilds(){
-  const cartaB=([k,b])=>{
-    const ok=liberado(b.req),kit=b.montar(),sel=PERFIL.build===k;
-    if(!ok&&b.req.segredo)return`<button class="build trancado segredo" data-k="${k}" aria-disabled="true"><b>???</b><p>${b.dica}</p><div class="kit">${kit.dados.map(()=>'<span class="mini-dado">?</span>').join('')}</div><span class="cadeado">${svgPath('lupa','#d9a0ff')}Segredo</span></button>`;
-    return`<button class="build${sel?' sel':''}${ok?'':' trancado'}" data-k="${k}" ${ok?'':'aria-disabled="true"'}>
-      ${sel?'<span class="selo">Escolhida</span>':''}
-      <b>${b.nome}</b><p>${b.desc}</p>
-      <div class="kit">${kit.dados.map(miniDado).join('')}${kit.itens.map(miniReliq).join('')}</div>
-      ${kit.ouro?`<p class="ouro-ini">Começa com ${kit.ouro} de ouro</p>`:''}
-      ${ok?'':`<span class="cadeado">${svgPath('lupa','#f0b07e')}${b.req.txt}</span>`}
-    </button>`;
-  };
   const cartaR=([k,r])=>{
     const ok=liberado(r.req),sel=PERFIL.reserva===k;
     return`<button class="build pequeno${sel?' sel':''}${ok?'':' trancado'}" data-acao="reserva" data-k="${k}">
@@ -184,40 +173,12 @@ function telaBuilds(){
   };
   abrirTela(`<div class="tela">
     <div class="tela-topo"><div><p class="menu-sobre">Antes de sentar à mesa</p><h2>Preparar partida</h2></div><button class="btn sec" data-acao="menu">Voltar</button></div>
-    <section class="bloco"><h3>Escolha a bolsa</h3><div class="roda" id="roda" tabindex="0"><div class="roda-anel" id="rodaAnel">${Object.entries(BUILDS).map(cartaB).join('')}</div><button class="roda-seta esq" data-roda="-1" aria-label="Anterior">‹</button><button class="roda-seta dir" data-roda="1" aria-label="Próxima">›</button></div><p class="roda-cont" id="rodaCont"></p></section>
+    <section class="bloco"><h3>Escolha a bolsa</h3><div class="roda" id="roda" tabindex="0"><canvas id="rodaCena"></canvas><button class="roda-seta esq" data-roda="-1" aria-label="Anterior">‹</button><button class="roda-seta dir" data-roda="1" aria-label="Próxima">›</button></div><p class="roda-cont" id="rodaCont"></p><div class="roda-info" id="rodaInfo"></div></section>
     <section class="bloco"><h3>Dado de reserva · entra junto com a bolsa</h3><div class="grade-builds">${Object.entries(RESERVAS).map(cartaR).join('')}</div></section>
     <section class="bloco"><h3>Dificuldade · cada nível soma ao anterior</h3><div class="grade-builds">${DESAFIOS.map((d,k)=>{const ok=k<=(PERFIL.desafioMax||0),sel=Math.min(PERFIL.desafio||0,PERFIL.desafioMax||0)===k;return`<button class="build pequeno${sel?' sel':''}${ok?'':' trancado'}" data-acao="desafio" data-k="${k}">${sel?'<span class="selo">Escolhida</span>':''}<b>${d.nome}</b><p>${d.desc}</p>${ok?'':`<span class="cadeado">Vença no ${DESAFIOS[k-1].nome}</span>`}</button>`}).join('')}</div></section>
     <div class="acoes"><button class="btn" data-acao="nova">Jogar com esta bolsa</button></div>
   </div>`);
   montarRoda();
-}
-function montarRoda(){
-  const roda=$('roda'),anel=$('rodaAnel');if(!roda)return;
-  const cartas=[...anel.children],n=cartas.length,passo=360/n,ks=cartas.map(c=>c.dataset.k);
-  const r=Math.round(135/Math.tan(Math.PI/n))+45;anel.style.setProperty('--r',r+'px');
-  cartas.forEach((c,i)=>c.style.transform=`rotateY(${i*passo}deg) translateZ(${r}px)`);
-  let a=Math.max(0,ks.indexOf(PERFIL.build)),arr=null,ultimo=-1;
-  const idx=()=>((Math.round(a)%n)+n)%n;
-  const pintar=()=>{
-    anel.style.transform=`translateZ(${-r}px) rotateY(${-a*passo}deg)`;
-    cartas.forEach((c,i)=>{let d=((i-a)%n+n)%n;if(d>n/2)d-=n;const ad=Math.abs(d);c.style.opacity=Math.max(0,1-ad*.3);c.style.filter=ad>.5?`brightness(${Math.max(.35,1-ad*.25)})`:'';c.style.pointerEvents=ad>2.2?'none':'';c.classList.toggle('frente',ad<.5)});
-    const i=idx(),k=ks[i];$('rodaCont').textContent=`${i+1} de ${n}`;
-    if(i!==ultimo){ultimo=i;if(liberado(BUILDS[k].req)&&PERFIL.build!==k){PERFIL.build=k;salvarPerfil();cartas.forEach(c=>{c.classList.toggle('sel',c.dataset.k===k);const s=c.querySelector('.selo');if(s)s.remove()});cartas[i].insertAdjacentHTML('afterbegin','<span class="selo">Escolhida</span>')}}
-  };
-  const ir=v=>{a=Math.round(v);anel.classList.remove('arrastando');SOM.batida(4,false);pintar()};
-  roda.addEventListener('click',e=>{
-    const s=e.target.closest('[data-roda]');if(s){e.stopPropagation();ir(a+ +s.dataset.roda);return}
-    const c=e.target.closest('.build');if(!c||arr&&arr.moveu)return;
-    let d=((cartas.indexOf(c)-a)%n+n)%n;if(d>n/2)d-=n;
-    if(Math.abs(d)>.5)ir(a+d);else if(!liberado(BUILDS[c.dataset.k].req)){SOM.traco();c.animate([{transform:c.style.transform+' translateX(0)'},{transform:c.style.transform+' translateX(-8px)'},{transform:c.style.transform+' translateX(6px)'},{transform:c.style.transform}],{duration:300})}else SOM.compra();
-  });
-  roda.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){ir(a-1);e.preventDefault()}else if(e.key==='ArrowRight'){ir(a+1);e.preventDefault()}});
-  let trava=0;roda.addEventListener('wheel',e=>{const v=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;if(Math.abs(v)<4)return;e.preventDefault();const t=performance.now();if(t-trava<260)return;trava=t;ir(a+Math.sign(v))},{passive:false});
-  roda.addEventListener('pointerdown',e=>{if(e.target.closest('[data-roda]'))return;arr={x:e.clientX,a,moveu:false,id:e.pointerId}});
-  roda.addEventListener('pointermove',e=>{if(!arr)return;const dx=e.clientX-arr.x;if(!arr.moveu&&Math.abs(dx)>6){arr.moveu=true;anel.classList.add('arrastando');roda.setPointerCapture(arr.id)}if(arr.moveu){a=arr.a-dx/220;pintar()}});
-  const solta=()=>{if(!arr)return;const m=arr.moveu;if(m)ir(a);setTimeout(()=>{arr=null},0)};
-  roda.addEventListener('pointerup',solta);roda.addEventListener('pointercancel',solta);
-  pintar();
 }
 function telaColecao(){
   const vi=PERFIL.vistos.itens,ve=PERFIL.vistos.encantos;
