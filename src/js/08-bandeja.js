@@ -138,10 +138,29 @@ function passoBandeja(dt){
     it.lift=(it.lift||0)+(((B.hover===it&&!B.arr)?.22:0)-(it.lift||0))*Math.min(1,dt*14);
     it.mesh.position.y+=it.lift;
   }
-  animarSaco(dt);
+  animarSaco(dt);sincronizarCorrente();
   const b=B.saco,ativo=B.arr||B.hover||(b&&(b.pulso>0||b.aperto>0||b.alvo||b.hover))||B.itens.some(it=>it.body.velocity.lengthSquared()>.0004||it.body.angularVelocity.lengthSquared()>.0004||Math.abs(it.lift||0)>.002);
   B.ocioso=ativo?0:(B.ocioso||0)+1;
   if(B.ocioso%6===0)B.r.render(B.scene,B.cam);
+}
+function criarCorrente(){
+  const g=new THREE.Group(),aco=new THREE.MeshStandardMaterial({color:lin('#9aa2ac'),metalness:.9,roughness:.32}),elo=new THREE.TorusGeometry(.1,.032,8,16);
+  const voltas=new THREE.Group();g.add(voltas);
+  [0,Math.PI/2].forEach(ry=>{const v=new THREE.Group();for(let i=0;i<24;i++){const a=i/24*Math.PI*2,m=new THREE.Mesh(elo,aco);m.position.set(Math.cos(a),Math.sin(a),0);m.rotation.z=a+Math.PI/2;m.rotation.x=i%2?Math.PI/2:0;m.castShadow=true;v.add(m)}v.rotation.y=ry;v.scale.setScalar(ry?1.04:1);voltas.add(v)});
+  const cad=new THREE.Group(),latao=new THREE.MeshStandardMaterial({color:lin('#c9a24a'),metalness:.85,roughness:.3});
+  const corpo=new THREE.Mesh(new THREE.BoxGeometry(.3,.26,.12),latao);corpo.castShadow=true;cad.add(corpo);
+  const arco=new THREE.Mesh(new THREE.TorusGeometry(.095,.03,10,20,Math.PI),aco);arco.position.y=.13;cad.add(arco);
+  const fur=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.02,12),new THREE.MeshBasicMaterial({color:'#1a120b'}));fur.rotation.x=Math.PI/2;fur.position.set(0,-.02,.061);cad.add(fur);
+  g.add(cad);g.visible=false;B.scene.add(g);B.corrente={g,voltas,cad,id:null,t:0};
+}
+function sincronizarCorrente(){
+  if(!B.scene)return;if(!B.corrente)criarCorrente();
+  const c=B.corrente,it=S.congelado?B.itens.find(x=>x.die.id===S.congelado):null;
+  if(!it){c.g.visible=false;c.id=null;return}
+  if(c.id!==it.die.id){c.id=it.die.id;c.t=0;if(!it.mesh.geometry.boundingSphere)it.mesh.geometry.computeBoundingSphere();c.raio=it.mesh.geometry.boundingSphere.radius*.86;SOM.batida(7,true)}
+  c.t=Math.min(1,c.t+.05);const s=c.raio*(1.6-.6*c.t);
+  c.g.visible=true;c.g.position.copy(it.mesh.position);c.voltas.quaternion.copy(it.mesh.quaternion);c.voltas.scale.setScalar(s);
+  c.cad.position.set(0,c.raio*.9+.12,c.raio*.6+.12);c.cad.rotation.set(-1.05,0,Math.sin(performance.now()/260)*.12);c.cad.scale.setScalar(1.25*(.6+.4*c.t));
 }
 function marcar(){
   const ativo=B.arr?B.arr.it:B.hover;
