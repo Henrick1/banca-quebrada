@@ -254,7 +254,7 @@ function ecoMercurio(t){
 }
 function podeLancar(){return S.fase==='jogador'&&S.restam>0}
 function dividirPassos(seq){const ps=[];for(const ch of seq){const u=ps[ps.length-1];if(ch==='j'&&u&&u.t==='j')u.n++;else ps.push({t:ch,n:1})}return ps}
-function sortearCasa(){return Array.from({length:temTraco('duplo')?2:1},()=>pick(S.ini.bolsa))}
+function sortearCasa(){const l=[...S.ini.bolsa],n=Math.min(temTraco('duplo')?2:1,l.length),out=[];for(let i=0;i<n;i++)out.push(l.splice(Math.floor(R()*l.length),1)[0]);return out}
 const casaRestantes=()=>S.cTotal-S.cFeitos;
 const pressaoLuta=()=>Math.max(0,Math.floor(((S.rodada||1)-1)/3));
 const calorTaverna=()=>Math.min(3,Math.floor(((S.stats&&S.stats.rodadas)||0)/12));

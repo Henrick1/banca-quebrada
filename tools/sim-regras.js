@@ -34,7 +34,7 @@ function luta(P,no,stats){
       if(parou)break;
       if(ch==='c'){
         const qtd=tem('duplo')?2:1;let melhor=-1;
-        for(let i=0;i<qtd;i++){const d=sorteia(E.bolsa),f=rolar(d);let v=valorFace(f);
+        const resto=[...E.bolsa];for(let i=0;i<Math.min(qtd,resto.length);i++){const d=resto.splice(resto.indexOf(sorteia(resto)),1)[0],f=rolar(d);let v=valorFace(f);
           if(d.area){if(d.area.tipo==='raio')soma-=2*Math.min(1,lancados*.5);else soma-=3*Math.min(2,lancados)}
           if(f.fx){if(f.fx.k==='espinho')P.hp-=f.fx.n;if(f.fx.k==='escudo')escCasa+=f.fx.n;if(f.fx.k==='cura')E.hp=Math.min(E.max,E.hp+f.fx.n);if(f.fx.k==='roubo')P.ouro=Math.max(0,P.ouro-f.fx.n)}
           melhor=Math.max(melhor,v)}
