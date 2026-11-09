@@ -21,10 +21,18 @@ function modeloCons(k){
   const M=matsBolso(),g=new THREE.Group(),add=(geo,mat,x=0,y=0,z=0,rx=0,ry=0,rz=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);m.castShadow=true;g.add(m);return m};
   const H=Math.PI/2;
   if(k==='martelo'){
-    add(new THREE.CylinderGeometry(.055,.07,1.05,12),M.madeira,-.08,.07,0,0,0,H);
-    add(new THREE.BoxGeometry(.24,.22,.56),M.ferro,.46,.11,0);
-    add(new THREE.CylinderGeometry(.12,.12,.08,16),M.ferroEsc,.46,.11,.3,H,0,0);
-    add(new THREE.BoxGeometry(.2,.18,.18),M.ferroEsc,.46,.1,-.33,0,0,0);
+    const cabo=new THREE.LatheGeometry([[0,0],[.078,0],[.088,.03],[.074,.08],[.068,.3],[.072,.6],[.062,.92],[.058,1],[0,1]].map(p=>new THREE.Vector2(p[0],p[1])),20);
+    add(cabo,M.madeira,-.6,.075,0,0,0,-H);
+    add(new THREE.CylinderGeometry(.084,.084,.3,20),M.couro,-.38,.075,0,0,0,H);
+    [-.52,-.38,-.24].forEach(x=>add(new THREE.TorusGeometry(.085,.009,6,24),M.costura,x,.075,0,0,H,0));
+    add(new THREE.CylinderGeometry(.07,.07,.06,20),M.latao,.3,.08,0,0,0,H);
+    const cx=.47,cy=.15,aco=new THREE.MeshStandardMaterial({color:lin('#8d959e'),metalness:.55,roughness:.38});
+    add(new THREE.CylinderGeometry(.13,.13,.3,8),aco,cx,cy,0,H,Math.PI/8,0);
+    add(new THREE.CylinderGeometry(.15,.135,.13,24),aco,cx,cy,.21,H,0,0);
+    add(new THREE.CylinderGeometry(.14,.15,.025,24),M.ferro,cx,cy,.285,H,0,0);
+    add(new THREE.CylinderGeometry(.025,.13,.3,4),aco,cx,cy,-.29,-H,Math.PI/4,0).scale.set(1.25,1,.55);
+    add(new THREE.BoxGeometry(.05,.04,.11),M.madeiraEsc,cx,cy+.115,0,0,0,0);
+    add(new THREE.BoxGeometry(.012,.045,.09),M.ferro,cx,cy+.12,0,0,0,0);
     g.rotation.y=.5;
   }else if(k==='tonico'){
     add(new THREE.CylinderGeometry(.2,.2,.52,24),M.vidro,-.1,.2,0,0,0,H);
