@@ -75,7 +75,7 @@ let RODA=null;
 function pararRoda(){if(!RODA)return;cancelAnimationFrame(RODA.raf);RODA.r.dispose();RODA.sc.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}});RODA=null}
 function infoRoda(k){
   const b=BUILDS[k],ok=liberado(b.req),sel=PERFIL.build===k,kit=b.montar(),el=$('rodaInfo');if(!el)return;
-  if(!ok&&b.req.segredo){el.className='roda-info segredo';el.innerHTML=`<b>???</b><p>${b.dica}</p><span class="cadeado">${svgPath('lupa','#d9a0ff')}Segredo</span>`;return}
+  if(!ok&&b.req.segredo){el.className='roda-info segredo';el.innerHTML=`<b>???</b><span class="cadeado">${svgPath('lupa','#d9a0ff')}Segredo</span>`;return}
   el.className='roda-info'+(ok?'':' trancado')+(sel?' sel':'');
   el.innerHTML=`${sel?'<span class="selo">Escolhida</span>':''}<b>${b.nome}</b><p>${b.desc}</p><div class="kit">${kit.dados.map(miniDado).join('')}${kit.itens.map(miniReliq).join('')}</div>${kit.ouro?`<p class="ouro-ini">Começa com ${kit.ouro} de ouro</p>`:''}${ok?'':`<span class="cadeado">${svgPath('lupa','#f0b07e')}${b.req.txt}</span>`}`;
 }
