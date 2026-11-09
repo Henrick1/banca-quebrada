@@ -28,6 +28,9 @@ Sugestão para começar: a vela, o 777, a vitória sem lançar dados, as 8 moeda
 ## Já feitos
 - **O Mendigo da Porta** (libera a bolsa O Benfeitor).
 - **Segunda forma do Dono** (libera a bolsa Herdeiro da Casa).
+- **Jogo dos Copos em 3D** (5 acertos liberam a relíquia Olho Treinado).
+- **Dados Chumbo, Negativo e Coringa.**
+- **Relíquias Estrepe (D4), Rosa dos Ventos (D8) e Calendário (D12).**
 
 ## Dados especiais
 - **Chumbo:** faces 3, 3, 4, 4, 5, 5.

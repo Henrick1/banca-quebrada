@@ -180,3 +180,26 @@ body.em-menu #mesa{position:fixed;inset:0;z-index:0;border-radius:0;border:0}
 .roda-info.segredo p{font-style:italic;color:#d9c2f0}
 .roda-info .selo{position:absolute;top:12px;right:12px;width:auto;height:auto;display:block;border:0;border-radius:999px}
 @media (max-width:760px){.roda{height:300px}.roda-seta.esq{left:2px}.roda-seta.dir{right:2px}}
+
+.copos-cena{height:300px;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#173a37,#0d1f1d 75%);box-shadow:inset 0 0 40px #000a}
+.copos-cena canvas{display:block;width:100%;height:100%}
+.copos-msg{text-align:center;font-style:normal;font-weight:700;color:var(--latao)}
+
+.vitoria-cena{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(ellipse at center,#1a1006cc 0%,#0a0604f2 70%);animation:ciEntra .35s ease-out both;cursor:default;overflow:hidden}
+.vitoria-cena.pronto{cursor:pointer}
+.vitoria-cena.sai{animation:ciSai .5s ease-in both}
+.vc-luz{position:absolute;left:50%;top:50%;width:140vmax;height:140vmax;margin:-70vmax 0 0 -70vmax;background:repeating-conic-gradient(from 0deg,#f2c66114 0deg 8deg,transparent 8deg 20deg);animation:vcGira 18s linear infinite;opacity:0;transition:opacity 1s}
+.vitoria-cena.racha .vc-luz{opacity:1}
+.vc-sobre{margin:0;font-size:13px;font-weight:800;letter-spacing:.35em;text-transform:uppercase;color:var(--osso-2);animation:ciSobe .5s .1s ease-out both;position:relative}
+.vc-titulo{position:relative;display:flex;flex-direction:column;align-items:center;line-height:.82;font-family:var(--f-display);font-size:clamp(70px,15vw,190px);animation:vcBate .55s .3s cubic-bezier(.2,1.6,.4,1) both}
+.vc-titulo span{background:linear-gradient(180deg,#fff6d6 0%,#f2c661 40%,#c4902e 65%,#7a4e14 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 8px 0 #000c) drop-shadow(0 0 40px #f2c66166);transition:transform .7s cubic-bezier(.2,1.4,.4,1),filter .7s}
+.vc-racha{position:absolute;left:44%;top:-4%;width:22px;height:108%;background:linear-gradient(#fff6d6,#f2c661 50%,transparent);clip-path:polygon(40% 0,70% 18%,30% 36%,80% 55%,25% 74%,65% 100%,45% 100%,5% 74%,55% 55%,5% 36%,45% 18%,20% 0);opacity:0;filter:drop-shadow(0 0 14px #ffd86a) drop-shadow(0 0 30px #f2c661);transform:scaleY(0);transform-origin:top;transition:opacity .2s,transform .35s cubic-bezier(.2,.9,.3,1)}
+.vitoria-cena.racha .vc-racha{opacity:1;transform:scaleY(1)}
+.vitoria-cena.racha .vc-a{transform:translate(-14px,-6px) rotate(-4deg)}
+.vitoria-cena.racha .vc-b{transform:translate(16px,8px) rotate(3deg)}
+.vc-sub{margin:14px 0 0;font-size:18px;color:var(--osso);opacity:0;transition:opacity .6s .3s;position:relative}
+.vitoria-cena.racha .vc-sub{opacity:1}
+.vc-toque{position:absolute;bottom:40px;margin:0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#d4a94f;opacity:0;transition:opacity .5s}
+.vitoria-cena.pronto .vc-toque{opacity:1;animation:ciPisca 1.6s ease-in-out infinite}
+@keyframes vcBate{from{opacity:0;transform:scale(2.6)}to{opacity:1;transform:none}}
+@keyframes vcGira{to{transform:rotate(360deg)}}

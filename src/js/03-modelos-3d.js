@@ -3,6 +3,7 @@ const lancados=[];
 const formas={},shapes={};
 
 function forma(tipo){
+  if(DIE[tipo]&&DIE[tipo].forma)return forma(DIE[tipo].forma);
   if(formas[tipo])return formas[tipo];
   let V=[],F=[],vf=[];
   if(tipo==='d6'){
@@ -72,7 +73,7 @@ function texturaFace(die,k,casa){
   if(T&&T.grao){const img=x.getImageData(0,0,128,128),d=img.data;for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*T.grao;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(img,0,0)}
   if(T&&T.veios){x.strokeStyle='rgba(0,0,0,.22)';x.lineWidth=2;for(let y=8;y<128;y+=11){x.beginPath();x.moveTo(0,y);x.bezierCurveTo(40,y+rnd(5),88,y+rnd(5),128,y+rnd(3));x.stroke()}}
   if(def.metal){x.strokeStyle=tinta;x.globalAlpha=.5;x.lineWidth=4;x.beginPath();x.arc(64,64,52,0,Math.PI*2);x.stroke();x.globalAlpha=1}
-  const f=die.faces[k];const n=f.v+f.bonus;const s=String(n);
+  const f=die.faces[k];const n=f.v+f.bonus;const s=f.estrela?'★':String(n);
   const sz=128*def.txt*(f.fx?.86:1);
   x.font=`800 ${sz}px "Alegreya Sans",sans-serif`;x.textAlign='left';x.textBaseline='alphabetic';
   const m=x.measureText(s);
@@ -81,7 +82,7 @@ function texturaFace(die,k,casa){
   const hNum=asc+desc+(sublinha?sz*.15:0);
   const is=f.fx?sz*.52:0,vao=f.fx?sz*.1:0;
   const topo=64-(hNum+vao+is)/2,base=topo+asc;
-  x.fillStyle=f.bonus&&!casa?def.up:tinta;
+  x.fillStyle=f.estrela?'#ffd86a':n<0&&!casa?'#ff6b6b':f.bonus&&!casa?def.up:tinta;
   x.fillText(s,64-(dir-esq)/2,base);
   if(sublinha)x.fillRect(64-sz*.22,base+desc+sz*.06,sz*.44,sz*.07);
   if(f.fx){

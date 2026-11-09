@@ -32,8 +32,10 @@ const CONQUISTAS={
 };
 const SEGREDOS={
   benfeitor:{nome:'Bolsa O Benfeitor'},
-  herdeiro:{nome:'Bolsa Herdeiro da Casa'}
+  herdeiro:{nome:'Bolsa Herdeiro da Casa'},
+  olho:{nome:'Relíquia Olho Treinado'}
 };
+function itemDisponivel(k){return!ITENS[k].segredo||temSegredo(ITENS[k].segredo)}
 function temSegredo(k){return(PERFIL.segredos||[]).includes(k)}
 function revelarSegredo(k){
   if(S.teste||!SEGREDOS[k]||temSegredo(k))return;
@@ -242,8 +244,23 @@ function chuvaMoedas(){
   }
   setTimeout(()=>c.remove(),5200);
 }
+function celebrarVitoria(depois){
+  const el=document.createElement('div');el.className='vitoria-cena';
+  const ini=S.ini?S.ini.nome:'O Dono da Casa';
+  el.innerHTML=`<div class="vc-luz"></div><p class="vc-sobre">${ini} caiu</p><div class="vc-titulo"><span class="vc-a">Banca</span><span class="vc-b">Quebrada</span><i class="vc-racha"></i></div><p class="vc-sub">Os ${MAPA_LINHAS} andares são seus</p><p class="vc-toque">Clique para continuar</p>`;
+  document.body.appendChild(el);
+  let feito=false;const seguir=()=>{if(feito)return;feito=true;el.classList.add('sai');setTimeout(()=>{el.remove();depois()},500)};
+  SOM.tensao();
+  setTimeout(()=>{tremer(1);hitStop=.25;SOM.batida(14,true);SOM.combo();vinheta('#f2c661');if(typeof faiscas==='function'&&typeof THREE!=='undefined'){for(let i=0;i<4;i++)setTimeout(()=>faiscas(new THREE.Vector3(rnd(4),.5,rnd(2)),0xf2c661,60,6,12),i*180)}},350);
+  setTimeout(()=>{el.classList.add('racha');SOM.batida(12,false);tremer(.7);chuvaMoedas();SOM.ouro(8)},1250);
+  setTimeout(()=>{chuvaMoedas();SOM.vitoria()},2100);
+  setTimeout(()=>el.classList.add('pronto'),2600);
+  el.addEventListener('click',()=>{if(el.classList.contains('pronto'))seguir()});
+  setTimeout(seguir,7000);
+}
 function fim(venceu){
-  S.fase='fim';S.pausado=false;
+  if(venceu&&!S.celebrou){S.celebrou=true;S.fase='fim';celebrarVitoria(()=>fim(true));return}
+  S.fase='fim';S.pausado=false;S.celebrou=false;
   const andarAlc=venceu?MAPA_LINHAS:(S.linha||0)+1,antes=listaLiberados();S.retomar=null;
   apagarSalvo();RNG.ativo=false;
   let novoDesafio=false;

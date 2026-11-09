@@ -126,7 +126,8 @@ function montarRoda(){
   let antes=performance.now();
   const quadro=()=>{
     if(!document.body.contains(cv)){pararRoda();return}
-    RODA.raf=requestAnimationFrame(quadro);
+    RODA.raf=requestAnimationFrame(quadro);RODA.q=(RODA.q||0)+1;
+    if(!arr&&Math.abs(alvo-a)<.002&&!bolsas.some(g=>g.userData.pulo>0||g.userData.treme>0)&&RODA.q%2)return;
     const agora=performance.now(),dt=Math.min(.05,(agora-antes)/1000);antes=agora;t+=dt;
     if(!(arr&&arr.moveu))a+=(alvo-a)*Math.min(1,dt*9);
     T.rotation.y=-a*passo;

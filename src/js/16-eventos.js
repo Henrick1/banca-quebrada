@@ -5,7 +5,7 @@ function fundir(a,b){
   n.encanto=a.encanto||b.encanto;n.fundido=Math.max(a.fundido||0,b.fundido||0)+1;
   S.dados=S.dados.filter(d=>d!==a&&d!==b);S.dados.push(n);conquistar('fusao');return n;
 }
-function relRandom(){const l=Object.keys(ITENS).filter(k=>!temItem(k));return l.length?l[Math.floor(R()*l.length)]:null}
+function relRandom(){const l=Object.keys(ITENS).filter(k=>!temItem(k)&&itemDisponivel(k));return l.length?l[Math.floor(R()*l.length)]:null}
 function amaldicoar(){const d=pick(S.dados),f=pick(d.faces);f.bonus+=5;f.fx={k:'pacto',n:2};return d}
 const mediaNum=d=>d.faces.reduce((s,f)=>s+valorFace(f),0)/d.faces.length;
 const EVENTOS=[
@@ -79,8 +79,10 @@ const EVENTOS=[
   opcoes:()=>{const pode=S.dados.length>BOLSA_MIN;return[
    {rot:'Sacrificar o pior dado',desc:'O dado mais fraco da sua bolsa some. O mais forte ganha +1 em todas as faces.',trava:!pode&&`Você precisa de mais de ${BOLSA_MIN} dados`,acao:()=>{const ord=S.dados.slice().sort((a,b)=>mediaNum(a)-mediaNum(b)),pior=ord[0],melhor=ord[ord.length-1];S.dados=S.dados.filter(d=>d!==pior);melhor.faces.forEach(f=>f.bonus+=1);SOM.grava();setTimeout(()=>SOM.combo(),150);return{titulo:'O altar aceitou',texto:`${DIE[pior.type].nome} virou pó. Seu ${DIE[melhor.type].nome} brilha com +1 em todas as faces.`,bom:true}}},
    {rot:'Acender uma vela',desc:'Recupera 6 de vida.',trava:S.hp>=S.max&&'Vida cheia',acao:()=>{S.hp=Math.min(S.max,S.hp+cm(6));SOM.cura();return{titulo:'Um pouco de paz',texto:'O cheiro de cera acalma. Você recuperou 6 de vida.',bom:true}}}]}},
- {id:'copos',titulo:'O Jogo dos Copos',ic:'copo',cor:'#c08a55',texto:'Três copos de couro viram e giram rápido demais. "Ache a moeda, leve o prêmio. Custa só 4."',
-  opcoes:()=>['da esquerda','do meio','da direita'].map(lado=>({rot:`Copo ${lado}`,desc:'4 de ouro para escolher.',trava:S.ouro<4&&'Você não tem 4 de ouro',acao:()=>{S.ouro-=4;const x=R();if(x<.34){S.ouro+=14;SOM.ouro(6);return{titulo:'Achou a moeda!',texto:'O trapaceiro fecha a cara e paga 14 de ouro.',bom:true}}if(x<.55&&(S.cons||[]).length<consMax()){S.cons.push('peso');SOM.combo();return{titulo:'Quase',texto:'Não era a moeda, mas por baixo do copo havia um Peso de Chumbo. Você guarda no bolso.',bom:true}}SOM.dano();return{titulo:'Copo vazio',texto:'Claro que estava vazio. Sempre está.',bom:false}}}))},
+ {id:'copos',titulo:'O Jogo dos Copos',ic:'copo',cor:'#c08a55',texto:'Um trapaceiro mostra uma moeda e cobre com um de três copos de couro. "Siga a moeda com o olho. Acertou, leva 14. Custa só 4."',
+  opcoes:()=>[
+   {rot:'Jogar',desc:'4 de ouro. Acompanhe o copo da moeda enquanto ele embaralha.',trava:S.ouro<4&&'Você não tem 4 de ouro',acao:()=>{S.ouro-=4;SOM.ouro(2);hud();telaCopos()}},
+   {rot:'Ir embora',desc:'Ninguém ganha desse sujeito.',acao:()=>({titulo:'Você seguiu em frente',texto:'Ele dá de ombros e procura outro otário.'})}]},
  {id:'mapa',titulo:'O Mapa Rabiscado',ic:'lupa',cor:'#e3c27a',texto:'Num guardanapo manchado, alguém desenhou o caminho até o cofre de um apostador. Só que ele está de olho em você.',
   opcoes:()=>{const k=relRandom();return[
    {rot:'Seguir o mapa',desc:k?`Ganha ${ITENS[k].nome} agora. O próximo inimigo vem com um traço extra.`:'Não sobrou nenhuma relíquia.',trava:!k&&'Nenhuma relíquia disponível',acao:()=>{ganharItem(k);SOM.item();S.proxLuta={...(S.proxLuta||{}),extra:true};return{titulo:'Achou o esconderijo',texto:`Atrás de um tijolo solto: ${ITENS[k].nome}. Mas alguém viu você saindo.`,bom:true}}},

@@ -4,7 +4,7 @@ const RARIDADE={comum:{nome:'Comum',cor:'#cdbf9f'},incomum:{nome:'Incomum',cor:'
 const RAR_CONS={tonico:'comum',peso:'comum',faca:'incomum',frasco:'incomum',martelo:'incomum',maoLeve:'raro'};
 function raridadeOferta(o){
   const k=o.kind;
-  if(k==='dado')return o.tipo==='d20'?'raro':(o.tipo==='d10'||o.tipo==='d12')?'incomum':'comum';
+  if(k==='dado')return(o.tipo==='d20'||o.tipo==='coringa')?'raro':['d10','d12','chumbo','negativo'].includes(o.tipo)?'incomum':'comum';
   if(k==='bonus')return o.n>=3?'raro':o.n===2?'incomum':'comum';
   if(k==='fx')return o.fx.k==='dobro'?'raro':(o.fx.k==='fogo'||o.fx.k==='veneno')?'incomum':'comum';
   if(k==='polir')return'raro';
@@ -39,7 +39,7 @@ function poolGravacoes(){
 }
 function ofertaCons(k,gratis){return{kind:'cons',chave:k,preco:CONSUMIVEIS[k].preco,id:uid++,gratis}}
 function ofertaDado(t,gratis){return{kind:'dado',tipo:t,preco:DIE[t].preco,id:uid++,gratis}}
-function tiposDado(n,bonus=0){return sortear(['coin','d4','d6','d8','d10','d12','d20'].map(t=>({kind:'dado',tipo:t})),n,bonus).map(o=>o.tipo)}
+function tiposDado(n,bonus=0){return sortear(['coin','d4','d6','d8','d10','d12','d20','chumbo','negativo','coringa'].map(t=>({kind:'dado',tipo:t})),n,bonus).map(o=>o.tipo)}
 function gerarEstoque(){
   const L=S.loja;
   L.dados=tiposDado(3).map(t=>ofertaDado(t,false));
@@ -78,7 +78,7 @@ function infoOferta(o){
   if(o.kind==='dado'){
     const d=DIE[o.tipo];const fake=novoDado(o.tipo);
     const faces=d.faces.length<=6?`<span class="faces">${fake.faces.map((_,i)=>chip(fake,i)).join('')}</span>`:`Faces de 1 a ${d.faces.length}.`;
-    return{tipo:'Dado novo',tit:d.nome,desc:`Média ${mediaDado(fake)}. ${faces}`,ic:svgTipo(o.tipo)};
+    return{tipo:'Dado novo',tit:d.nome,desc:`${d.desc?d.desc+' ':''}${d.estrela!=null?'':`Média ${mediaDado(fake)}. `}${faces}`,ic:svgTipo(o.tipo)};
   }
   if(o.kind==='bonus')return{tipo:'Gravação · 1 face',tit:`+${o.n} numa face`,desc:`A face escolhida passa a valer ${o.n} a mais. Soma com bônus anteriores.`,ic:iconeFx('cura','#d4a94f')};
   if(o.kind==='fx'){
@@ -208,19 +208,21 @@ function iniciarLoja3D(){
     return null;
   };
   cv.addEventListener('pointermove',e=>{
-    if(!LJ)return;const o=achar(e);if(o===LJ.hover)return;
+    if(!LJ)return;LJ.ativo=performance.now();const o=achar(e);if(o===LJ.hover)return;
     LJ.hover=o;$('ljCenaBox').classList.toggle('mao',!!o);clearTimeout(LJ.tFoco);
     if(o&&S.loja&&S.loja.foco!==o){S.loja.foco=o;SOM.batida(2.5,false,.4);renderDetalhe()}
   });
   cv.addEventListener('pointerleave',()=>{if(LJ){clearTimeout(LJ.tFoco);LJ.hover=null;$('ljCenaBox').classList.remove('mao')}});
-  cv.addEventListener('click',e=>{if(!LJ)return;const o=achar(e);if(!o)return;
+  cv.addEventListener('click',e=>{if(!LJ)return;LJ.ativo=performance.now();const o=achar(e);if(!o)return;
     const est=estadoOferta(o);if(est.trava&&S.loja.sel!==o){S.loja.foco=o;SOM.batida(3,false);renderDetalhe();return}
     S.loja.foco=o;const g=LJ.mapa.get(o.id);if(g)g.userData.pulo=1;acionarOferta(o)});
   let ult=performance.now();
   const loop=t=>{
     if(!LJ)return;
     if(!$('lojaCena')||S.fase!=='loja'){if(LJ.ro)LJ.ro.disconnect();LJ.r.dispose();LJ=null;return}
-    const dt=Math.min(.05,(t-ult)/1000);ult=t;animarLoja3D(dt);LJ.r.render(LJ.sc,LJ.cam);LJ.raf=requestAnimationFrame(loop);
+    LJ.raf=requestAnimationFrame(loop);LJ.q=(LJ.q||0)+1;
+    if(performance.now()-(LJ.ativo||0)>2500&&LJ.q%2)return;
+    const dt=Math.min(.05,(t-ult)/1000);ult=t;animarLoja3D(dt);LJ.r.render(LJ.sc,LJ.cam);
   };
   LJ.raf=requestAnimationFrame(loop);
 }
@@ -233,7 +235,7 @@ function ajustarLoja3D(){
 }
 function enquadrarLoja(){
   const b=LJ&&LJ.limites;if(!b)return;
-  const el=.98,t=Math.tan(THREE.MathUtils.degToRad(LJ.cam.fov/2));
+  const el=LJ.cam.aspect<1?1.28:.98,t=Math.tan(THREE.MathUtils.degToRad(LJ.cam.fov/2));
   const hw=(b.x1-b.x0)/2+.7,hd=(b.z1-b.z0)/2,cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;
   const d=Math.max(hw/(t*LJ.cam.aspect),(hd*Math.sin(el)+.9)/t)+1.5;
   LJ.cam.position.set(cx,d*Math.sin(el),cz+d*Math.cos(el));LJ.cam.lookAt(cx,.35,cz);LJ.cam.updateProjectionMatrix();
@@ -258,7 +260,7 @@ function sincronizarLoja3D(){
   if(!LJ||!S.loja)return;const L=S.loja;
   const secs=LJ_SECOES.map(([k,nome,cor])=>({k,nome,cor,itens:L[k]||[]})).filter(x=>x.itens.length);
   const grupos=[['espolio','reliq','cons'],['dados','enc'],['grav','serv']];
-  const SP=1.9,GAP=1.1,PZ=3.15,pos=new Map(),decos=[];
+  const estreito=typeof LJ.modo==='number'&&LJ.modo<1,SP=1.9,GAP=1.1,PZ=estreito?3.8:3.15,pos=new Map(),decos=[];
   const linhas=layoutLoja(secs,grupos,typeof LJ.modo==='number'?LJ.modo:1.6,SP,GAP,PZ);
   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;
   linhas.forEach((lin,ri)=>{

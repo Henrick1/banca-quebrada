@@ -25,6 +25,7 @@ function aoParar(t){
     const minF=Math.min(...DIE[t.die.type].faces);
     if(t.die.encanto==='cinabrio'&&f.v===minF&&!t.die.eco&&!(S.fenixUsados||[]).includes(t.die.id)&&S.fase==='jogador'){renascerFenix(t);return}
     let val=valorFace(f);const passos=[];
+    if(f.estrela){val=Math.max(0,alvoAtual()-S.soma)+f.bonus;SOM.combo();faiscas(t.mesh.position,0xffd86a,40,4,9)}
     const base0=val;
     if(t.sangrou===1){t.sangrou=2;val+=2;passos.push({v:2,txt:'Sangria +2',cor:'#ff7088'})}
     if(temItem('ferradura')&&f.v+f.bonus===1){const n=3*(f.fx&&f.fx.k==='dobro'?2:1);passos.push({k:'ferradura',v:n-val,txt:'1 vale 3'});val=n}
@@ -351,6 +352,7 @@ function resolver(){
       if(S.modo.mult){d=Math.round(d*S.modo.mult);setTimeout(()=>{if(CONT)rotuloMesa(`${S.modo.nome} ×${S.modo.mult}`,CONT.mostr.soma.w.getWorldPosition(new THREE.Vector3()),'#f2c661')},200)}
       if(S.modo.teto&&S.soma===maxT){d*=2;conquistar('mosca');setTimeout(()=>{if(CONT)rotuloMesa('Na mosca! ×2',CONT.mostr.soma.w.getWorldPosition(new THREE.Vector3()),'#f2c661');SOM.combo()},200)}
       if(temItem('espelho')&&S.soma===alvo){const q=qtdItem('espelho')+1;d*=q;dispararItem('espelho',`Dano ×${q}`)}
+      if(temItem('olhoTreinado')&&S.soma===alvo){const q=4*qtdItem('olhoTreinado');d+=q;dispararItem('olhoTreinado',`Olho +${q}`)}
       if(temItem('lamina')){const q=3*qtdItem('lamina');d+=q;dispararItem('lamina',`+${q} de dano`)}
       if(temItem('brasa')){const q=S.naMesa.length*qtdItem('brasa');if(q){d+=q;dispararItem('brasa',`+${q} de dano`)}}
       if(temItem('tabua')){S.serie=(S.serie||0)+1;const q=2*(S.serie-1)*qtdItem('tabua');if(q){d+=q;dispararItem('tabua',`Série +${q}`)}}

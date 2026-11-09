@@ -1,5 +1,8 @@
 const DIE={
   d6:{nome:'Dado de 6',curto:'D6',faces:[1,2,3,4,5,6],cor:'#e9e0cb',tinta:'#2b211a',up:'#9a640e',preco:6,txt:.5},
+  chumbo:{nome:'Dado de Chumbo',curto:'CHB',faces:[3,3,4,4,5,5],cor:'#5d636b',tinta:'#eef1f5',up:'#f2c661',preco:9,txt:.5,forma:'d6',metal:true,desc:'Viciado: quase não varia.'},
+  negativo:{nome:'Dado Negativo',curto:'NEG',faces:[-3,-2,-1,1,2,3],cor:'#2a1a1e',tinta:'#f3e9dc',up:'#f2c661',preco:7,txt:.44,forma:'d6',desc:'Pode tirar da sua soma. Salva quando você vai passar do teto.'},
+  coringa:{nome:'Dado Coringa',curto:'CRG',faces:[0,0,0,0,0,0],estrela:5,cor:'#5a2478',tinta:'#f6dc8a',up:'#f2c661',preco:12,txt:.5,forma:'d6',desc:'Quase sempre 0. A ★ vale exatamente o que falta para o alvo.'},
   coin:{nome:'Moeda',curto:'Moeda',faces:[4,1],rot:['Cara','Coroa'],cor:'#c89838',tinta:'#3a280b',up:'#7a1f14',preco:4,txt:.46,metal:true},
   d4:{nome:'Dado de 4',curto:'D4',faces:[1,2,3,4],cor:'#d07a34',tinta:'#fff3e0',up:'#3a1f08',preco:3,txt:.27},
   d8:{nome:'Dado de 8',curto:'D8',faces:[1,2,3,4,5,6,7,8],cor:'#2f5590',tinta:'#eef2fa',up:'#f2c661',preco:8,txt:.42},
@@ -31,6 +34,9 @@ const temaCasa=()=>S.ini&&S.ini.tema?TEMAS_CASA[S.ini.tema]:null;
 function corCasa(die){const T=temaCasa(),c=die.cor||CASA.cor;if(!T)return c;return '#'+new THREE.Color(c).lerp(new THREE.Color(T.base),T.mix).getHexString()}
 const ICONE_TIPO={
   d6:'<rect x="4" y="4" width="16" height="16" rx="3"/>',
+  chumbo:'<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.5" fill="none"/>',
+  negativo:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12 H16" fill="none" stroke-width="2.4"/>',
+  coringa:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 6.8 L13.5 10.4 L17.3 10.6 L14.3 13 L15.4 16.8 L12 14.6 L8.6 16.8 L9.7 13 L6.7 10.6 L10.5 10.4 Z" fill="#f6dc8a" stroke="none"/>',
   coin:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5" fill="none"/>',
   d4:'<path d="M12 3 L21.5 20 H2.5 Z"/><path d="M12 3 V20" fill="none"/>',
   d8:'<path d="M12 2 L20 12 L12 22 L4 12 Z"/><path d="M4 12 H20" fill="none"/>',
@@ -86,6 +92,10 @@ const PATHS={
   fichaSorte:'M12 1.5 L15.2 8.6 L22.8 9.1 L17 14 L18.8 21.5 L12 17.4 L5.2 21.5 L7 14 L1.2 9.1 L8.8 8.6 Z',
   sino:'M12 1.5 C13 1.5 13.6 2.1 13.6 3 C17.2 3.9 18.7 7 18.7 11 V16 L21.2 19 H2.8 L5.3 16 V11 C5.3 7 6.8 3.9 10.4 3 C10.4 2.1 11 1.5 12 1.5 Z M9.6 20 H14.4 A2.4 2.4 0 0 1 9.6 20 Z',
   pergaminho:'M5 2.5 H17 A3 3 0 0 1 20 5.5 V19 A3 3 0 0 1 17 22 H7 A3 3 0 0 1 4 19 V16.5 H7 V5.5 A3 3 0 0 0 5 2.5 Z M10 8 H17 V9.5 H10 Z M10 12 H17 V13.5 H10 Z',
+  olhoTreinado:'M1 12 C5 4.5 19 4.5 23 12 C19 19.5 5 19.5 1 12 Z M12 7.6 A4.4 4.4 0 1 0 12.01 7.6 Z M12 10.2 A1.8 1.8 0 1 1 11.99 10.2 Z',
+  estrepe:'M12 2 L14.2 9.8 L22 14 L13.8 14.6 L12 22 L10.2 14.6 L2 14 L9.8 9.8 Z',
+  rosaVentos:'M12 1 L13.7 10.3 L23 12 L13.7 13.7 L12 23 L10.3 13.7 L1 12 L10.3 10.3 Z M5.5 5.5 L12 10.6 L18.5 5.5 L13.4 12 L18.5 18.5 L12 13.4 L5.5 18.5 L10.6 12 Z',
+  calendario:'M3 4.5 H21 V21 H3 Z M5 9 V19 H19 V9 Z M7 2 H9 V6 H7 Z M15 2 H17 V6 H15 Z M7 11 H10 V13.5 H7 Z M10.5 11 H13.5 V13.5 H10.5 Z M14 11 H17 V13.5 H14 Z M7 14.5 H10 V17 H7 Z M10.5 14.5 H13.5 V17 H10.5 Z',
   grimorio:'M4 2.5 H18 A2 2 0 0 1 20 4.5 V21.5 H6 A2 2 0 0 1 4 19.5 Z M8 6.5 H16 V9 H8 Z M11 12 L13.5 15 L11 18 L8.5 15 Z',
   algibeira:'M6 8 H18 L20.5 20 C20.5 21.6 19.5 22.5 18 22.5 H6 C4.5 22.5 3.5 21.6 3.5 20 Z M8.6 8 C8.6 3 15.4 3 15.4 8 H13.4 C13.4 5.5 10.6 5.5 10.6 8 Z',
   medalhao:'M12 21.5 C5 15.5 1.5 11.7 1.5 8 A5.2 5.2 0 0 1 12 5.5 A5.2 5.2 0 0 1 22.5 8 C22.5 11.7 19 15.5 12 21.5 Z',
@@ -183,6 +193,10 @@ const ITENS={
   sino:{nome:'Sino de Bronze',desc:'Seus D6 valem +1.',cor:'#c99a3c',preco:10},
   pergaminho:{nome:'Pergaminho',desc:'Seus D10 valem +1.',cor:'#e9dcc0',preco:9},
   grimorio:{nome:'Grimório',desc:'Seus D20 valem +2.',cor:'#b8a6d6',preco:10},
+  olhoTreinado:{nome:'Olho Treinado',desc:'Acertar o alvo exato dá +4 de dano.',cor:'#e3c27a',preco:11,segredo:'olho'},
+  estrepe:{nome:'Estrepe',desc:'Seus D4 valem +2.',cor:'#d07a34',preco:8},
+  rosaVentos:{nome:'Rosa dos Ventos',desc:'Seus D8 valem +1.',cor:'#6f9ad6',preco:9},
+  calendario:{nome:'Calendário',desc:'Seus D12 valem +1, ou +4 quando caem no 12.',cor:'#b99ad8',preco:10},
   algibeira:{nome:'Algibeira',desc:'Ganha 3 de ouro no início de cada luta.',cor:'#c08a55',preco:7},
   medalhao:{nome:'Medalhão',desc:'+10 de vida máxima.',cor:'#e06a5c',preco:10},
   rum:{nome:'Garrafa de Rum',desc:'Ao vencer uma luta, recupera 8 de vida.',cor:'#b07a48',preco:8},
@@ -240,6 +254,9 @@ function bonusFace(t,f,passos=[]){
   if(q('sino')&&tipo==='d6')soma('sino',q('sino'));
   if(q('pergaminho')&&tipo==='d10')soma('pergaminho',q('pergaminho'));
   if(q('grimorio')&&tipo==='d20')soma('grimorio',2*q('grimorio'));
+  if(q('estrepe')&&tipo==='d4')soma('estrepe',2*q('estrepe'));
+  if(q('rosaVentos')&&tipo==='d8')soma('rosaVentos',q('rosaVentos'));
+  if(q('calendario')&&tipo==='d12')soma('calendario',(f.v===12?4:1)*q('calendario'));
   if(q('moedaPesada')&&tipo==='coin'&&f.v===2)soma('moedaPesada',4*q('moedaPesada'),`Chumbo +${4*q('moedaPesada')}`);
   if(q('dadoOsso')&&tipo==='d6'&&f.v===1)soma('dadoOsso',5*q('dadoOsso'),`Osso +${5*q('dadoOsso')}`);
   if(conjAtivo('viciado')&&[...DIE[tipo].faces].sort((a,b)=>a-b).slice(0,2).includes(f.v))soma('dadoOsso',2,'Viciado +2');

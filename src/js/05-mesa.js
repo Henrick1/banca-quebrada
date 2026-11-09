@@ -55,7 +55,7 @@ function iniciar3D(){
     if(MESA.voltarCam){MESA.voltarCam=false;ajustar()}
     if(MESA.orbita&&!$('overlay').hidden){MESA.ang=(MESA.ang||0)+dt*.07;const r=Math.hypot(camBase.x,camBase.z-1)*.92,h=camBase.y*.62;camera.position.set(Math.sin(MESA.ang)*r,h,Math.cos(MESA.ang)*r);camera.lookAt(0,0,-1);atualizarEfeitos(dt);atualizarContador(dt);renderer.render(scene,camera);return}
     const coberto=!$('overlay').hidden&&!emJogo();
-    if(coberto){acum+=dt;if(quadro%4)return;const d=Math.min(.12,acum);acum=0;atualizarEfeitos(d);atualizarContador(d);passoBandeja(Math.min(.05,d));passoBolso(d);renderer.render(scene,camera);return}
+    if(coberto){acum+=dt;const outra=(typeof LJ!=='undefined'&&LJ)||(typeof RODA!=='undefined'&&RODA)||(typeof COPOS!=='undefined'&&COPOS);if(quadro%(outra?30:4))return;const d=Math.min(.12,acum);acum=0;atualizarEfeitos(d);atualizarContador(d);passoBandeja(Math.min(.05,d));passoBolso(d);renderer.render(scene,camera);return}
     acum=0;passo(dt);atualizarEfeitos(dt);atualizarContador(dt);passoBandeja(dt);passoBolso(dt);renderer.render(scene,camera);posicionarRotulos();posicionarAncoras();
   };
   requestAnimationFrame(loop);

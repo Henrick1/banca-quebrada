@@ -1,5 +1,5 @@
 const MESA={fichas:[],bolsa:null,bolsaPulso:0,hover:null};
-function ofertasReliquia(n,gratis,bonus=0){return sortear(Object.keys(ITENS).filter(k=>!temItem(k)).map(k=>({kind:'item',chave:k})),n,bonus).map(o=>({kind:'item',chave:o.chave,preco:ITENS[o.chave].preco,id:uid++,gratis}))}
+function ofertasReliquia(n,gratis,bonus=0){return sortear(Object.keys(ITENS).filter(k=>!temItem(k)&&itemDisponivel(k)).map(k=>({kind:'item',chave:k})),n,bonus).map(o=>({kind:'item',chave:o.chave,preco:ITENS[o.chave].preco,id:uid++,gratis}))}
 const RAR_FICHA={comum:{borda:'#9a2f2a',lado:'#e9dcc0'},incomum:{borda:'#2f6f9a',lado:'#dfe6ea'},raro:{borda:'#b8862a',lado:'#e8c46a'}};
 const rarItem=k=>raridadeOferta({kind:'item',chave:k})||'comum';
 function texturaFicha(path,cor,inimigo,rar='comum'){

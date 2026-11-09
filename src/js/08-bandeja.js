@@ -312,7 +312,7 @@ function desenharEtiqueta(){
   x.fillStyle=ilho;x.beginPath();x.arc(52,H/2,17,0,Math.PI*2);x.fill();
   x.fillStyle=pode?'#3a2414':'#6b5640';x.font=`${titulo.length>6?66:100}px "Pirata One",serif`;x.textAlign='left';x.textBaseline='alphabetic';
   x.fillText(titulo,84,112);
-  const cor={d6:['#efe6cf','#2b211a'],coin:['#d9a83e','#6b4a10'],d10:['#2e6a6c','#f1e8d4'],d20:['#8a2d37','#f3e9d5'],d4:['#d07a34','#fff3e0'],d8:['#2f5590','#eef2fa'],d12:['#5b3a7e','#f3e9fb']};
+  const cor={d6:['#efe6cf','#2b211a'],coin:['#d9a83e','#6b4a10'],d10:['#2e6a6c','#f1e8d4'],d20:['#8a2d37','#f3e9d5'],d4:['#d07a34','#fff3e0'],d8:['#2f5590','#eef2fa'],d12:['#5b3a7e','#f3e9fb'],chumbo:['#5d636b','#eef1f5'],negativo:['#2a1a1e','#ff6b6b'],coringa:['#5a2478','#f6dc8a']};
   const q=Math.min(tipos.length,5),R=19;
   tipos.slice(0,q).forEach((t,i)=>{
     const cx=104+i*46,cy=166,[f,l]=cor[t];x.fillStyle=f;x.strokeStyle='rgba(40,24,10,.75)';x.lineWidth=3;
