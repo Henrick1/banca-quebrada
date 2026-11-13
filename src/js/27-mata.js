@@ -41,7 +41,7 @@ function modeloFolha(){
 }
 function poeira(p,cor=0xb9a27a,n=24){faiscas(p,cor,n,3,5)}
 function rerolar(t,imp){
-  if(!lancados.includes(t)||t.quebrado)return false;
+  if(!lancados.includes(t)||t.quebrado||!t.pronto)return false;
   if(t.mel){rotuloMesa('Grudado no mel',t.mesh.position,'#e3a83a');return false}
   if(t.dono==='jogador'){if(t.valor!=null)S.soma-=t.valor;t.valor=null;t.oculto=0}
   else{t.valor=null;t.oculto=0;if(t.folhaV){t.folhaV=0;S.folhaUsada=false}S.rolagem=valorCasa();if(t.folha){livre(t.folha);t.folha=null}}
