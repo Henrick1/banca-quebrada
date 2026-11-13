@@ -26,18 +26,22 @@ function luta(P,no,stats){
     let base=Math.max(0,E.base+(no.tipo==='chefe'?(CFG.bossBase||0):0)+(m.base||0)+Math.floor((rod-1)/(CFG.pressDiv||2))+Math.min(CFG.calorMax??99,Math.floor(P.rodTotal/(CFG.calorDiv||8)))+(des>=2?1:0)-(rod===1&&P.relog?3:0));
     let mao=[...P.dados].sort(()=>Math.random()-.5).slice(0,Math.max(3+(P.bolsaFunda||0),m.seq.split('j').length-1)+(chefe&&rod===1&&P.cons.includes('maoLeve')&&usa(P,'maoLeve')?2:0));
     let peso=0,pesoUsado=0;
-    if(tem('congela')&&mao.length>1)mao.splice(Math.floor(Math.random()*mao.length),1);
+    if((tem('congela')||tem('raizes'))&&mao.length>1)mao.splice(Math.floor(Math.random()*mao.length),1);
+    const vals=[];let corvou=0;
     mao.sort((a,b)=>media(b)-media(a));
     let soma=0,casa=0,cFeitos=0,cTot=m.seq.split('').filter(c=>c==='c').length,escudo=P.escudoIni||0,escCasa=0,lancados=0,aposta=0,parou=false;
     const alvo=()=>base+casa+aposta,teto=()=>m.teto?alvo()+m.teto:Infinity;
     for(const ch of m.seq){
       if(parou)break;
       if(ch==='c'){
-        const qtd=tem('duplo')?2:1;let melhor=-1;
+        const qtd=tem('enxame')?3:tem('duplo')?2:1;let melhor=-1,somaE=0;
         const resto=[...E.bolsa];for(let i=0;i<Math.min(qtd,resto.length);i++){const d=resto.splice(resto.indexOf(sorteia(resto)),1)[0],f=rolar(d);let v=valorFace(f);
           if(d.area){if(d.area.tipo==='raio')soma-=2*Math.min(1,lancados*.5);else soma-=3*Math.min(2,lancados)}
           if(f.fx){if(f.fx.k==='espinho')P.hp-=f.fx.n;if(f.fx.k==='escudo')escCasa+=f.fx.n;if(f.fx.k==='cura')E.hp=Math.min(E.max,E.hp+f.fx.n);if(f.fx.k==='roubo')P.ouro=Math.max(0,P.ouro-f.fx.n)}
-          melhor=Math.max(melhor,v)}
+          if(d.lodo)soma-=Math.min(vals.length,2);
+          melhor=Math.max(melhor,v);somaE+=v}
+        if(tem('enxame'))melhor=somaE;
+        if(tem('corvo')&&vals.length&&!corvou){corvou=1;const i=Math.floor(Math.random()*vals.length);soma-=vals[i];vals.splice(i,1)}
         let vc=Math.max(0,melhor-(P.baralho||0));if(vc>=6&&usa(P,'martelo'))vc=0;
         casa+=vc;cFeitos++;
       }else{
@@ -49,7 +53,8 @@ function luta(P,no,stats){
         if(!pesoUsado&&cFeitos===cTot&&!mao.length&&soma+media(d)<alvo()&&soma+media(d)+6>=alvo()&&usa(P,'peso')){peso=6;pesoUsado=1}
         const f=rolar(d);let v=valorFace(f)+(d.encanto&&Math.random()<.4?4:0)+(P.bonusDado||0)+peso;peso=0;
         lancados++;if(tem('cobrador')&&lancados>2)P.hp-=2;
-        soma+=v;
+        soma+=v;vals.push(v);
+        if(tem('mira')&&lancados===1&&v<3)P.hp-=4;
         if(f.fx){const n=f.fx.n||0;
           if(f.fx.k==='fogo'){E.hp-=n;stats.dano+=n}
           if(f.fx.k==='cura')P.hp=Math.min(P.max,P.hp+(des>=5?Math.ceil(n/2):n));
@@ -75,13 +80,13 @@ function melhorar(P,n){if(CFG.polir&&Math.random()<CFG.polir){const d=P.dados.sl
 function partida(){
   const des=CFG.des||0;
   const V=CFG.vida||40;const P={cons:['martelo'],hp:des>=5?V-10:V,max:des>=5?V-10:V,ouro:0,dados:[novoDado('d6'),novoDado('d6'),novoDado('d6'),novoDado('coin'),novoDado('d6')],rodTotal:0,danoExtra:0,reliq:0};
-  const M=gerarMapa();let atual=M.inicio,linha=0;const st={rodadas:0,dano:0,danoSofrido:0,acertos:0,erros:0,lutas:[]};
+  definirReino(0);let M=gerarMapa();let atual=M.inicio,linha=0;const st={rodadas:0,dano:0,danoSofrido:0,acertos:0,erros:0,lutas:[]};
   while(true){
     const no=M.nos[atual];linha=no.r;
     if(no.inimigo!=null){
       const hp0=P.hp,r=luta(P,no,st);st.lutas.push({tier:no.inimigo,tipo:no.tipo,rod:r.rod,perdeu:hp0-Math.max(0,P.hp)});
-      if(!r.venceu)return{venceu:false,linha:linha+1,st,P};
-      if(no.tipo==='chefe'&&(no.final||no.r>=MAPA_LINHAS-1))return{venceu:true,linha:MAPA_LINHAS,st,P};
+      if(!r.venceu)return{venceu:false,linha:(S.reino||0)*MAPA_LINHAS+linha+1,st,P};
+      if(no.tipo==='chefe'&&(no.final||no.r>=MAPA_LINHAS-1)){if((S.reino||0)>=(CFG.reinos||REINOS.length)-1)return{venceu:true,linha:MAPA_LINHAS*(S.reino+1),st,P};definirReino(S.reino+1);M=gerarMapa();atual=M.inicio;P.hp=P.max;continue}
       if(no.tipo==='chefe')P.hp=Math.min(P.max,P.hp+(des>=5?8:15));
       if(CFG.curaVitoria)P.hp=Math.min(P.max,P.hp+Math.round(P.max*CFG.curaVitoria));P.ouro+=Math.round((6+tierDe(no.inimigo)*2)*(no.tipo==='elite'||no.tipo==='chefe'?1.5:1)*(des>=3?.75:1)*(CFG.ouroMult||1));
       if(Math.random()<(no.tipo==='luta'?(CFG.dropCons??.25):(CFG.dropElite??.6)))ganhaCons(P,linha,no.tipo==='luta'?0:.35);
@@ -97,7 +102,7 @@ function partida(){
         P.ouro-=5;melhorar(P,2);
       }
     }else if(no.tipo==='descanso'){if(P.hp<P.max*.7)P.hp=Math.min(P.max,P.hp+Math.round(P.max*.35*(des>=5?.5:1)));else melhorar(P,3)}
-    else if(no.tipo==='evento'){const x=Math.random();if(x<.35)P.ouro+=8;else if(x<.6)P.hp=Math.min(P.max,P.hp+8);else if(x<.8)melhorar(P,2);else P.hp-=5;if(P.hp<=0)return{venceu:false,linha:linha+1,st,P}}
+    else if(no.tipo==='evento'){const x=Math.random();if(x<.35)P.ouro+=8;else if(x<.6)P.hp=Math.min(P.max,P.hp+8);else if(x<.8)melhorar(P,2);else P.hp-=5;if(P.hp<=0)return{venceu:false,linha:(S.reino||0)*MAPA_LINHAS+linha+1,st,P}}
     const prox=M.lig[atual];
     const pref=t=>{const n=M.nos[t];if(n.tipo==='chefe')return 9;if(P.hp<P.max*.45)return n.tipo==='descanso'?5:n.tipo==='loja'?4:n.tipo==='evento'?3:n.tipo==='luta'?2:0;if(P.ouro>=15&&n.tipo==='loja')return 4;return n.tipo==='elite'&&P.hp>P.max*.75?5:n.tipo==='luta'?3:n.tipo==='evento'?2.5:1};
     atual=prox.slice().sort((a,b)=>pref(b)-pref(a)+(Math.random()-.5)*.8)[0];

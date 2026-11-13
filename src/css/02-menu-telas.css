@@ -203,3 +203,8 @@ body.em-menu #mesa{position:fixed;inset:0;z-index:0;border-radius:0;border:0}
 .vitoria-cena.pronto .vc-toque{opacity:1;animation:ciPisca 1.6s ease-in-out infinite}
 @keyframes vcBate{from{opacity:0;transform:scale(2.6)}to{opacity:1;transform:none}}
 @keyframes vcGira{to{transform:rotate(360deg)}}
+.reino-intro{background:radial-gradient(ellipse at 50% 30%,#0a120cf2 0%,#0a120ce0 45%,#0a120c88 80%,#0a120c22 100%)}
+.reino-intro .ci-nome{color:#9fd67a;text-shadow:0 4px 30px #000,0 0 40px #7fbf5a66}
+.ri-texto{margin:0 0 14px;max-width:52ch;font-size:15px;line-height:1.55;color:var(--osso);font-style:italic;animation:ciSobe .6s .55s ease-out both}
+body.reino-floresta .mapa-vista{background:radial-gradient(ellipse at 50% 35%,#e6ecc6,#c6d29a 65%,#94a868);box-shadow:inset 0 0 90px #3a5a1a99,0 20px 40px #000a}
+body.reino-floresta .mapa-lado h2{color:#9fd67a}

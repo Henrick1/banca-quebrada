@@ -1,5 +1,10 @@
 const DIE={
   d6:{nome:'Dado de 6',curto:'D6',faces:[1,2,3,4,5,6],cor:'#e9e0cb',tinta:'#2b211a',up:'#9a640e',preco:6,txt:.5},
+  sapo:{nome:'Dado Sapo',curto:'SAP',faces:[1,2,3,4,5,6],cor:'#5e9e3a',tinta:'#f6f2c8',up:'#f2c661',preco:9,txt:.5,forma:'d6',reino:1,desc:'Quando para, tem 1/3 de chance de pular e cair de novo. Se pular duas vezes, vale o dobro.'},
+  bolota:{nome:'Bolota',curto:'BOL',faces:[1,2,3,1,2,3],cor:'#9a6a32',tinta:'#fff1d6',up:'#f2c661',preco:3,txt:.5,forma:'d6',escala:.78,reino:1,desc:'Pequena, de 1 a 3. Se passar 3 lutas na bolsa sem ser lançada, germina e vira um D8.'},
+  ninho:{nome:'Ninho',curto:'NIN',faces:[0,0,0,0,0,0],cor:'#8a6a3e',tinta:'#f6ecd2',up:'#f2c661',preco:14,txt:.5,forma:'d6',reino:1,ninho:true,desc:'Ao parar, choca 3 ovos de 1 a 3 que também somam. Se dois ovos derem o mesmo número, nasce um filhote que vale +5.'},
+  ovo:{nome:'Ovo',curto:'OVO',faces:[1,2,3,1,2,3],cor:'#dfe9e4',tinta:'#3a5a6a',up:'#f2c661',preco:0,txt:.5,forma:'d6',escala:.55,oculto:true},
+  cogumelo:{nome:'Cogumelo',curto:'COG',faces:[1,2,3,4,5,6],cor:'#c0392b',tinta:'#fff4e6',up:'#ffe08a',preco:8,txt:.5,forma:'d6',reino:1,desc:'Toda vez que é lançado, uma face aleatória cresce +1 até o fim da partida. Se cair no 1, é colhido e some.'},
   chumbo:{nome:'Dado de Chumbo',curto:'CHB',faces:[3,3,4,4,5,5],cor:'#5d636b',tinta:'#eef1f5',up:'#f2c661',preco:9,txt:.5,forma:'d6',metal:true,desc:'Viciado: quase não varia.'},
   negativo:{nome:'Dado Negativo',curto:'NEG',faces:[-3,-2,-1,1,2,3],cor:'#2a1a1e',tinta:'#f3e9dc',up:'#f2c661',preco:7,txt:.44,forma:'d6',desc:'Pode tirar da sua soma. Salva quando você vai passar do teto.'},
   coringa:{nome:'Dado Coringa',curto:'CRG',faces:[0,0,0,0,0,0],estrela:5,cor:'#5a2478',tinta:'#f6dc8a',up:'#f2c661',preco:12,txt:.5,forma:'d6',desc:'Quase sempre 0. A ★ vale exatamente o que falta para o alvo.'},
@@ -28,12 +33,30 @@ const TEMAS_CASA={
   'Alquimista Louco':{nome:'Vidro verde',base:'#2e7a3a',mix:.6,tinta:'#f2ff9a',rough:.12,vidro:true,brilho:'#3a9a2a'},
   'Agiota de Capuz':{nome:'Prata manchada',base:'#8a8e96',mix:.6,tinta:'#3a0e14',rough:.32,metal:.4,grao:14},
   'Capitão da Guarda':{nome:'Bronze polido',base:'#9a6a2a',mix:.65,tinta:'#1a0e04',rough:.28,metal:.45,borda:'#e0c070'},
-  'A Viúva das Apostas':{nome:'Ônix de luto',base:'#151017',mix:.78,tinta:'#e6a6c4',rough:.16,borda:'#b6bfcc'}
+  'A Viúva das Apostas':{nome:'Ônix de luto',base:'#151017',mix:.78,tinta:'#e6a6c4',rough:.16,borda:'#b6bfcc'},
+  'Lobo Jovem':{nome:'Osso de presa',base:'#cfc6b0',mix:.7,tinta:'#2a2420',rough:.7,grao:20},
+  'Enxame de Abelhas':{nome:'Cera de favo',base:'#e3b23a',mix:.55,tinta:'#2a1a06',rough:.4,grao:10},
+  'Raposa Ladina':{nome:'Pelo ruivo',base:'#c4642a',mix:.6,tinta:'#fff1dc',rough:.7,grao:16},
+  'Lenhador':{nome:'Lasca de carvalho',base:'#7a5230',mix:.66,tinta:'#f3dcb0',rough:.66,grao:16,veios:true},
+  'Caçador':{nome:'Couro de cervo',base:'#8a6a46',mix:.64,tinta:'#1e140a',rough:.72,grao:18,borda:'#c9cdd6'},
+  'Corvo Ladrão':{nome:'Pena negra',base:'#1c1d26',mix:.76,tinta:'#c9d2e6',rough:.3,grao:8},
+  'Javali Bravo':{nome:'Presa lascada',base:'#5a4632',mix:.66,tinta:'#efe6d0',rough:.82,grao:26},
+  'Bruxa do Pântano':{nome:'Musgo do brejo',base:'#3a5a2a',mix:.66,tinta:'#e6ff9a',rough:.6,grao:24},
+  'Lobo Alfa':{nome:'Pedra lunar',base:'#7d8694',mix:.66,tinta:'#101420',rough:.5,metal:.2,grao:14},
+  'O Rei Sapo':{nome:'Jade do lago',base:'#3e8a4a',mix:.62,tinta:'#fff6c0',rough:.2,vidro:true,brilho:'#2a6a2a',borda:'#d4a94f'},
+  'A Mãe Ursa':{nome:'Garra de urso',base:'#4a3424',mix:.7,tinta:'#f0dcb6',rough:.76,grao:24},
+  'O Espantalho':{nome:'Palha trançada',base:'#c9a85a',mix:.64,tinta:'#3a2410',rough:.86,grao:30},
+  'A Árvore Anciã':{nome:'Cerne milenar',base:'#5a3a1e',mix:.72,tinta:'#c8f07a',rough:.6,grao:18,veios:true,brilho:'#2a5a1a',borda:'#7fbf5a'}
 };
 const temaCasa=()=>S.ini&&S.ini.tema?TEMAS_CASA[S.ini.tema]:null;
 function corCasa(die){const T=temaCasa(),c=die.cor||CASA.cor;if(!T)return c;return '#'+new THREE.Color(c).lerp(new THREE.Color(T.base),T.mix).getHexString()}
 const ICONE_TIPO={
   d6:'<rect x="4" y="4" width="16" height="16" rx="3"/>',
+  sapo:'<rect x="4" y="6" width="16" height="14" rx="3"/><circle cx="8.5" cy="6" r="2.6"/><circle cx="15.5" cy="6" r="2.6"/><circle cx="8.5" cy="5.6" r="1" fill="#111" stroke="none"/><circle cx="15.5" cy="5.6" r="1" fill="#111" stroke="none"/><path d="M8 14 Q12 17 16 14" fill="none"/>',
+  bolota:'<path d="M5 9 Q12 2 19 9 Z"/><path d="M6.5 9 H17.5 Q18 18 12 21.5 Q6 18 6.5 9 Z"/><path d="M12 2 V4.5" fill="none"/>',
+  ninho:'<path d="M3 12 Q12 23 21 12 Z"/><ellipse cx="9" cy="11" rx="2.4" ry="3" fill="#eef4f0"/><ellipse cx="13" cy="10.4" rx="2.4" ry="3" fill="#eef4f0"/><ellipse cx="16.4" cy="11.4" rx="2.1" ry="2.7" fill="#eef4f0"/>',
+  ovo:'<ellipse cx="12" cy="12.5" rx="6.5" ry="8.5"/>',
+  cogumelo:'<path d="M3 12 Q3 3.5 12 3.5 Q21 3.5 21 12 Z"/><path d="M9.5 12 H14.5 L15.5 21 H8.5 Z" fill="#f3e6cc"/><circle cx="8" cy="8.5" r="1.4" fill="#fff" stroke="none"/><circle cx="14" cy="6.5" r="1.2" fill="#fff" stroke="none"/><circle cx="16.5" cy="9.6" r="1" fill="#fff" stroke="none"/>',
   chumbo:'<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3.5" fill="none"/>',
   negativo:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12 H16" fill="none" stroke-width="2.4"/>',
   coringa:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 6.8 L13.5 10.4 L17.3 10.6 L14.3 13 L15.4 16.8 L12 14.6 L8.6 16.8 L9.7 13 L6.7 10.6 L10.5 10.4 Z" fill="#f6dc8a" stroke="none"/>',
@@ -92,6 +115,27 @@ const PATHS={
   fichaSorte:'M12 1.5 L15.2 8.6 L22.8 9.1 L17 14 L18.8 21.5 L12 17.4 L5.2 21.5 L7 14 L1.2 9.1 L8.8 8.6 Z',
   sino:'M12 1.5 C13 1.5 13.6 2.1 13.6 3 C17.2 3.9 18.7 7 18.7 11 V16 L21.2 19 H2.8 L5.3 16 V11 C5.3 7 6.8 3.9 10.4 3 C10.4 2.1 11 1.5 12 1.5 Z M9.6 20 H14.4 A2.4 2.4 0 0 1 9.6 20 Z',
   pergaminho:'M5 2.5 H17 A3 3 0 0 1 20 5.5 V19 A3 3 0 0 1 17 22 H7 A3 3 0 0 1 4 19 V16.5 H7 V5.5 A3 3 0 0 0 5 2.5 Z M10 8 H17 V9.5 H10 Z M10 12 H17 V13.5 H10 Z',
+  favo:'M7 2.5 L11 4.8 V9.4 L7 11.7 L3 9.4 V4.8 Z M17 2.5 L21 4.8 V9.4 L17 11.7 L13 9.4 V4.8 Z M12 12.3 L16 14.6 V19.2 L12 21.5 L8 19.2 V14.6 Z',
+  ninhoAve:'M2 13 C4 21 20 21 22 13 Z M8.5 12.6 A3 3.6 0 1 1 8.51 12.6 Z M15 12.6 A3 3.6 0 1 1 15.01 12.6 Z M12 3 L14 5 L12 7 L10 5 Z',
+  trevo4:'M12 11 C9 11 6.5 9 6.5 6.5 C6.5 4 9 3 10 4.5 C10.5 2.5 13.5 2.5 14 4.5 C15 3 17.5 4 17.5 6.5 C17.5 9 15 11 12 11 Z M12 13 C15 13 17.5 15 17.5 17.5 C17.5 20 15 21 14 19.5 C13.5 21.5 10.5 21.5 10 19.5 C9 21 6.5 20 6.5 17.5 C6.5 15 9 13 12 13 Z M11 12 C11 9 9 6.5 6.5 6.5 M13 12 L13.6 12.4 L16 22.5 L14.8 22.8 Z',
+  peleLobo:'M3 2 L8.5 7 H15.5 L21 2 L20 11 C20 16 16.5 21.5 12 22 C7.5 21.5 4 16 4 11 Z M8 12 L10.5 13.5 L8 14.5 Z M16 12 L13.5 13.5 L16 14.5 Z M10.5 18 H13.5 L12 19.5 Z',
+  galho:'M2 20 L13 9 L14.5 10.5 L3.5 21.5 Z M11 11 L9 4 L10.6 3.6 L12.4 9.6 Z M14 8 L20 6 L20.5 7.6 L14.8 9.4 Z M18 6.4 C19 3.5 22 3.5 22.5 5 C21.5 6.8 19.5 7.4 18 6.4 Z M8.8 4.4 C7 2 8.6 0.6 10 1.2 C10.6 2.6 10.2 3.8 8.8 4.4 Z',
+  coroaFlores:'M12 4 A2.4 2.4 0 1 1 12.01 4 Z M5 8 A2.4 2.4 0 1 1 5.01 8 Z M19 8 A2.4 2.4 0 1 1 19.01 8 Z M3.5 15 A2.4 2.4 0 1 1 3.51 15 Z M20.5 15 A2.4 2.4 0 1 1 20.51 15 Z M8 20 A2.4 2.4 0 1 1 8.01 20 Z M16 20 A2.4 2.4 0 1 1 16.01 20 Z',
+  teia:'M12 1 V23 H11.9 V1 Z M1 12 H23 V12.1 H1 Z M3.5 3.5 L20.5 20.5 L20.4 20.6 L3.4 3.6 Z M20.5 3.5 L3.5 20.5 L3.4 20.4 L20.4 3.4 Z M12 4.5 L17.3 6.7 L19.5 12 L17.3 17.3 L12 19.5 L6.7 17.3 L4.5 12 L6.7 6.7 Z M12 6.3 L16 8 L17.7 12 L16 16 L12 17.7 L8 16 L6.3 12 L8 8 Z M12 8.5 L14.5 9.5 L15.5 12 L14.5 14.5 L12 15.5 L9.5 14.5 L8.5 12 L9.5 9.5 Z M12 10 L13.4 10.6 L14 12 L13.4 13.4 L12 14 L10.6 13.4 L10 12 L10.6 10.6 Z',
+  estilingue:'M11 13 H13 V23 H11 Z M11 14 L4 3 L6 2 L12.6 12.4 Z M13 14 L20 3 L18 2 L11.4 12.4 Z M5 3.5 Q12 9 19 3.5 L19.3 4.6 Q12 10.6 4.7 4.6 Z',
+  mel:'M6 7 H18 L19.5 20 C19.5 21.5 18.5 22.5 17 22.5 H7 C5.5 22.5 4.5 21.5 4.5 20 Z M7 3 H17 V6 H7 Z M8 12 Q12 15 16 12 L15.6 14.6 Q12 17 8.4 14.6 Z',
+  semente:'M11 22 V13 C11 9 7 7 3 8 C3 12 6 14 11 13 M13 22 V11 C13 6 17 3 21.5 3.5 C21.5 8.5 18 11.5 13 11 Z M10 22.5 H14 V21 H10 Z',
+  icSapo:'M4 9 A3 3 0 1 1 9 7 H15 A3 3 0 1 1 20 9 C22 11 22 15 19 17 L21 21 H16.5 L15 18.5 H9 L7.5 21 H3 L5 17 C2 15 2 11 4 9 Z M6.5 7.6 A1 1 0 1 0 6.51 7.6 Z M17.5 7.6 A1 1 0 1 0 17.51 7.6 Z',
+  pata:'M7 13 C7 10 9.5 9 12 9 C14.5 9 17 10 17 13 C17 17 15 21 12 21 C9 21 7 17 7 13 Z M4.5 6.5 A2 2.5 0 1 1 4.51 6.5 Z M9 3.5 A2 2.5 0 1 1 9.01 3.5 Z M15 3.5 A2 2.5 0 1 1 15.01 3.5 Z M19.5 6.5 A2 2.5 0 1 1 19.51 6.5 Z',
+  corvoIc:'M2 14 L9 10 C10 6 13 4.5 16 5 L19.5 3.5 L18.5 6.5 C20 8 20 10.5 18 12.5 L22 16 L15 15 L11 20 L11.5 16 L6 17 L8 14.5 Z M16 7 A.9 .9 0 1 0 16.01 7 Z',
+  vento:'M2 8 H14 A3 3 0 1 0 11 5 L9 5 A5 5 0 1 1 14 10 H2 Z M2 13 H18 A3 3 0 1 1 15 16 L17 16 A1 1 0 1 0 18 15 H2 Z M2 18 H10 V20 H2 Z',
+  raiz:'M11 1 H13 V8 C13 10 15 11 17 13 L21 17 L19.6 18.4 L16 15 L15 22 H13 L13.6 14 L12 12.6 L10.4 14 L11 22 H9 L8 15 L4.4 18.4 L3 17 L7 13 C9 11 11 10 11 8 Z',
+  folha:'M3 21 C3 10 9 3 21 3 C21 15 14 21 3 21 Z M5 19.5 L17 7.5 L16.5 7 L4.5 19 Z',
+  mira:'M11 1 H13 V6 H11 Z M11 18 H13 V23 H11 Z M1 11 H6 V13 H1 Z M18 11 H23 V13 H18 Z M12 4 A8 8 0 1 1 11.99 4 Z M12 6.2 A5.8 5.8 0 1 0 12.01 6.2 Z M12 10 A2 2 0 1 1 11.99 10 Z',
+  presa:'M3 21 C3 12 7 5 14 3 C11 7 10 12 11 16 Z M13 21 C13 14 16 8 21 6 C19 10 18.5 14 19.5 18 Z',
+  bolhas:'M8 10 A5 5 0 1 1 7.99 10 Z M8 12 A3 3 0 1 0 8.01 12 Z M17 4 A3.5 3.5 0 1 1 16.99 4 Z M17 5.6 A1.9 1.9 0 1 0 17.01 5.6 Z M18 15 A3 3 0 1 1 17.99 15 Z',
+  tora:'M5 6 H19 A4 6 0 0 1 19 18 H5 A4 6 0 0 1 5 6 Z M5 8.5 A2.5 3.5 0 1 0 5.01 8.5 Z',
+  abelha:'M12 7 C16 7 18 10 18 14 C18 18 15 21 12 21 C9 21 6 18 6 14 C6 10 8 7 12 7 Z M6.4 12 H17.6 V13.8 H6.4 Z M6.8 16 H17.2 V17.8 H6.8 Z M9 7 C6 3 2 4 2.5 7 C3 9.5 6 9.5 8.5 8.5 Z M15 7 C18 3 22 4 21.5 7 C21 9.5 18 9.5 15.5 8.5 Z',
   olhoTreinado:'M1 12 C5 4.5 19 4.5 23 12 C19 19.5 5 19.5 1 12 Z M12 7.6 A4.4 4.4 0 1 0 12.01 7.6 Z M12 10.2 A1.8 1.8 0 1 1 11.99 10.2 Z',
   estrepe:'M12 2 L14.2 9.8 L22 14 L13.8 14.6 L12 22 L10.2 14.6 L2 14 L9.8 9.8 Z',
   rosaVentos:'M12 1 L13.7 10.3 L23 12 L13.7 13.7 L12 23 L10.3 13.7 L1 12 L10.3 10.3 Z M5.5 5.5 L12 10.6 L18.5 5.5 L13.4 12 L18.5 18.5 L12 13.4 L5.5 18.5 L10.6 12 Z',
@@ -131,16 +175,37 @@ const INIMIGOS=[
   {nome:'Alquimista Louco',tier:4,modos:['cego','estouro','aberto'],hp:35,base:4,dado:'d10',bolsa:['comum10','sanguessuga','sombrio','espinho10'],tracos:['regen','crescente']},
   {nome:'Agiota de Capuz',tier:5,modos:['classico','duelo','aberto'],hp:41,base:5,dado:'d10',bolsa:['comum10','corrente','furtiva','espinho10'],tracos:['ganancia','pele']},
   {nome:'Capitão da Guarda',tier:6,modos:['duelo','classico','estouro'],hp:44,base:4,dado:'d20',bolsa:['comum20','muralha','chumbo','corrente','espinhoso'],tracos:['armadura','congela']},
-  {nome:'A Viúva das Apostas',chefe:true,tier:5,modos:['duelo','estouro','classico'],hp:54,base:5,dado:'d10',bolsa:['comum10','viciado','sanguessuga','espinho10','sombrio'],tracos:['divida','ganancia']}
+  {nome:'A Viúva das Apostas',chefe:true,tier:5,modos:['duelo','estouro','classico'],hp:54,base:5,dado:'d10',bolsa:['comum10','viciado','sanguessuga','espinho10','sombrio'],tracos:['divida','ganancia']},
+  {nome:'Lobo Jovem',reino:1,tier:0,modos:['classico','duelo'],hp:45,base:5,dado:'d10',bolsa:['comum10','comum10','espinho10'],tracos:[]},
+  {nome:'Enxame de Abelhas',reino:1,tier:0,modos:['classico','aberto'],hp:40,base:3,dado:'d4',bolsa:['abelha','abelha','abelha','abelha','abelha'],tracos:['enxame']},
+  {nome:'Raposa Ladina',reino:1,tier:1,modos:['cego','classico','aberto'],hp:48,base:5,dado:'d10',bolsa:['comum10','viciado','furtiva'],tracos:['ganancia']},
+  {nome:'Lenhador',reino:1,tier:1,modos:['duelo','classico'],hp:53,base:4,dado:'d10',bolsa:['tora','tora','comum10'],tracos:['pesado']},
+  {nome:'Caçador',reino:1,tier:2,modos:['classico','estouro','duelo'],hp:55,base:5,dado:'d10',bolsa:['comum10','espinho10','muralha'],tracos:['mira']},
+  {nome:'Corvo Ladrão',reino:1,tier:3,modos:['aberto','classico','cego'],hp:53,base:3,dado:'d10',bolsa:['comum10','sombrio','furtiva','comum10'],tracos:['corvo']},
+  {nome:'Javali Bravo',reino:1,tier:4,modos:['duelo','classico','estouro'],hp:65,base:5,dado:'d20',bolsa:['tora','comum20','chumbo'],tracos:['investida','pele']},
+  {nome:'Bruxa do Pântano',reino:1,tier:5,modos:['cego','estouro','classico'],hp:64,base:5,dado:'d10',bolsa:['lodo','lodo','comum10','sanguessuga'],tracos:['pantano','regen']},
+  {nome:'Lobo Alfa',reino:1,tier:6,modos:['duelo','classico','aberto'],hp:74,base:5,dado:'d20',bolsa:['comum20','espinho10','tora','comum10'],tracos:['vinganca','armadura']},
+  {nome:'O Rei Sapo',reino:1,chefe:true,tier:2,modos:['classico','aberto','duelo'],hp:72,base:5,dado:'d6',bolsa:['sapoCasa','sapoCasa','comum10','lodo'],tracos:['sapo']},
+  {nome:'A Mãe Ursa',reino:1,chefe:true,tier:5,modos:['duelo','classico','estouro'],hp:89,base:6,dado:'d20',bolsa:['tora','comum20','muralha','espinho10'],tracos:['patada','pele']},
+  {nome:'O Espantalho',reino:1,chefe:true,tier:5,modos:['cego','classico','aberto'],hp:83,base:3,dado:'d10',bolsa:['palha','palha','comum20','sombrio'],tracos:['corvo','vento']},
+  {nome:'A Árvore Anciã',reino:1,chefe:true,tier:7,modos:['estouro','duelo','cego','classico'],hp:107,base:4,dado:'d20',bolsa:['comum20','seiva','tora','lodo','espinho10'],tracos:['raizes','folhas','regen']}
 ];
-const ATOS=[
-  {nome:'A Adega',num:'I',chefe:8,feltro:'#1e4a46'},
-  {nome:'O Salão',num:'II',chefe:16,feltro:'#4a1a22'},
-  {nome:'O Cofre',num:'III',chefe:7,feltro:'#1a2744'}
+const REINOS=[
+  {nome:'A Taverna',cena:'taverna',atos:[
+    {nome:'A Adega',num:'I',chefe:8,feltro:'#1e4a46'},
+    {nome:'O Salão',num:'II',chefe:16,feltro:'#4a1a22'},
+    {nome:'O Cofre',num:'III',chefe:7,feltro:'#1a2744'}]},
+  {nome:'A Floresta',cena:'floresta',atos:[
+    {nome:'A Clareira',num:'IV',chefe:26,feltro:'#6a4a2a'},
+    {nome:'O Bosque Fundo',num:'V',chefe:[27,28],feltro:'#5c4024'},
+    {nome:'O Coração da Mata',num:'VI',chefe:29,feltro:'#4e361e'}]}
 ];
+let ATOS=REINOS[0].atos;
+function definirReino(i){S.reino=i||0;ATOS=REINOS[S.reino].atos}
+const chefeDoAto=a=>{const c=ATOS[a].chefe;return Array.isArray(c)?pick(c):c};
 const atoDe=r=>Math.min(ATOS.length-1,Math.floor((r||0)/4));
-const tierDe=k=>INIMIGOS[k].tier??k;
-const inimigoDoNivel=t=>{const ops=INIMIGOS.map((b,i)=>i).filter(i=>!INIMIGOS[i].chefe&&tierDe(i)===t);return ops.length?pick(ops):t};
+const tierDe=k=>(INIMIGOS[k].tier??k)+(INIMIGOS[k].reino?7:0);
+const inimigoDoNivel=t=>{const r=(typeof S!=='undefined'&&S.reino)||0,ops=INIMIGOS.map((b,i)=>i).filter(i=>!INIMIGOS[i].chefe&&(INIMIGOS[i].reino||0)===r&&(INIMIGOS[i].tier??i)===t);return ops.length?pick(ops):t};
 const MODOS={
   classico:{nome:'Clássico',seq:'jjcj',desc:'Dois lances seus, a casa lança, e o seu último lance.'},
   duelo:{nome:'Duelo',seq:'jcjcj',base:-3,desc:'Vocês alternam. A casa lança duas vezes, mas a base cai 3.'},
@@ -148,8 +213,8 @@ const MODOS={
   aberto:{nome:'Desafio Aberto',seq:'cjj',desc:'A casa lança primeiro. Você vê o alvo, mas tem só dois lances.'},
   estouro:{nome:'Estouro',seq:'jcjjj',teto:6,parar:true,desc:'Fique entre o alvo e o teto. Passou do teto, estourou. Puxe a alavanca para parar.'}
 };
-function dCasa(tipo,nome,{cor,faces,mods,area}={}){
-  const d={type:tipo,nome,cor,area,especial:!!cor,faces:(faces||DIE[tipo].faces).map(v=>({v,bonus:0,fx:null}))};
+function dCasa(tipo,nome,{cor,faces,mods,area,lodo,sapo}={}){
+  const d={type:tipo,nome,cor,area,lodo,sapo,especial:!!cor,faces:(faces||DIE[tipo].faces).map(v=>({v,bonus:0,fx:null}))};
   if(mods)for(const i in mods)Object.assign(d.faces[i],mods[i]);
   return d;
 }
@@ -166,6 +231,12 @@ const DADOS_CASA={
   vicD20:()=>dCasa('d20','D20 Viciado',{cor:'#4a1420',mods:{0:{v:8},19:{fx:{k:'dobro'}}}}),
   espinho10:()=>dCasa('d10','D10 Espinhoso',{cor:'#3a1416',mods:{9:{fx:{k:'espinho',n:4}}}}),
   sombrio:()=>dCasa('d6','Dado Sombrio',{cor:'#1a1426',area:{tipo:'raio',r:3,alvo:'jogador',delta:-2,cor:'#9b6fe0',nome:'Névoa Sombria'}}),
+  abelha:()=>dCasa('d4','Abelha',{cor:'#d9a62a'}),
+  tora:()=>dCasa('d10','Tora',{cor:'#6b4a2a',faces:[3,4,4,5,5,6,6,7,7,8]}),
+  lodo:()=>dCasa('d6','Dado de Lodo',{cor:'#3f6a2a',lodo:true}),
+  sapoCasa:()=>dCasa('d6','Dado Sapo',{cor:'#3f7a2a',sapo:true,mods:{5:{fx:{k:'veneno',n:2}}}}),
+  palha:()=>dCasa('d10','Dado de Palha',{cor:'#c9a85a',faces:[2,3,3,4,4,5,5,6,7,8]}),
+  seiva:()=>dCasa('d20','D20 de Seiva',{cor:'#5a3a1e',mods:{19:{fx:{k:'cura',n:6}}}}),
   corrente:()=>dCasa('d10','D10 Acorrentado',{cor:'#1d2636',area:{tipo:'proximos',n:2,alvo:'jogador',delta:-3,cor:'#6f9ad9',nome:'Correntes'}})
 };
 const ITENS={
@@ -193,6 +264,13 @@ const ITENS={
   sino:{nome:'Sino de Bronze',desc:'Seus D6 valem +1.',cor:'#c99a3c',preco:10},
   pergaminho:{nome:'Pergaminho',desc:'Seus D10 valem +1.',cor:'#e9dcc0',preco:9},
   grimorio:{nome:'Grimório',desc:'Seus D20 valem +2.',cor:'#b8a6d6',preco:10},
+  favo:{nome:'Favo de Mel',desc:'Cada dado seu que para encostado em outro seu vale +1. Encostado em dois ou mais, vale +3.',cor:'#e3b23a',preco:10,reino:1},
+  ninhoAve:{nome:'Ninho de Pássaro',desc:'A cada 5 dados que você lança, choca um consumível aleatório no bolso.',cor:'#b08a5a',preco:11,reino:1},
+  trevo4:{nome:'Trevo de Quatro Folhas',desc:'Uma vez por luta, o primeiro 1 que você tirar vira 4.',cor:'#5fbf6a',preco:8,reino:1},
+  peleLobo:{nome:'Pele de Lobo',desc:'Com menos de 30% de vida, seus dados valem +2.',cor:'#9aa0a6',preco:10,reino:1},
+  galho:{nome:'Galho Torto',desc:'Seus dados que caem em número ímpar valem +1, e em número par valem −1.',cor:'#a07a4a',preco:7,reino:1},
+  coroaFlores:{nome:'Coroa de Flores',desc:'Vencer uma luta sem levar dano recupera 2 de vida máxima e cura 2.',cor:'#e88ab8',preco:9,reino:1},
+  teia:{nome:'Teia de Aranha',desc:'O primeiro dado da casa em cada rodada vale só a metade.',cor:'#d8dde4',preco:12,reino:1},
   olhoTreinado:{nome:'Olho Treinado',desc:'Acertar o alvo exato dá +4 de dano.',cor:'#e3c27a',preco:11,segredo:'olho'},
   estrepe:{nome:'Estrepe',desc:'Seus D4 valem +2.',cor:'#d07a34',preco:8},
   rosaVentos:{nome:'Rosa dos Ventos',desc:'Seus D8 valem +1.',cor:'#6f9ad6',preco:9},
@@ -217,7 +295,10 @@ const CONSUMIVEIS={
   faca:{nome:'Faca de Arremesso',desc:'Causa 8 de dano direto na casa, sem precisar acertar o alvo.',cor:'#d9dde6',preco:7},
   frasco:{nome:'Frasco de Veneno',desc:'Aplica 5 de veneno na casa.',cor:'#a7c25c',preco:7},
   peso:{nome:'Peso de Chumbo',desc:'O próximo dado seu que parar na mesa nesta rodada vale +6.',cor:'#9aa3ad',preco:6},
-  maoLeve:{nome:'Mão Leve',desc:'Puxa 2 dados da bolsa para a mão sem aumentar o alvo.',cor:'#d9b07a',preco:8}
+  maoLeve:{nome:'Mão Leve',desc:'Puxa 2 dados da bolsa para a mão sem aumentar o alvo.',cor:'#d9b07a',preco:8},
+  estilingue:{nome:'Estilingue',desc:'Escolha qualquer dado parado na mesa, seu ou da casa: ele é atingido e rola de novo.',cor:'#b07a48',preco:6,reino:1},
+  mel:{nome:'Pote de Mel',desc:'Escolha um dado seu na mesa: ele gruda e nenhum evento ou bicho consegue mexer nele nesta rodada.',cor:'#e3a83a',preco:5,reino:1},
+  semente:{nome:'Semente',desc:'Clique na mesa para plantar um broto. Até o fim da luta, seus dados que param perto dele valem +2.',cor:'#7fbf5a',preco:7,reino:1}
 };
 const CONS_MAX=3;
 const consMax=()=>S.teste?6:CONS_MAX;
@@ -257,6 +338,8 @@ function bonusFace(t,f,passos=[]){
   if(q('estrepe')&&tipo==='d4')soma('estrepe',2*q('estrepe'));
   if(q('rosaVentos')&&tipo==='d8')soma('rosaVentos',q('rosaVentos'));
   if(q('calendario')&&tipo==='d12')soma('calendario',(f.v===12?4:1)*q('calendario'));
+  if(q('galho')&&!f.estrela){const n=f.v+f.bonus;if(n>0)soma('galho',(n%2?1:-1)*q('galho'),n%2?`Ímpar +${q('galho')}`:`Par −${q('galho')}`)}
+  if(q('peleLobo')&&typeof S!=='undefined'&&S.hp<S.max*.3)soma('peleLobo',2*q('peleLobo'));
   if(q('moedaPesada')&&tipo==='coin'&&f.v===2)soma('moedaPesada',4*q('moedaPesada'),`Chumbo +${4*q('moedaPesada')}`);
   if(q('dadoOsso')&&tipo==='d6'&&f.v===1)soma('dadoOsso',5*q('dadoOsso'),`Osso +${5*q('dadoOsso')}`);
   if(conjAtivo('viciado')&&[...DIE[tipo].faces].sort((a,b)=>a-b).slice(0,2).includes(f.v))soma('dadoOsso',2,'Viciado +2');
@@ -282,6 +365,17 @@ const TRACOS={
   divida:{nome:'Livro de Dívidas',desc:'Cada erro seu sobe a base dela em 2 até o fim da luta. Cada acerto seu tira 1, até a base original.',cor:'#c97bd9',ic:'subir'},
   furia:{nome:'Fúria do Dono',desc:'Abaixo da metade da vida, perde a paciência: a base sobe 2 e ele passa a lançar 2 dados e ficar com o maior.',cor:'#ff6a4a',ic:'coroa'},
   mascara:{nome:'Sem Máscara',desc:'Levantou de novo. A base sobe 3, ele lança 2 dados e fica com o maior, e recupera 3 de vida por rodada.',cor:'#ff3b5c',ic:'coroa'},
+  enxame:{nome:'Enxame',desc:'Lança 3 dados pequenos de uma vez e soma todos.',cor:'#e3b23a',ic:'abelha'},
+  pesado:{nome:'Toras Pesadas',desc:'Os dados dele são pesados: rolam pouco e caem alto.',cor:'#a07a4a',ic:'tora'},
+  mira:{nome:'Na Mira',desc:'No começo de cada rodada, marca um dado da sua mão. Se ele cair abaixo de 3, você perde 4 de vida.',cor:'#e0574a',ic:'mira'},
+  corvo:{nome:'Corvos',desc:'Uma vez por rodada, depois que a casa lança, um corvo pega um dado seu da mesa. Ele só volta no fim da luta.',cor:'#8a8fa8',ic:'corvoIc'},
+  investida:{nome:'Investida',desc:'Uma vez por luta, ele atravessa a mesa correndo e espalha todos os dados, que rolam de novo.',cor:'#b07a48',ic:'presa'},
+  pantano:{nome:'Lodo do Pântano',desc:'Cada dado verde dela tira 1 de cada dado seu que estiver perto.',cor:'#7fae4a',ic:'bolhas'},
+  sapo:{nome:'Sapo Saltador',desc:'Depois de cada lance da casa, um sapo pula na mesa e todos os dados rolam de novo de onde estão.',cor:'#6fbf4a',ic:'icSapo'},
+  patada:{nome:'Patada',desc:'A cada 2 rodadas, ela bate na mesa depois de lançar: todos os dados pulam e caem de novo.',cor:'#a07a5a',ic:'pata'},
+  vento:{nome:'Vento Forte',desc:'Depois de cada lance da casa, uma rajada empurra todos os dados, que rolam de novo.',cor:'#a9c6d9',ic:'vento'},
+  raizes:{nome:'Raízes',desc:'A cada rodada, uma raiz prende um dado da sua mão, que não pode ser lançado.',cor:'#8a6a3e',ic:'raiz'},
+  folhas:{nome:'Folhas Caindo',desc:'Uma folha cobre o primeiro dado da casa em cada rodada: você só vê o valor no fim.',cor:'#7fbf5a',ic:'folha'},
   cobrador:{nome:'Cobrador',desc:'A partir do terceiro dado que você lança na rodada, cada um custa 2 de vida.',cor:'#e0574a',ic:'espinho'}
 };
 const ITENS_MAX=6;

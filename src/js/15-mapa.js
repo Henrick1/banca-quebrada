@@ -25,7 +25,7 @@ function gerarMapa(){
   }
   for(const id in nos){
     const n=nos[id];n.id=id;
-    if(n.r>0&&ancoras.includes(n.r)){n.tipo='chefe';n.ato=atoDe(n.r);n.inimigo=ATOS[n.ato].chefe;n.final=n.r===RL-1;continue}
+    if(n.r>0&&ancoras.includes(n.r)){n.tipo='chefe';n.ato=atoDe(n.r);n.inimigo=chefeDoAto(n.ato);n.final=n.r===RL-1;continue}
     if(n.r===0)n.tipo='luta';
     else if(n.r===RL-2)n.tipo='descanso';
     else if(n.r===6)n.tipo=R()<.5?'loja':'evento';
@@ -36,7 +36,7 @@ function gerarMapa(){
       if(n.tipo==='elite'){const b=INIMIGOS[n.inimigo];n.extra=pick(EXTRAS_ELITE.filter(x=>!b.tracos.includes(x)))}
     }
   }
-  const ini=k(0,1.5);nos[ini].inimigo=0;
+  const ini=k(0,1.5);nos[ini].inimigo=(typeof S!=='undefined'&&S.reino)?inimigoDoNivel(0):0;
   return{nos,lig,atual:null,feitos:[],inicio:ini};
 }
 const selo=k=>`<span class="selo" style="background:${NOS[k].cor}">${svgPath(NOS[k].ic,'#2a1a0c')}</span>`;
@@ -47,6 +47,7 @@ const mapaPos=n=>({x:92+n.c*152,y:mapaH()-70-n.r*MAPA_GAP});
 const curvaMapa=(p,q)=>`M${p.x} ${p.y} Q${(p.x+q.x)/2+((p.x*7+q.y)%17-8)} ${(p.y+q.y)/2} ${q.x} ${q.y}`;
 function mapaDisponiveis(){const M=S.mapa;return new Set(M.atual?(M.lig[M.atual]||[]):[M.inicio])}
 function telaMapa(){
+  if(S.proxReino){transicaoReino();return}
   hud();
   S.fase='mapa';S.retomar=telaMapa;S.loja=null;S.pausado=false;
   const M=S.mapa,R=MAPA_LINHAS,W=MAPA_W,H=mapaH(),disp=mapaDisponiveis(),feitos=new Set(M.feitos);

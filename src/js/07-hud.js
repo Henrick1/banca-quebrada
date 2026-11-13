@@ -8,7 +8,7 @@ function hud(){
   $('efEscudo').hidden=S.escudo<=0;
   $('efArmadura').hidden=!(S.ini&&S.ini.armadura>0);$('armadura').textContent=S.ini&&S.ini.armadura||0;
   $('efVeneno').hidden=!(S.ini&&S.veneno>0);$('efEscudoIni').hidden=!(S.ini&&S.escudoIni>0);$('escudoIni').textContent=S.escudoIni;
-  $('andar').innerHTML=`<small>Andar</small>${(S.linha||0)+1} de ${MAPA_LINHAS}`;
+  $('andar').innerHTML=`<small>${S.reino?REINOS[S.reino].nome:'Andar'}</small>${(S.linha||0)+1} de ${MAPA_LINHAS}`;
   if(S.ini){
     $('iniNome').textContent=S.ini.nome;
     const pi=Math.max(0,S.ini.hp/S.ini.max*100)+'%';

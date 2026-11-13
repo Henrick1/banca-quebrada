@@ -35,7 +35,8 @@ const SEGREDOS={
   herdeiro:{nome:'Bolsa Herdeiro da Casa'},
   olho:{nome:'Relíquia Olho Treinado'}
 };
-function itemDisponivel(k){return!ITENS[k].segredo||temSegredo(ITENS[k].segredo)}
+function itemDisponivel(k){return(!ITENS[k].segredo||temSegredo(ITENS[k].segredo))&&(!ITENS[k].reino||(S.reino||0)>=ITENS[k].reino)}
+const consDisponiveis=()=>Object.keys(CONSUMIVEIS).filter(k=>!CONSUMIVEIS[k].reino||(S.reino||0)>=CONSUMIVEIS[k].reino);
 function temSegredo(k){return(PERFIL.segredos||[]).includes(k)}
 function revelarSegredo(k){
   if(S.teste||!SEGREDOS[k]||temSegredo(k))return;
@@ -55,7 +56,7 @@ function salvarPartida(){
   const onde=S.fase==='loja'?'loja':S.fase==='evento'&&S.evAtual?'evento':S.fase==='mapa'||S.fase==='evento'?'mapa':'luta';
   const L=S.loja;
   const d={v:1,uid,onde,hp:onde==='luta'?(S.hpLuta??S.hp):S.hp,max:S.max,ouro:onde==='luta'?(S.ouroLuta??S.ouro):S.ouro,cons:onde==='luta'?(S.consLuta??S.cons):S.cons,andar:S.andar,linha:S.linha,itens:S.itens,dados:S.dados,build:S.build,stats:S.stats,
-    mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,proxLuta:S.proxLuta||null,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,
+    mapa:S.mapa,evVistos:S.evVistos,teste:S.teste,desafio:S.desafio||0,proxLuta:S.proxLuta||null,rng:RNG.ativo?RNG.s:null,no:S.no,elitesVencidos:S.elitesVencidos||0,reino:S.reino||0,proxReino:S.proxReino||null,ninhoConta:S.ninhoConta||0,
     loja:onde==='loja'&&L?{...L,sel:null,foco:null,fundirA:null,flash:null}:null,evento:onde==='evento'?S.evAtual:null};
   try{ARMAZ.setItem(SAVE_KEY,JSON.stringify(d))}catch(e){}
 }
@@ -63,10 +64,12 @@ function carregarPartida(){
   let d=null;try{d=JSON.parse(ARMAZ.getItem(SAVE_KEY)||'null')}catch(e){}
   if(!d||!d.mapa){apagarSalvo();return false}
   Object.assign(S,{hp:d.hp,max:d.max,ouro:d.ouro,cons:d.cons||[],andar:d.andar,linha:d.linha,itens:d.itens,dados:d.dados,build:d.build,stats:d.stats,mapa:d.mapa,evVistos:d.evVistos||[],
-    teste:!!d.teste,desafio:d.desafio||0,proxLuta:d.proxLuta||null,no:d.no,elitesVencidos:d.elitesVencidos||0,pausado:false,ini:null,loja:null,evAtual:null});
+    teste:!!d.teste,desafio:d.desafio||0,proxLuta:d.proxLuta||null,no:d.no,elitesVencidos:d.elitesVencidos||0,proxReino:d.proxReino||null,ninhoConta:d.ninhoConta||0,pausado:false,ini:null,loja:null,evAtual:null});
+  definirReino(d.reino||0);trocarCena(S.reino);
   uid=Math.max(uid,d.uid||0)+1;
-  if(S.mapa&&S.mapa.nos)Object.values(S.mapa.nos).forEach(n=>{if(n.tipo==='chefe')n.inimigo=ATOS[n.ato??atoDe(n.r)].chefe});
-  if(S.no&&S.no.tipo==='chefe')S.no.inimigo=ATOS[S.no.ato??atoDe(S.no.r)].chefe;
+  const chefeOk=i=>INIMIGOS[i]&&INIMIGOS[i].chefe&&(INIMIGOS[i].reino||0)===S.reino;
+  if(S.mapa&&S.mapa.nos)Object.values(S.mapa.nos).forEach(n=>{if(n.tipo==='chefe'&&!chefeOk(n.inimigo))n.inimigo=chefeDoAto(n.ato??atoDe(n.r))});
+  if(S.no&&S.no.tipo==='chefe'&&!chefeOk(S.no.inimigo))S.no.inimigo=chefeDoAto(S.no.ato??atoDe(S.no.r));
   RNG.ativo=d.rng!=null;if(RNG.ativo)RNG.s=d.rng;
   if(d.onde==='luta'&&S.no)novaLuta();
   else if(d.onde==='loja'&&d.loja){S.loja=d.loja;S.loja.cons=(S.loja.cons||[]).filter(o=>o.kind!=='bau');S.fase='loja';S.retomar=renderLoja;renderLoja()}
@@ -203,7 +206,7 @@ function telaHistorico(){
   const pior=Object.entries(algoz).sort((a,b)=>b[1]-a[1])[0];
   const linha=h=>`<div class="hist${h.venceu?' venceu':''}">
     <span class="hist-res">${h.venceu?'Vitória':'Derrota'}</span>
-    <div class="hist-corpo"><b>Andar ${h.andar} de ${MAPA_LINHAS} · ${ATOS[Math.min(ATOS.length-1,h.ato||0)].nome}</b>
+    <div class="hist-corpo"><b>Andar ${h.andar} de ${MAPA_LINHAS*REINOS.length} · ${REINOS[h.reino||0].atos[Math.min(2,h.ato||0)].nome}</b>
       <span>Bolsa ${h.bolsa} · ${DESAFIOS[h.desafio]?DESAFIOS[h.desafio].nome:'Normal'}${h.por?` · derrotado por ${h.por}`:''}</span></div>
     <div class="hist-num"><span><b>${h.maior}</b>maior golpe</span><span><b>${h.rodadas}</b>rodadas</span><span><b>${h.reliq}</b>relíquias</span></div>
     <small class="hist-quando">${quando(h.data)} · ${dur(h.dur)}</small>
@@ -247,7 +250,7 @@ function chuvaMoedas(){
 function celebrarVitoria(depois){
   const el=document.createElement('div');el.className='vitoria-cena';
   const ini=S.ini?S.ini.nome:'O Dono da Casa';
-  el.innerHTML=`<div class="vc-luz"></div><p class="vc-sobre">${ini} caiu</p><div class="vc-titulo"><span class="vc-a">Banca</span><span class="vc-b">Quebrada</span><i class="vc-racha"></i></div><p class="vc-sub">Os ${MAPA_LINHAS} andares são seus</p><p class="vc-toque">Clique para continuar</p>`;
+  el.innerHTML=`<div class="vc-luz"></div><p class="vc-sobre">${ini} caiu</p><div class="vc-titulo"><span class="vc-a">Banca</span><span class="vc-b">Quebrada</span><i class="vc-racha"></i></div><p class="vc-sub">${REINOS.map(r=>r.nome).join(' e ')}: tudo seu</p><p class="vc-toque">Clique para continuar</p>`;
   document.body.appendChild(el);
   let feito=false;const seguir=()=>{if(feito)return;feito=true;el.classList.add('sai');setTimeout(()=>{el.remove();depois()},500)};
   SOM.tensao();
@@ -261,13 +264,13 @@ function celebrarVitoria(depois){
 function fim(venceu){
   if(venceu&&!S.celebrou){S.celebrou=true;S.fase='fim';celebrarVitoria(()=>fim(true));return}
   S.fase='fim';S.pausado=false;S.celebrou=false;
-  const andarAlc=venceu?MAPA_LINHAS:(S.linha||0)+1,antes=listaLiberados();S.retomar=null;
+  const andarAlc=venceu?MAPA_LINHAS*REINOS.length:(S.reino||0)*MAPA_LINHAS+(S.linha||0)+1,antes=listaLiberados();S.retomar=null;
   apagarSalvo();RNG.ativo=false;
   let novoDesafio=false;
   if(!S.teste){
     PERFIL.partidas++;if(venceu)PERFIL.vitorias++;PERFIL.melhorAndar=Math.max(PERFIL.melhorAndar,andarAlc);
     const st=S.stats||{};
-    (PERFIL.historico=PERFIL.historico||[]).unshift({data:Date.now(),venceu,andar:andarAlc,ato:atoDe((S.linha||0)),bolsa:S.build||'Apostador',desafio:S.desafio||0,por:venceu?null:(S.ini?S.ini.nome:null),maior:st.maior||0,dano:st.dano||0,rodadas:st.rodadas||0,combos:st.combos||0,dur:st.inicio?Date.now()-st.inicio:0,reliq:new Set(S.itens).size,dados:S.dados.length});
+    (PERFIL.historico=PERFIL.historico||[]).unshift({data:Date.now(),venceu,andar:andarAlc,reino:S.reino||0,ato:atoDe((S.linha||0)),bolsa:S.build||'Apostador',desafio:S.desafio||0,por:venceu?null:(S.ini?S.ini.nome:null),maior:st.maior||0,dano:st.dano||0,rodadas:st.rodadas||0,combos:st.combos||0,dur:st.inicio?Date.now()-st.inicio:0,reliq:new Set(S.itens).size,dados:S.dados.length});
     PERFIL.historico=PERFIL.historico.slice(0,25);
     if(venceu&&(S.desafio||0)>=(PERFIL.desafioMax||0)&&(PERFIL.desafioMax||0)<DESAFIOS.length-1){PERFIL.desafioMax=(PERFIL.desafioMax||0)+1;novoDesafio=true}
     salvarPerfil();
@@ -278,9 +281,9 @@ function fim(venceu){
   const st=S.stats||{},seg=Math.round((Date.now()-(st.inicio||Date.now()))/1000),tempo=`${Math.floor(seg/60)}:${String(seg%60).padStart(2,'0')}`;
   const stat=(v,nome,dest)=>`<div class="stat${dest?' destaque':''}"><b data-alvo="${v}">0</b><small>${nome}</small></div>`;
   abrirTela(`<div class="fim${venceu?'':' derrota'}">
-    <p class="menu-sobre">${venceu?`Os ${MAPA_LINHAS} andares vencidos`:`Andar ${andarAlc} de ${MAPA_LINHAS}`} · Bolsa ${S.build||'Apostador'}${S.desafio?' · '+DESAFIOS[S.desafio].nome:''}${S.teste?' · teste':''}</p>
+    <p class="menu-sobre">${venceu?`Os ${MAPA_LINHAS*REINOS.length} andares vencidos`:`Andar ${andarAlc} de ${MAPA_LINHAS*REINOS.length}`} · Bolsa ${S.build||'Apostador'}${S.desafio?' · '+DESAFIOS[S.desafio].nome:''}${S.teste?' · teste':''}</p>
     <h1>${venceu?'Você quebrou a banca':'A casa sempre ganha'}</h1>
-    <p class="fim-texto">${venceu?`${INIMIGOS[ATOS[ATOS.length-1].chefe].nome} caiu, e a taverna inteira viu. A banca agora é sua.`:`${S.ini?S.ini.nome:'A taverna'} te derrubou. Junte suas fichas e tente outra vez.`}</p>
+    <p class="fim-texto">${venceu?`${S.ini?S.ini.nome:'O último chefe'} caiu. Da taverna até o fundo da mata, a banca agora é sua.`:`${S.ini?S.ini.nome:'A taverna'} te derrubou. Junte suas fichas e tente outra vez.`}</p>
     <div class="fim-stats">
       ${stat(st.dano||0,'Dano causado',true)}${stat(st.maior||0,'Maior acerto')}${stat(st.combos||0,'Combos')}${stat(st.rodadas||0,'Rodadas')}${stat(S.ouro,'Ouro no bolso')}
       <div class="stat"><b>${tempo}</b><small>Tempo</small></div>

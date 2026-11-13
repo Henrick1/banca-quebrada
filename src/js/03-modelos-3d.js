@@ -144,6 +144,8 @@ function criarMalha(die,casa){
   geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
   const m=new THREE.Mesh(geo,mats);m.castShadow=true;m.receiveShadow=true;
   if(die.encanto&&!casa)bordasDado(die,m);
+  if(die.type==='sapo'||die.sapo)enfeitarSapo(m,casa?corCasa(die):DIE.sapo.cor);
+  if(die.type==='cogumelo')enfeitarCogumelo(m);
   return m;
 }
 
@@ -237,4 +239,15 @@ function criarAderecos(latao){
   const mx=TW/2+2.1,mz=-TD/2-.9;
   for(let i=0;i<6;i++){const m=new THREE.Mesh(geo,moeda);m.position.set(mx+rnd(.03),y+.035+i*.072,mz+rnd(.03));m.rotation.y=Math.random()*6;m.castShadow=m.receiveShadow=true;scene.add(m)}
   for(let i=0;i<3;i++){const m=new THREE.Mesh(geo,moeda);m.position.set(mx-.9+rnd(.6),y+.035,mz+1+rnd(.8));m.rotation.set(rnd(.08),Math.random()*6,rnd(.08));m.castShadow=m.receiveShadow=true;scene.add(m)}
+}
+
+function enfeitarSapo(m,cor){
+  const pele=new THREE.MeshStandardMaterial({color:lin(cor),roughness:.5}),olho=new THREE.MeshStandardMaterial({color:lin('#f6f0c0'),roughness:.3}),pupila=new THREE.MeshStandardMaterial({color:lin('#111'),roughness:.2});
+  const h=.56,add=(geo,mat,x,y,z,s)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);if(s)o.scale.set(...s);o.castShadow=true;m.add(o);return o};
+  [-1,1].forEach(s=>{add(new THREE.SphereGeometry(.15,12,8),olho,s*.25,h-.02,h*.55);add(new THREE.SphereGeometry(.07,8,6),pupila,s*.26,h+.06,h*.62);
+    add(new THREE.SphereGeometry(.13,10,8),pele,s*(h+.02),-h+.12,h*.45,[1.1,.7,1.4]);add(new THREE.SphereGeometry(.13,10,8),pele,s*(h+.02),-h+.12,-h*.45,[1.1,.7,1.4])});
+}
+function enfeitarCogumelo(m){
+  const b=new THREE.MeshStandardMaterial({color:lin('#fff6ea'),roughness:.6}),h=.565,g=new THREE.SphereGeometry(.07,8,6);
+  [[0,h,.3],[.3,h,-.25],[-.28,h,-.1],[h,.25,.2],[h,-.2,-.3],[-h,.1,.3],[-h,-.3,-.2],[.2,.3,h],[-.3,-.25,h],[.25,-.1,-h],[-.2,.3,-h],[.1,-h,.2],[-.3,-h,-.2]].forEach(([x,y,z])=>{const o=new THREE.Mesh(g,b);o.position.set(x,y,z);o.scale.set(Math.abs(x)===h?.4:1,Math.abs(y)===h?.4:1,Math.abs(z)===h?.4:1);m.add(o)});
 }

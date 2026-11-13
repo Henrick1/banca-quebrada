@@ -1,10 +1,10 @@
 const MOEDA=`<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="${PATHS.ouro}"/></svg>`;
 const BOLSA_MAX=8,BOLSA_MIN=4;
 const RARIDADE={comum:{nome:'Comum',cor:'#cdbf9f'},incomum:{nome:'Incomum',cor:'#6fb7e0'},raro:{nome:'Raro',cor:'#f0bf4a'}};
-const RAR_CONS={tonico:'comum',peso:'comum',faca:'incomum',frasco:'incomum',martelo:'incomum',maoLeve:'raro'};
+const RAR_CONS={tonico:'comum',peso:'comum',faca:'incomum',frasco:'incomum',martelo:'incomum',maoLeve:'raro',estilingue:'comum',mel:'comum',semente:'incomum'};
 function raridadeOferta(o){
   const k=o.kind;
-  if(k==='dado')return(o.tipo==='d20'||o.tipo==='coringa')?'raro':['d10','d12','chumbo','negativo'].includes(o.tipo)?'incomum':'comum';
+  if(k==='dado')return['d20','coringa','ninho'].includes(o.tipo)?'raro':['d10','d12','chumbo','negativo','sapo'].includes(o.tipo)?'incomum':'comum';
   if(k==='bonus')return o.n>=3?'raro':o.n===2?'incomum':'comum';
   if(k==='fx')return o.fx.k==='dobro'?'raro':(o.fx.k==='fogo'||o.fx.k==='veneno')?'incomum':'comum';
   if(k==='polir')return'raro';
@@ -39,13 +39,13 @@ function poolGravacoes(){
 }
 function ofertaCons(k,gratis){return{kind:'cons',chave:k,preco:CONSUMIVEIS[k].preco,id:uid++,gratis}}
 function ofertaDado(t,gratis){return{kind:'dado',tipo:t,preco:DIE[t].preco,id:uid++,gratis}}
-function tiposDado(n,bonus=0){return sortear(['coin','d4','d6','d8','d10','d12','d20','chumbo','negativo','coringa'].map(t=>({kind:'dado',tipo:t})),n,bonus).map(o=>o.tipo)}
+function tiposDado(n,bonus=0){return sortear(['coin','d4','d6','d8','d10','d12','d20','chumbo','negativo','coringa',...((S.reino||0)>=1?['sapo','bolota','ninho','cogumelo','sapo','cogumelo']:[])].map(t=>({kind:'dado',tipo:t})),n,bonus).map(o=>o.tipo)}
 function gerarEstoque(){
   const L=S.loja;
   L.dados=tiposDado(3).map(t=>ofertaDado(t,false));
   L.grav=sortear(poolGravacoes(),4).map(o=>({...o,id:uid++}));
   L.reliq=ofertasReliquia(2,false);
-  L.cons=sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),2).map(o=>ofertaCons(o.chave,false));
+  L.cons=sortear(consDisponiveis().map(k=>({kind:'cons',chave:k})),2).map(o=>ofertaCons(o.chave,false));
   L.enc=sortear(encantosAtivos().map(k=>({kind:'encanto',chave:k,preco:ENCANTOS[k].preco})),3).map(o=>({...o,id:uid++,gratis:false}));
   L.serv.forEach(o=>{if(o.kind!=='renovar')o.feito=false});
 }
@@ -63,7 +63,7 @@ function abrirRecompensa(ganho,elite){
   const extra=elite?ofertasReliquia(1,true,bonus)[0]:null;
   esp.splice(Math.floor(R()*3),0,extra||ofertaDado(tiposDado(1,bonus)[0],true));
   esp.push({kind:'ouroEsp',n:3,id:uid++,gratis:true});
-  if(R()<(elite?.6:.25))esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(sortear(Object.keys(CONSUMIVEIS).map(k=>({kind:'cons',chave:k})),1,bonus)[0].chave,true));
+  if(R()<(elite?.6:.25))esp.splice(esp.findIndex(o=>o.kind!=='item'&&o.kind!=='dado'),1,ofertaCons(sortear(consDisponiveis().map(k=>({kind:'cons',chave:k})),1,bonus)[0].chave,true));
   montarLoja({titulo:S.ini&&S.ini.chefe?`Fim do ${['primeiro','segundo','terceiro'][atoDe(S.linha)]} ato`:elite?'Elite derrotado':'Vitória',sub:`${S.ini.nome} pagou ${ganho} de ouro. Leve um item do espólio${elite?': uma relíquia está garantida':''}.`,ganho,espolio:esp,podeTrocar:true});
 }
 function abrirMercado(){montarLoja({titulo:'Mercador',sub:'Gaste seu ouro no balcão. Encantamentos e gravações você aplica no dado que escolher.',mercador:true})}

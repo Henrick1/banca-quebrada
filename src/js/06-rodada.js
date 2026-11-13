@@ -6,7 +6,10 @@ function aoParar(t){
   if(t.dono==='casa'){
     let v=valorFace(f);
     if(temItem('baralho')&&v>0){const q=Math.min(v,qtdItem('baralho'));v-=q;dispararItem('baralho',`Casa −${q}`)}
-    t.valor=v;S.rolagens.push(v);S.rolagem=valorCasa();
+    if(temItem('teia')&&!S.teiaUsada&&v>0){S.teiaUsada=true;const q=Math.ceil(v/2);v-=q;dispararItem('teia',`Teia: −${q}`)}
+    const coberto=temTraco('folhas')&&!S.folhaUsada&&!t.folhaV;
+    if(coberto){S.folhaUsada=true;t.folhaV=v;t.valor=null;cobrirComFolha(t)}else t.valor=v;
+    S.rolagens.push(v);S.rolagem=valorCasa();
     let extra='';
     anel(t.mesh.position,f.fx?FX[f.fx.k].cor:0xa596bd);SOM.tok(v);SOM.tensao();
     voar(`${v}`,tela,$('alvo'),{cls:'pontos',aoChegar:()=>pulsar($('alvo'))});
@@ -20,7 +23,8 @@ function aoParar(t){
       if(k==='dobro'){t.punch=1.4;SOM.dobro()}
       extra=`<small style="color:${cor}">${FX[k].nome}${n?' '+n:''}</small>`;
     }
-    el.innerHTML=`${def.rot?`<small>${def.rot[t.face]}</small>`:''}${v}${extra}`;
+    el.innerHTML=t.folha?`?<small style="color:#9fd67a">Folha</small>`:`${def.rot?`<small>${def.rot[t.face]}</small>`:''}${v}${extra}`;
+    depoisDadoCasa(t);
   }else{
     const minF=Math.min(...DIE[t.die.type].faces);
     if(t.die.encanto==='cinabrio'&&f.v===minF&&!t.die.eco&&!(S.fenixUsados||[]).includes(t.die.id)&&S.fase==='jogador'){renascerFenix(t);return}
@@ -31,6 +35,7 @@ function aoParar(t){
     if(temItem('ferradura')&&f.v+f.bonus===1){const n=3*(f.fx&&f.fx.k==='dobro'?2:1);passos.push({k:'ferradura',v:n-val,txt:'1 vale 3'});val=n}
     if(temItem('dadoOuro')&&f.v===Math.max(...DIE[t.die.type].faces)){const q=qtdItem('dadoOuro');S.ouro+=q;passos.push({k:'dadoOuro',v:0,txt:`+${q} ouro`,ouro:true})}
     val+=bonusFace(t,f,passos);
+    val=eventosDadoJogador(t,f,passos,val);
     if(S.pesoProx){const q=S.pesoProx;val+=q;S.pesoProx=0;passos.push({v:q,txt:`Chumbo +${q}`,cor:CONSUMIVEIS.peso.cor,peso:true});renderCons()}
     const sombra=t.die.encanto==='obsidiana'&&casaRestantes()>0;
     if(sombra){t.oculto=val+4;t.valor=null}else{S.soma+=val;t.valor=val}
@@ -52,6 +57,8 @@ function aoParar(t){
     }
     el.innerHTML=sombra?`?<small style="color:#b7a6e0">Sombra</small>`:`${def.rot?`<small>${def.rot[t.face]}</small>`:''}${passos.some(p=>p.v)?base0:val}${extra}${t.sangrou===2?'<small style="color:#ff7088">Sangria +2</small>':''}`;
     if(t.die.encanto==='granada'&&f.v===minF&&!t.sangrou&&S.fase!=='resolvendo')sangrar(t);
+    if(t.ninho)ovoParou(t);
+    depoisDadoJogador(t,f);
   }
   t.rotulo=el;$('rotulos').appendChild(el);
   const areaDef=t.dono==='casa'?t.die.area:(t.die.encanto&&ENCANTOS[t.die.encanto].area);
@@ -104,6 +111,7 @@ function sangrar(t){
   },500);
 }
 function revelarSombras(){
+  descobrirFolhas();
   let algum=false;
   for(const t of lancados){
     if(!t.oculto)continue;algum=true;
@@ -163,6 +171,7 @@ function novaPartida(teste){
   const r=RESERVAS[PERFIL.reserva];if(r&&liberado(r.req))S.dados.push(novoDado(r.tipo));
   S.dados.forEach(d=>{if(d.encanto)registrarVisto('encantos',d.encanto)});
   if(teste)kitDeTeste();
+  S.proxReino=null;S.ninhoConta=0;definirReino(0);trocarCena(0);
   S.mapa=gerarMapa();S.linha=0;S.no=null;S.evVistos=[];S.ini=null;
   irPara(S.mapa.inicio);
 }
@@ -181,7 +190,7 @@ function novaLuta(){
     if(P.extra){const mais=EXTRAS_ELITE.filter(x=>!S.ini.tracos.includes(x));if(mais.length){S.ini.tracos.push(pick(mais));setTimeout(()=>banner('Você foi seguido: a casa ganhou um traço','mau'),900)}}}
   if((elite||n.tipo==='chefe')&&temItem('velaNegra')){S.ini.max=S.ini.hp=Math.round(S.ini.max*Math.pow(.85,qtdItem('velaNegra')));setTimeout(()=>dispararItem('velaNegra','−15% de vida'),900)}
   if(S.ini.tracos.includes('armadura')){S.ini.armaduraMax=6+S.andar;S.ini.armadura=S.ini.armaduraMax}
-  S.hpLuta=S.hp;S.ouroLuta=S.ouro;S.perdidasLuta=0;S.consLuta=[...(S.cons||[])];
+  S.hpLuta=S.hp;S.ouroLuta=S.ouro;S.perdidasLuta=0;S.trevoUsado=false;S.roubados=[];S.lancadosLuta=new Set();limparBrotos();S.consLuta=[...(S.cons||[])];
   S.veneno=0;S.rodada=0;
   if(temItem('algibeira')){const q=3*qtdItem('algibeira');S.ouro+=q;setTimeout(()=>{dispararItem('algibeira',`+${q} ouro`);SOM.ouro(3);hud()},900)}
   montarFichas();
@@ -205,15 +214,17 @@ function novaRodada(){
   if(S.rodada>1&&temTraco('crescente')){S.ini.base++;setTimeout(()=>dispararTraco('crescente','Base +1'),300)}
   if(temItem('escudo')){S.escudo=2*qtdItem('escudo');setTimeout(()=>dispararItem('escudo',`+${S.escudo} escudo`),300)}
   if(S.escudoProx){const q=S.escudoProx;S.escudo+=q;S.escudoProx=0;setTimeout(()=>dispararItem('cachimbo',`+${q} escudo`),400)}
-  const jTot=S.modo.seq.split('').filter(c=>c==='j').length,alvoMao=Math.max(maoInicial(),S.modo.parar?3:jTot)+(temTraco('congela')?1:0);
+  const jTot=S.modo.seq.split('').filter(c=>c==='j').length,alvoMao=Math.max(maoInicial(),S.modo.parar?3:jTot)+(temTraco('congela')||temTraco('raizes')?1:0);
   let k=0;while(S.mao.length<alvoMao&&S.bolsa.length)puxar(250+k++*(S.teste?60:170));
-  S.congelado=null;
+  S.congelado=null;S.raiz=false;S.marcado=null;S.teiaUsada=false;S.folhaUsada=false;S.evPasso=-1;S.evFeitos=[];
   if(temTraco('congela')&&S.mao.length>1){S.congelado=pick(S.mao);setTimeout(()=>{dispararTraco('congela','Um dado preso');marcar()},1300)}
+  if(temTraco('raizes')&&S.mao.length>1){S.congelado=pick(S.mao);S.raiz=true;setTimeout(()=>{dispararTraco('raizes','Uma raiz prendeu um dado');marcar()},1300)}
+  if(temTraco('mira')&&S.mao.length){S.marcado=pick(S.mao.filter(id=>id!==S.congelado))||null;if(S.marcado)setTimeout(()=>{dispararTraco('mira','Um dado na mira');SOM.tensao()},1500)}
   if(S.ini.armaduraMax&&S.rodada>1&&(S.rodada-1)%3===0&&S.ini.armadura<S.ini.armaduraMax){S.ini.armadura=S.ini.armaduraMax;setTimeout(()=>{dispararTraco('armadura','Armadura recarregada');SOM.escudo();hud()},700)}
   hud();bandeja();placar();
   const rodadaAtual=S.rodada,lutaAtual=S.ini;setTimeout(()=>{if(S.rodada===rodadaAtual&&S.ini===lutaAtual&&S.fase==='intro')proxPasso()},reduzir?200:1100);
 }
-const TITULOS_CHEFE={'O Taberneiro Caolho':'Guardião da Adega','A Viúva das Apostas':'Dona do Salão','O Dono da Casa':'Senhor do Cofre'};
+const TITULOS_CHEFE={'O Taberneiro Caolho':'Guardião da Adega','A Viúva das Apostas':'Dona do Salão','O Dono da Casa':'Senhor do Cofre','O Rei Sapo':'Senhor do Lago','A Mãe Ursa':'Guardiã da Toca','O Espantalho':'Vigia do Milharal','A Árvore Anciã':'Coração da Mata'};
 function apresentarChefe(n,depois){
   const ato=ATOS[atoDe(n.r??S.linha)],I=S.ini,proprios=I.tracos.filter(k=>['barril','divida','furia','mascara'].includes(k)),outros=I.tracos.filter(k=>!proprios.includes(k));
   hud();
@@ -255,7 +266,7 @@ function ecoMercurio(t){
 }
 function podeLancar(){return S.fase==='jogador'&&S.restam>0}
 function dividirPassos(seq){const ps=[];for(const ch of seq){const u=ps[ps.length-1];if(ch==='j'&&u&&u.t==='j')u.n++;else ps.push({t:ch,n:1})}return ps}
-function sortearCasa(){const l=[...S.ini.bolsa],n=Math.min(temTraco('duplo')?2:1,l.length),out=[];for(let i=0;i<n;i++)out.push(l.splice(Math.floor(R()*l.length),1)[0]);return out}
+function sortearCasa(){const l=[...S.ini.bolsa],n=Math.min(temTraco('enxame')?3:temTraco('duplo')?2:1,l.length),out=[];for(let i=0;i<n;i++)out.push(l.splice(Math.floor(R()*l.length),1)[0]);return out}
 const casaRestantes=()=>S.cTotal-S.cFeitos;
 const pressaoLuta=()=>Math.max(0,Math.floor(((S.rodada||1)-1)/3));
 const calorTaverna=()=>Math.min(3,Math.floor(((S.stats&&S.stats.rodadas)||0)/12));
@@ -287,7 +298,7 @@ function proxPasso(){
   setTimeout(()=>{
     MESA.bolsaPulso=1;SOM.puxar();
     avisar(`A casa tirou ${lista.map(d=>d.nome).join(' e ')}`);
-    lista.forEach((d,i)=>setTimeout(()=>{lancar(d,'casa',-TD/2+1.6+i*1.2+passoC*.8);lancados[lancados.length-1].passoC=passoC},220+i*260));
+    lista.forEach((d,i)=>setTimeout(()=>{lancar(d,'casa',-TD/2+1.6+i*1.2+passoC*.8,temTraco('pesado')?.55:1);lancados[lancados.length-1].passoC=passoC},220+i*260));
   },450);
 }
 function anunciarModo(subiuP,subiuC){
@@ -311,7 +322,7 @@ function lancarDaBandeja(it,forca){
   if(!podeLancar()){avisar(S.fase==='casa'?'Espere a casa lançar':'Agora não dá para lançar');if(CONT)CONT.lampadas.forEach(l=>l.i=Math.max(l.i,.9));SOM.tensao();return false}
   const zr=Math.max(-1,Math.min(1,camera.aspect<.85?it.body.position.x/(B.w/2):it.body.position.z/(B.d/2)));
   tirarBandeja(it);S.mao=S.mao.filter(i=>i!==it.die.id);S.naMesa.push(it.die.id);
-  S.restam--;S.lancados++;S.voando++;S.etapa++;
+  S.restam--;S.lancados++;S.voando++;S.etapa++;aoLancarJogador(it.die);
   if(temTraco('cobrador')&&S.lancados>2){S.hp-=2;S.stats&&0;dispararTraco('cobrador','−2 vida');SOM.dano();pulsar($('barraJ'),'flash');numeroFlutuante('-2',$('barraJ'),'#e0574a');hud()}
   lancar(it.die,'jogador',zr*TD*.3,forca);bandeja();placar();return true;
 }
@@ -328,8 +339,9 @@ function avancar(){
     if(S.restam>0&&!estourou()){placar();return}
     proxPasso();
   }else if(S.fase==='casa'){
+    if(eventoCasa())return;
     const grupo=lancados.filter(t=>t.dono==='casa'&&t.passoC===S.cPasso);
-    if(grupo.length>1){
+    if(grupo.length>1&&!temTraco('enxame')){
       let marcou=false;
       grupo.sort((a,b)=>b.valor-a.valor).forEach(t=>{if(marcou&&t.rotulo){t.rotulo.style.opacity=.35;t.rotulo.style.textDecoration='line-through'}marcou=true});
       dispararTraco('duplo',`Fica com ${grupo[0].valor}`);
@@ -411,6 +423,7 @@ function segundaForma(){
 }
 function venceuLuta(){
   if(segundaForma())return;
+  fimDeLutaMata(true);
   if(S.ini&&S.ini.segunda)revelarSegredo('herdeiro');
   let ganho=Math.round((6+S.andar*2)*(S.ini.elite||S.ini.chefe?1.5:1)*((S.desafio||0)>=3?.75:1));const elite=S.ini.elite;
   if(elite){S.elitesVencidos=(S.elitesVencidos||0)+1;if(S.elitesVencidos>=3)conquistar('elites')}
@@ -425,5 +438,7 @@ function venceuLuta(){
   const chefe=S.no&&S.no.tipo==='chefe',final=chefe&&(S.no.final||S.no.r>=MAPA_LINHAS-1);
   if(conjAtivo('andarilho')&&(elite||chefe)&&S.hp<S.max){const q=cm(10);setTimeout(()=>{S.hp=Math.min(S.max,S.hp+q);dispararItem('cantil',`Andarilho +${q}`);SOM.cura();hud()},500)}
   if(chefe&&!final){conquistar('ato'+(S.no.ato+1));const q=cm(15);if(S.hp<S.max)setTimeout(()=>{S.hp=Math.min(S.max,S.hp+q);SOM.cura();pulsar($('barraJ'),'flash');numeroFlutuante(`+${q}`,$('barraJ'),'#86c48f');banner(`Fim do ${['primeiro','segundo','terceiro'][S.no.ato]} ato`,'bom');hud()},600)}
-  setTimeout(()=>{if(final){fim(true);return}abrirRecompensa(ganho,elite||chefe)},reduzir?300:1400+n*80);
+  const ultimo=final&&(S.reino||0)>=REINOS.length-1;
+  if(final&&!ultimo){S.proxReino=(S.reino||0)+1;const q=cm(15);setTimeout(()=>{S.hp=Math.min(S.max,S.hp+q);SOM.cura();banner(`${REINOS[S.reino].nome} é sua`,'bom');hud()},600)}
+  setTimeout(()=>{if(ultimo){fim(true);return}abrirRecompensa(ganho,elite||chefe)},reduzir?300:1400+n*80);
 }

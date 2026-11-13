@@ -39,7 +39,7 @@ function checarCombos(){
   aplicarAreas();
 }
 const areas=[],auras3D=[];
-const valorCasa=()=>{const c=lancados.filter(t=>t.dono==='casa'&&t.pronto&&t.valor!=null);if(!c.length)return null;const g={};c.forEach(t=>{const k=t.passoC??0;g[k]=Math.max(g[k]??-Infinity,t.valor)});return Object.values(g).reduce((a,b)=>a+b,0)};
+const valorCasa=()=>{const c=lancados.filter(t=>t.dono==='casa'&&t.pronto&&t.valor!=null);if(!c.length)return null;const g={};c.forEach(t=>{const k=t.passoC??0;g[k]=temTraco('enxame')?(g[k]??0)+t.valor:Math.max(g[k]??-Infinity,t.valor)});return Object.values(g).reduce((a,b)=>a+b,0)};
 function descArea(a){
   const q=Math.abs(a.delta),v=a.delta>0?`ganham +${q}`:`perdem ${q}`;
   if(a.tipo==='raio')return`${a.alvo==='casa'?'Dados da casa':'Seus dados'} no círculo em volta dele ${v}.`;

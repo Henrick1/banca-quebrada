@@ -60,6 +60,17 @@ const MUS=(()=>{
     const s=ctx.createBufferSource();s.buffer=ruido;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=grave?300:2200;bp.Q.value=grave?1:.8;
     const g=ctx.createGain();env(g,t,.002,vol*(grave?.5:.35),grave?.12:.05);s.connect(bp);bp.connect(g);g.connect(musG);s.start(t,Math.random());s.stop(t+.2);
   }
+  function passaro(t){
+    const o=ctx.createOscillator(),g=ctx.createGain(),f=2200+Math.random()*1600,n=2+Math.floor(Math.random()*3);o.type='sine';
+    for(let i=0;i<n;i++){const ti=t+i*.11;o.frequency.setValueAtTime(f,ti);o.frequency.exponentialRampToValueAtTime(f*(1.25+Math.random()*.3),ti+.05);o.frequency.exponentialRampToValueAtTime(f*.9,ti+.09)}
+    g.gain.setValueAtTime(.0001,t);for(let i=0;i<n;i++){const ti=t+i*.11;g.gain.exponentialRampToValueAtTime(.035,ti+.015);g.gain.exponentialRampToValueAtTime(.0001,ti+.09)}
+    o.connect(g);g.connect(ambG);g.connect(eco);o.start(t);o.stop(t+n*.11+.1);
+  }
+  function grilo(t){
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.value=4300+Math.random()*300;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=4400;bp.Q.value=8;
+    g.gain.setValueAtTime(.0001,t);for(let i=0;i<4;i++){const ti=t+i*.045;g.gain.exponentialRampToValueAtTime(.02,ti+.008);g.gain.exponentialRampToValueAtTime(.0001,ti+.035)}
+    o.connect(bp);bp.connect(g);g.connect(ambG);o.start(t);o.stop(t+.25);
+  }
   function ajustarDrone(h,t){
     const quer=h.chefe?.05:h.t>.55?.025:0;
     if(quer&&!drone){
@@ -73,7 +84,8 @@ const MUS=(()=>{
     if(!ctx||ctx.state!=='running')return;
     const h=humor(),bpm=h.luta?80+h.t*34+(h.chefe?8:0):70,colcheia=60/bpm/2;
     ajustarDrone(h,ctx.currentTime);
-    if(murm)murm.gain.setTargetAtTime(h.luta?.14:.2,ctx.currentTime,2);
+    const flo=typeof S!=='undefined'&&(S.reino||0)===1,noite=flo&&atoDe(S.linha||0)>=2;
+    if(murm)murm.gain.setTargetAtTime(flo?.03:h.luta?.14:.2,ctx.currentTime,2);
     while(prox<ctx.currentTime+.3){
       const t=prox,c=passo%8,comp=Math.floor(passo/8),tensa=h.t>.45||h.chefe;
       const prog=tensa?PROG.tensa:PROG.calma,ac=prog[comp%prog.length],esc=tensa?ESCALA.tensa:ESCALA.calma;
@@ -84,7 +96,9 @@ const MUS=(()=>{
       if((c===2||c===6)&&Math.random()<(h.luta?.32:.22))flauta(esc[Math.floor(Math.random()*esc.length)],t,.045,colcheia*(Math.random()<.5?3:2));
       if(h.luta&&h.t>.4){if(c===0||c===4)tambor(t,.22+h.t*.18,true);if(c===2||c===6)tambor(t,.1+h.t*.1,false)}
       if(h.chefe&&(c===3||c===7))tambor(t,.08,false);
-      if(Math.random()<.12)estalo(t+Math.random()*colcheia);
+      if(!flo&&Math.random()<.12)estalo(t+Math.random()*colcheia);
+      if(flo&&!noite&&Math.random()<.035)passaro(t+Math.random()*colcheia);
+      if(flo&&atoDe(S.linha||0)>=1&&Math.random()<(noite?.25:.08))grilo(t+Math.random()*colcheia);
       prox+=colcheia;passo++;
     }
   }

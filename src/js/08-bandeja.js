@@ -106,8 +106,8 @@ function ajustarBandeja(){
   for(const it of B.itens){const p=it.body.position;p.x=Math.max(-B.w/2+.6,Math.min(B.w/2-.6,p.x));p.z=Math.max(-B.d/2+.6,Math.min(B.d/2-.6,p.z))}
 }
 function addBandeja(die){
-  const mesh=criarMalha(die,false);B.scene.add(mesh);
-  const body=new CANNON.Body({mass:1,material:B.md});body.addShape(shapeFisica(die.type));
+  const esc=DIE[die.type].escala||1,mesh=criarMalha(die,false);mesh.scale.setScalar(esc);B.scene.add(mesh);
+  const body=new CANNON.Body({mass:esc*esc*esc,material:B.md});body.addShape(shapeFisica(die.type,esc));
   if(B.saco){
     const sp=B.saco.g.position;
     const ex=B.alto?rnd(B.w/2-.8):B.w/2-.6,ez=B.alto?B.d/2-.6:rnd(B.d/2-.8);
@@ -138,7 +138,7 @@ function passoBandeja(dt){
     it.lift=(it.lift||0)+(((B.hover===it&&!B.arr)?.22:0)-(it.lift||0))*Math.min(1,dt*14);
     it.mesh.position.y+=it.lift;
   }
-  animarSaco(dt);sincronizarCorrente();
+  animarSaco(dt);sincronizarCorrente();sincronizarMira();
   const b=B.saco,ativo=B.arr||B.hover||(b&&(b.pulso>0||b.aperto>0||b.alvo||b.hover))||B.itens.some(it=>it.body.velocity.lengthSquared()>.0004||it.body.angularVelocity.lengthSquared()>.0004||Math.abs(it.lift||0)>.002);
   B.ocioso=ativo?0:(B.ocioso||0)+1;
   if(B.ocioso%6===0)B.r.render(B.scene,B.cam);
@@ -178,7 +178,7 @@ function secaoDado(geo,esc,n,u,v,folga){
 }
 function criarCorrente(it){
   if(B.corrente){B.scene.remove(B.corrente.g);B.corrente.g.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
-  const g=new THREE.Group(),ferro=new THREE.MeshStandardMaterial({color:lin('#9aa1a9'),metalness:.65,roughness:.38}),elo=new THREE.TorusGeometry(.04,.012,6,14);elo.scale(1.5,1,1);
+  const raiz=!!S.raiz,g=new THREE.Group(),ferro=raiz?new THREE.MeshStandardMaterial({color:lin('#6a4a2a'),roughness:.9}):new THREE.MeshStandardMaterial({color:lin('#9aa1a9'),metalness:.65,roughness:.38}),elo=raiz?new THREE.CylinderGeometry(.045,.05,.13,7):new THREE.TorusGeometry(.04,.012,6,14);if(raiz)elo.rotateZ(Math.PI/2);else elo.scale(1.5,1,1);
   const geo=it.mesh.geometry,esc=it.mesh.scale.x;
   const U=new THREE.Vector3(0,1,0).applyQuaternion(it.mesh.quaternion.clone().invert()).normalize();
   const aux=Math.abs(U.x)<.9?new THREE.Vector3(1,0,0):new THREE.Vector3(0,0,1),V=new THREE.Vector3().crossVectors(U,aux).normalize(),W=new THREE.Vector3().crossVectors(U,V).normalize();
@@ -193,13 +193,23 @@ function criarCorrente(it){
   const fen=new THREE.Mesh(new THREE.PlaneGeometry(.016,.045),fur.material);fen.position.set(0,-.05,.042);cad.add(fen);
   const suporte=new THREE.Group();suporte.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),U);
   cad.position.set(0,topo+.13,0);suporte.add(cad);g.add(suporte);
-  B.scene.add(g);B.corrente={g,cad,id:it.die.id,t:0};SOM.batida(7,true);
+  if(raiz){cad.visible=false;const fm=new THREE.MeshStandardMaterial({color:lin('#6fbf4a'),roughness:.7,side:THREE.DoubleSide});[0,1,2].forEach(i=>{const f=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),fm);f.scale.set(1,.25,.55);f.position.set(rnd(.15),topo+.05,rnd(.15));f.rotation.y=i*2;suporte.add(f)})}
+  B.scene.add(g);B.corrente={g,cad,id:it.die.id,t:0,raiz};SOM.batida(7,!raiz);
+}
+function sincronizarMira(){
+  if(!B.scene)return;
+  const it=S.marcado?B.itens.find(x=>x.die.id===S.marcado):null;
+  if(!it){if(B.mira)B.mira.visible=false;return}
+  if(!B.mira){const g=new THREE.Group(),m=new THREE.MeshBasicMaterial({color:'#ff4a3a',transparent:true,opacity:.9,depthWrite:false});
+    const r=new THREE.Mesh(new THREE.TorusGeometry(.62,.035,8,40),m);r.rotation.x=Math.PI/2;g.add(r);[0,1,2,3].forEach(i=>{const b=new THREE.Mesh(new THREE.BoxGeometry(.06,.05,.3),m);const a=i*Math.PI/2;b.position.set(Math.cos(a)*.72,0,Math.sin(a)*.72);b.rotation.y=-a;g.add(b)});
+    B.scene.add(g);B.mira=g}
+  const t=performance.now()/1000;B.mira.visible=true;B.mira.position.set(it.mesh.position.x,.05,it.mesh.position.z);B.mira.rotation.y=t*.8;B.mira.scale.setScalar(1+Math.sin(t*5)*.06);
 }
 function sincronizarCorrente(){
   if(!B.scene)return;
   const it=S.congelado?B.itens.find(x=>x.die.id===S.congelado):null;
   if(!it){if(B.corrente){B.corrente.g.visible=false;B.corrente.id=null}return}
-  if(!B.corrente||B.corrente.id!==it.die.id)criarCorrente(it);
+  if(!B.corrente||B.corrente.id!==it.die.id||B.corrente.raiz!==!!S.raiz)criarCorrente(it);
   const c=B.corrente;c.t=Math.min(1,c.t+.06);c.g.visible=true;
   c.g.position.copy(it.mesh.position);c.g.quaternion.copy(it.mesh.quaternion);c.g.scale.setScalar(1+(1-c.t)*.5);
   c.cad.rotation.set(-1.15,0,Math.sin(performance.now()/300)*.1);c.cad.scale.setScalar(1.45*(.5+.5*c.t));
@@ -312,7 +322,7 @@ function desenharEtiqueta(){
   x.fillStyle=ilho;x.beginPath();x.arc(52,H/2,17,0,Math.PI*2);x.fill();
   x.fillStyle=pode?'#3a2414':'#6b5640';x.font=`${titulo.length>6?66:100}px "Pirata One",serif`;x.textAlign='left';x.textBaseline='alphabetic';
   x.fillText(titulo,84,112);
-  const cor={d6:['#efe6cf','#2b211a'],coin:['#d9a83e','#6b4a10'],d10:['#2e6a6c','#f1e8d4'],d20:['#8a2d37','#f3e9d5'],d4:['#d07a34','#fff3e0'],d8:['#2f5590','#eef2fa'],d12:['#5b3a7e','#f3e9fb'],chumbo:['#5d636b','#eef1f5'],negativo:['#2a1a1e','#ff6b6b'],coringa:['#5a2478','#f6dc8a']};
+  const cor={d6:['#efe6cf','#2b211a'],coin:['#d9a83e','#6b4a10'],d10:['#2e6a6c','#f1e8d4'],d20:['#8a2d37','#f3e9d5'],d4:['#d07a34','#fff3e0'],d8:['#2f5590','#eef2fa'],d12:['#5b3a7e','#f3e9fb'],chumbo:['#5d636b','#eef1f5'],negativo:['#2a1a1e','#ff6b6b'],coringa:['#5a2478','#f6dc8a'],sapo:['#5e9e3a','#f6f2c8'],bolota:['#9a6a32','#fff1d6'],ninho:['#8a6a3e','#f6ecd2'],cogumelo:['#c0392b','#fff4e6'],ovo:['#dfe9e4','#3a5a6a']};
   const q=Math.min(tipos.length,5),R=19;
   tipos.slice(0,q).forEach((t,i)=>{
     const cx=104+i*46,cy=166,[f,l]=cor[t];x.fillStyle=f;x.strokeStyle='rgba(40,24,10,.75)';x.lineWidth=3;
