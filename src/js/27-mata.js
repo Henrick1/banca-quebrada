@@ -1,6 +1,6 @@
 const MATA={anims:[],bichos:[]};
 function animarMata(dur,fn){return new Promise(res=>MATA.anims.push({t:0,dur,fn,res}))}
-function passoMata(dt){
+function passoMata(dt){window._pm=(window._pm||0)+1;
   for(let i=MATA.anims.length-1;i>=0;i--){const a=MATA.anims[i];a.t=Math.min(1,a.t+Math.max(dt,.004)/a.dur);if(a.t>.995)a.t=1;try{a.fn(a.t)}catch(e){a.t=1}if(a.t>=1){MATA.anims.splice(i,1);a.res()}}
 }
 function livre(o){scene.remove(o);o.traverse(m=>{if(m.geometry)m.geometry.dispose();if(m.material&&!m.material.compartilhado)m.material.dispose()})}

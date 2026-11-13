@@ -97,7 +97,7 @@ function lancar(die,dono,z,forca=1,op={}){
   mesh.position.copy(body.position);mesh.quaternion.copy(body.quaternion);
   lancados.push({die,dono,mesh,body,sd:forma(die.type),parado:0,tempo:0,cutucadas:0,pronto:false,rotulo:null,punch:0,geracao:op.geracao||0,escala:e});
 }
-function passo(dt){
+function passo(dt){window._ps=(window._ps||0)+1;
   if(!world)return;
   if(S.pausado)return;
   if(hitStop>0){hitStop-=dt;return}
