@@ -32,6 +32,8 @@ Sugestão para começar: a vela, o 777, a vitória sem lançar dados, as 8 moeda
 - **Dados Chumbo, Negativo e Coringa.**
 - **Relíquias Estrepe (D4), Rosa dos Ventos (D8) e Calendário (D12).**
 
+- **Mapa da Floresta** (segundo mapa, 12 andares): inimigos, chefes com eventos, dados Sapo, Bolota, Ninho e Cogumelo, relíquias e consumíveis da mata.
+
 ## Dados especiais
 - **Chumbo:** faces 3, 3, 4, 4, 5, 5.
 - **Vidro:** faces de 2 a 12. Quebra se cair na face mais baixa.

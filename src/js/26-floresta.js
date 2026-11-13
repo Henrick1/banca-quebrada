@@ -71,14 +71,15 @@ function montarFloresta(){
   [[TW/2+2.2,TD/2+1.6,.6],[-TW/2-2,-1.5,.5],[TW/2+3.4,-3,.8],[-3,TD/2+2.6,.45],[4,-TD/2-2.4,.55]].forEach(([x,z,s])=>{const m=add(new THREE.DodecahedronGeometry(s,0),pedra,x,-.51+s*.45,z);m.scale.y=.6;m.rotation.set(Math.random(),Math.random()*6,Math.random())});
   const capV=new THREE.MeshStandardMaterial({color:lin('#c0392b'),roughness:.45}),capM=new THREE.MeshStandardMaterial({color:lin('#a87a4a'),roughness:.6}),haste=new THREE.MeshStandardMaterial({color:lin('#f1e6cc'),roughness:.7}),bolinha=new THREE.MeshStandardMaterial({color:lin('#fff8ec'),roughness:.6});
   const cogumelo=(x,z,s,vermelho)=>{add(new THREE.CylinderGeometry(.08*s,.11*s,.5*s,10),haste,x,-.51+.25*s,z);const cap=add(new THREE.SphereGeometry(.3*s,16,10,0,Math.PI*2,0,Math.PI/2),vermelho?capV:capM,x,-.51+.48*s,z);cap.scale.y=.75;
-    if(vermelho)for(let i=0;i<4;i++){const a=Math.random()*6,r=.16*s;add(new THREE.SphereGeometry(.035*s,6,4),bolinha,x+Math.cos(a)*r,-.51+.48*s+.13*s,z+Math.sin(a)*r,false)}};
+    if(vermelho)for(let i=0;i<4;i++){const a=Math.random()*6,r=.16*s;add(new THREE.SphereGeometry(.035*s,6,4),bolinha,x+Math.cos(a)*r,-.51+.48*s+.13*s,z+Math.sin(a)*r,false).receiveShadow=false}};
   [[-TW/2-1.9,TD/2+.4],[-TW/2-2.3,TD/2-.2],[TW/2+2,-TD/2-1.4],[TW/2+2.4,-TD/2-1],[2.5,TD/2+2.2],[-TW/2-3.4,TD/2+2.5],[TW/2+4.3,TD/2+1.5]].forEach(([x,z],i)=>cogumelo(x,z,1+Math.random()*.8,i%3!==1));
   const tora=add(new THREE.CylinderGeometry(.55,.6,7,16),casca,-2,-.1,-TD/2-3.6);tora.rotation.z=Math.PI/2;tora.rotation.y=.25;
   const corF=['#c9762a','#a8441e','#d4a23a','#7a8a2a'];
   const folhaGeo=new THREE.PlaneGeometry(.45,.45),folhaMats=corF.map(c=>new THREE.MeshStandardMaterial({map:texturaFolha(c),transparent:true,alphaTest:.4,side:THREE.DoubleSide,roughness:.8}));
-  for(let i=0;i<70;i++){let x,z;do{x=rnd(TW/2+9);z=rnd(TD/2+7)}while(Math.abs(x)<TW/2+1.3&&Math.abs(z)<TD/2+1.3);const m=new THREE.Mesh(folhaGeo,folhaMats[i%4]);m.position.set(x,-.5,z);m.rotation.set(-Math.PI/2,0,Math.random()*6);m.receiveShadow=true;G.add(m)}
+  const dummy=new THREE.Object3D();folhaMats.forEach(mat=>{const im=new THREE.InstancedMesh(folhaGeo,mat,18);for(let i=0;i<18;i++){let x,z;do{x=rnd(TW/2+9);z=rnd(TD/2+7)}while(Math.abs(x)<TW/2+1.3&&Math.abs(z)<TD/2+1.3);dummy.position.set(x,-.5,z);dummy.rotation.set(-Math.PI/2,0,Math.random()*6);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix)}im.receiveShadow=true;G.add(im)});
   const sombraMat=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false,side:THREE.DoubleSide});
-  for(let i=0;i<150;i++){const m=new THREE.Mesh(new THREE.CircleGeometry(.4+Math.random()*1.1,7),sombraMat);m.position.set(rnd(TW/2+5),11+Math.random()*2,rnd(TD/2+4));m.rotation.x=-Math.PI/2;m.castShadow=true;G.add(m)}
+  const cp=[];for(let i=0;i<110;i++){const r=.18+Math.random()*.5,cx=rnd(TW/2+5),cy=11+Math.random()*2,cz=rnd(TD/2+4);for(let k=0;k<12;k++){const a0=k/12*Math.PI*2,a1=(k+1)/12*Math.PI*2;cp.push(cx,cy,cz,cx+Math.cos(a1)*r,cy,cz+Math.sin(a1)*r,cx+Math.cos(a0)*r,cy,cz+Math.sin(a0)*r)}}
+  const cg=new THREE.BufferGeometry();cg.setAttribute('position',new THREE.Float32BufferAttribute(cp,3));cg.computeVertexNormals();const copa=new THREE.Mesh(cg,sombraMat);copa.castShadow=true;G.add(copa);
   const n=60,pos=new Float32Array(n*3),base=[];
   for(let i=0;i<n;i++){const p=[rnd(TW/2+8),.4+Math.random()*4,rnd(TD/2+6)];base.push(p);pos.set(p,i*3)}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
@@ -92,7 +93,7 @@ const CENAS={
   floresta:[
     {fundo:'#0e1a12',foco:'#ffe1b0',fi:2.1,hemiC:'#d8ecc8',hemiG:'#2a361a',hi:.55,jan:'#ffe9c0',ji:.75,vag:.15},
     {fundo:'#1a1012',foco:'#ffab6a',fi:1.85,hemiC:'#c8a8d0',hemiG:'#2a1e14',hi:.42,jan:'#ff9a5a',ji:.6,vag:.55},
-    {fundo:'#060a12',foco:'#a8c0ff',fi:1.25,hemiC:'#7088b8',hemiG:'#101a12',hi:.34,jan:'#8aa4e0',ji:.35,vag:1}
+    {fundo:'#060a12',foco:'#b4c8ff',fi:1.6,hemiC:'#7c94c4',hemiG:'#121c14',hi:.42,jan:'#8aa4e0',ji:.4,vag:1}
   ]
 };
 function luzDoAto(ato){
