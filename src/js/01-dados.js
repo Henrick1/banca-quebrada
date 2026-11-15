@@ -1,6 +1,6 @@
 const DIE={
   d6:{nome:'Dado de 6',curto:'D6',faces:[1,2,3,4,5,6],cor:'#e9e0cb',tinta:'#2b211a',up:'#9a640e',preco:6,txt:.5},
-  sapo:{nome:'Dado Sapo',curto:'SAP',faces:[1,2,3,4,5,6],cor:'#5e9e3a',tinta:'#f6f2c8',up:'#f2c661',preco:9,txt:.5,forma:'d6',reino:1,desc:'Quando para, tem 1/3 de chance de pular e cair de novo. Se pular duas vezes, vale o dobro.'},
+  sapo:{nome:'Dado Sapo',curto:'SAP',faces:[1,2,3,4,5,6],cor:'#5aa83a',tinta:'#fffbe0',up:'#f2c661',preco:9,txt:.5,forma:'d6',reino:1,desc:'Quando para, tem 1/3 de chance de pular e cair de novo. Se pular duas vezes, vale o dobro.'},
   bolota:{nome:'Bolota',curto:'BOL',faces:[1,2,3,1,2,3],cor:'#9a6a32',tinta:'#fff1d6',up:'#f2c661',preco:3,txt:.5,forma:'d6',escala:.78,reino:1,desc:'Pequena, de 1 a 3. Se passar 3 lutas na bolsa sem ser lançada, germina e vira um D8.'},
   ninho:{nome:'Ninho',curto:'NIN',faces:[0,0,0,0,0,0],cor:'#8a6a3e',tinta:'#f6ecd2',up:'#f2c661',preco:14,txt:.5,forma:'d6',reino:1,ninho:true,desc:'Ao parar, choca 3 ovos de 1 a 3 que também somam. Se dois ovos derem o mesmo número, nasce um filhote que vale +5.'},
   ovo:{nome:'Ovo',curto:'OVO',faces:[1,2,3,1,2,3],cor:'#dfe9e4',tinta:'#3a5a6a',up:'#f2c661',preco:0,txt:.5,forma:'d6',escala:.55,oculto:true},

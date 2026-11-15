@@ -70,6 +70,7 @@ function texturaFace(die,k,casa){
   const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
   const def=DIE[die.type],T=casa?temaCasa():null;const corpo=casa?corCasa(die):def.cor,tinta=casa?(T?T.tinta:CASA.tinta):def.tinta;
   x.fillStyle=corpo;x.fillRect(0,0,128,128);
+  if(die.type==='sapo'||die.sapo)pintarPeleSapo(x,k);
   if(T&&T.grao){const img=x.getImageData(0,0,128,128),d=img.data;for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*T.grao;d[i]+=n;d[i+1]+=n;d[i+2]+=n}x.putImageData(img,0,0)}
   if(T&&T.veios){x.strokeStyle='rgba(0,0,0,.22)';x.lineWidth=2;for(let y=8;y<128;y+=11){x.beginPath();x.moveTo(0,y);x.bezierCurveTo(40,y+rnd(5),88,y+rnd(5),128,y+rnd(3));x.stroke()}}
   if(def.metal){x.strokeStyle=tinta;x.globalAlpha=.5;x.lineWidth=4;x.beginPath();x.arc(64,64,52,0,Math.PI*2);x.stroke();x.globalAlpha=1}
@@ -241,11 +242,31 @@ function criarAderecos(latao){
   for(let i=0;i<3;i++){const m=new THREE.Mesh(geo,moeda);m.position.set(mx-.9+rnd(.6),y+.035,mz+1+rnd(.8));m.rotation.set(rnd(.08),Math.random()*6,rnd(.08));m.castShadow=m.receiveShadow=true;scene.add(m)}
 }
 
+function pintarPeleSapo(x,k){
+  const g=x.createRadialGradient(64,64,10,64,64,90);g.addColorStop(0,'rgba(255,255,190,.18)');g.addColorStop(1,'rgba(0,40,0,.25)');x.fillStyle=g;x.fillRect(0,0,128,128);
+  let s=k*97+13;const r=()=>(s=(s*9301+49297)%233280)/233280;
+  for(let i=0;i<5;i++){const px=r()*128,py=r()*128,rr=5+r()*8;x.fillStyle='rgba(30,70,18,.4)';x.beginPath();x.ellipse(px,py,rr,rr*(.6+r()*.5),r()*3,0,Math.PI*2);x.fill();x.fillStyle='rgba(20,50,10,.35)';x.beginPath();x.ellipse(px,py,rr*.55,rr*.4,r()*3,0,Math.PI*2);x.fill()}
+  for(let i=0;i<40;i++){x.fillStyle='rgba(220,255,160,.18)';x.beginPath();x.arc(r()*128,r()*128,1+r()*1.5,0,Math.PI*2);x.fill()}
+}
 function enfeitarSapo(m,cor){
-  const pele=new THREE.MeshStandardMaterial({color:lin(cor),roughness:.5}),olho=new THREE.MeshStandardMaterial({color:lin('#f6f0c0'),roughness:.3}),pupila=new THREE.MeshStandardMaterial({color:lin('#111'),roughness:.2});
-  const h=.56,add=(geo,mat,x,y,z,s)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);if(s)o.scale.set(...s);o.castShadow=true;m.add(o);return o};
-  [-1,1].forEach(s=>{add(new THREE.SphereGeometry(.15,12,8),olho,s*.25,h-.02,h*.55);add(new THREE.SphereGeometry(.07,8,6),pupila,s*.26,h+.06,h*.62);
-    add(new THREE.SphereGeometry(.13,10,8),pele,s*(h+.02),-h+.12,h*.45,[1.1,.7,1.4]);add(new THREE.SphereGeometry(.13,10,8),pele,s*(h+.02),-h+.12,-h*.45,[1.1,.7,1.4])});
+  const pele=new THREE.MeshStandardMaterial({color:lin(cor),roughness:.42}),escuro=new THREE.MeshStandardMaterial({color:lin('#2e5a1c'),roughness:.5}),
+    olho=new THREE.MeshStandardMaterial({color:lin('#f2d64a'),roughness:.18,emissive:lin('#3a2a00'),emissiveIntensity:.2}),pupila=new THREE.MeshStandardMaterial({color:lin('#0c0c0c'),roughness:.1}),
+    boca=new THREE.MeshStandardMaterial({color:lin('#1e3a12'),roughness:.6}),barriga=new THREE.MeshStandardMaterial({color:lin('#d8e8a0'),roughness:.6});
+  const h=.56,add=(geo,mat,x,y,z,s,r)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);if(s)o.scale.set(...s);if(r)o.rotation.set(...r);o.castShadow=true;m.add(o);return o};
+  [-1,1].forEach(s=>{
+    add(new THREE.SphereGeometry(.21,18,12),pele,s*.27,h+.05,.24);
+    add(new THREE.SphereGeometry(.16,18,12),olho,s*.29,h+.12,.32);
+    add(new THREE.SphereGeometry(.075,12,8),pupila,s*.31,h+.15,.46,[1.5,.55,.5]);
+    add(new THREE.SphereGeometry(.17,16,8,0,Math.PI*2,0,Math.PI*.3),pele,s*.29,h+.13,.31,null,[-.7,0,0]);
+    add(new THREE.SphereGeometry(.025,8,6),escuro,s*.09,h+.005,.46);
+    add(new THREE.SphereGeometry(.24,14,10),pele,s*(h+.04),-h+.2,-.12,[.55,.6,1.2]);
+    add(new THREE.SphereGeometry(.17,12,8),pele,s*(h+.06),-h+.08,.22,[.55,.45,1.1]);
+    [-1,0,1].forEach(q=>add(new THREE.SphereGeometry(.06,8,6),escuro,s*(h+.08)+s*q*.0,-h+.03,.42+q*.0+.02,[1,.5,1]).position.set(s*(h+.06)+q*.07*s,-h+.03,.44));
+    add(new THREE.CylinderGeometry(.06,.07,.22,8),pele,s*.34,-h+.08,h+.03,null,[.3,0,0]);
+    [-1,0,1].forEach(q=>add(new THREE.SphereGeometry(.045,8,6),escuro,s*.34+q*.06,-h+.0,h+.12,[1,.45,1]));
+  });
+  add(new THREE.TorusGeometry(.44,.028,8,28,Math.PI*.62),boca,0,.52,h+.01,null,[0,0,Math.PI*1.19]);
+  add(new THREE.BoxGeometry(.9,.02,.9),barriga,0,-h-.005,0).castShadow=false;
 }
 function enfeitarCogumelo(m){
   const b=new THREE.MeshStandardMaterial({color:lin('#fff6ea'),roughness:.6}),h=.565,g=new THREE.SphereGeometry(.07,8,6);
