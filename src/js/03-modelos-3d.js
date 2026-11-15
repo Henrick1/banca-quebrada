@@ -253,20 +253,29 @@ function enfeitarSapo(m,cor){
     olho=new THREE.MeshStandardMaterial({color:lin('#f2d64a'),roughness:.18,emissive:lin('#3a2a00'),emissiveIntensity:.2}),pupila=new THREE.MeshStandardMaterial({color:lin('#0c0c0c'),roughness:.1}),
     boca=new THREE.MeshStandardMaterial({color:lin('#1e3a12'),roughness:.6}),barriga=new THREE.MeshStandardMaterial({color:lin('#d8e8a0'),roughness:.6});
   const h=.56,add=(geo,mat,x,y,z,s,r)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);if(s)o.scale.set(...s);if(r)o.rotation.set(...r);o.castShadow=true;m.add(o);return o};
+  const V=(x,y,z)=>new THREE.Vector3(x,y,z),Y=V(0,1,0),esf=new THREE.SphereGeometry(.5,14,10);
+  const osso=(a,b,r,mat)=>{const d=b.clone().sub(a),o=new THREE.Mesh(esf,mat);o.position.copy(a).add(b).multiplyScalar(.5);o.scale.set(r*2,d.length()+r*.9,r*2);o.quaternion.setFromUnitVectors(Y,d.normalize());o.castShadow=true;m.add(o);return o};
+  const junta=(p,r,mat)=>{const o=new THREE.Mesh(esf,mat);o.position.copy(p);o.scale.setScalar(r*2);o.castShadow=true;m.add(o)};
+  const membrana=new THREE.MeshStandardMaterial({color:lin('#3f7a26'),roughness:.6,side:THREE.DoubleSide,transparent:true,opacity:.85});
+  const dedos=(base,dirs,len,r)=>{const pontas=dirs.map(d=>{const t=base.clone().add(d.clone().normalize().multiplyScalar(len));osso(base,t,r,pele);junta(t,r*1.7,barriga);return t});
+    if(pontas.length>2){const pos=[];for(let i=0;i<pontas.length-1;i++)pos.push(base.x,base.y,base.z,pontas[i].x,pontas[i].y,pontas[i].z,pontas[i+1].x,pontas[i+1].y,pontas[i+1].z);const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();const w=new THREE.Mesh(g,membrana);w.position.y=-.004;m.add(w)}};
+  const perna=s=>{
+    const quadril=V(s*(h-.04),-h+.3,-.22),joelho=V(s*(h+.24),-h+.24,.06),tornozelo=V(s*(h+.1),-h+.12,-.32),pe=V(s*(h+.2),-h+.04,.1);
+    osso(quadril,joelho,.14,pele);junta(joelho,.11,pele);osso(joelho,tornozelo,.09,pele);junta(tornozelo,.07,pele);osso(tornozelo,pe,.055,pele);
+    dedos(pe,[V(s*.5,0,1),V(s*.15,0,1),V(-s*.2,0,1),V(-s*.55,0,.8)],.2,.022);
+    const ombro=V(s*.34,-h+.26,h-.08),cotovelo=V(s*.5,-h+.14,h+.08),pulso=V(s*.44,-h+.04,h+.2);
+    osso(ombro,cotovelo,.075,pele);junta(cotovelo,.065,pele);osso(cotovelo,pulso,.06,pele);
+    dedos(pulso,[V(s*.8,0,.6),V(s*.3,0,1),V(-s*.15,0,1),V(-s*.6,0,.7)],.12,.017);
+  };
   [-1,1].forEach(s=>{
     add(new THREE.SphereGeometry(.21,18,12),pele,s*.27,h+.05,.24);
     add(new THREE.SphereGeometry(.16,18,12),olho,s*.29,h+.12,.32);
     add(new THREE.SphereGeometry(.075,12,8),pupila,s*.31,h+.15,.46,[1.5,.55,.5]);
     add(new THREE.SphereGeometry(.17,16,8,0,Math.PI*2,0,Math.PI*.3),pele,s*.29,h+.13,.31,null,[-.7,0,0]);
     add(new THREE.SphereGeometry(.025,8,6),escuro,s*.09,h+.005,.46);
-    add(new THREE.SphereGeometry(.24,14,10),pele,s*(h+.04),-h+.2,-.12,[.55,.6,1.2]);
-    add(new THREE.SphereGeometry(.17,12,8),pele,s*(h+.06),-h+.08,.22,[.55,.45,1.1]);
-    [-1,0,1].forEach(q=>add(new THREE.SphereGeometry(.06,8,6),escuro,s*(h+.08)+s*q*.0,-h+.03,.42+q*.0+.02,[1,.5,1]).position.set(s*(h+.06)+q*.07*s,-h+.03,.44));
-    add(new THREE.CylinderGeometry(.06,.07,.22,8),pele,s*.34,-h+.08,h+.03,null,[.3,0,0]);
-    [-1,0,1].forEach(q=>add(new THREE.SphereGeometry(.045,8,6),escuro,s*.34+q*.06,-h+.0,h+.12,[1,.45,1]));
+    perna(s);
   });
   add(new THREE.TorusGeometry(.44,.028,8,28,Math.PI*.62),boca,0,.52,h+.01,null,[0,0,Math.PI*1.19]);
-  add(new THREE.BoxGeometry(.9,.02,.9),barriga,0,-h-.005,0).castShadow=false;
 }
 function enfeitarCogumelo(m){
   const b=new THREE.MeshStandardMaterial({color:lin('#fff6ea'),roughness:.6}),h=.565,g=new THREE.SphereGeometry(.07,8,6);
